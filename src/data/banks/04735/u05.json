@@ -1,0 +1,202 @@
+{
+  "course": "04735",
+  "unit": 5,
+  "title": "数据库编程",
+  "lessons": [
+    {
+      "id": "04735-u05-l1",
+      "title": "存储过程的创建与调用",
+      "questions": [
+        {
+          "id": "04735-u05-l1-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "创建存储过程",
+          "stem": "在 MySQL 命令行中创建存储过程前，通常先执行 DELIMITER $$。这样做的目的是？",
+          "options": ["声明存储过程的名称为 $$", "开始一个新的事务", "定义存储过程的参数", "把语句结束符临时改为 $$，避免过程体中的分号提前结束语句"],
+          "answer": 3,
+          "explain": "过程体中每条语句都以分号结尾，如果不改结束符，客户端遇到第一个分号就会把不完整的 CREATE PROCEDURE 语句发给服务器；建完后再用 DELIMITER ; 改回来。"
+        },
+        {
+          "id": "04735-u05-l1-q2",
+          "type": "single",
+          "level": "识记",
+          "kp": "存储过程的参数",
+          "stem": "存储过程的参数中，用于把过程内的结果带回给调用者、而不接收调用者传入值的是？",
+          "options": ["IN 参数", "OUT 参数", "INOUT 参数", "RETURNS 子句"],
+          "answer": 1,
+          "explain": "IN 是输入参数（默认），OUT 是输出参数，INOUT 既可输入也可输出；RETURNS 是存储函数用来声明返回值类型的。"
+        },
+        {
+          "id": "04735-u05-l1-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "存储过程体：局部变量",
+          "stem": "关于存储过程中的局部变量，下列说法正确的是？",
+          "options": ["局部变量名前必须加 @ 符号", "局部变量在整个会话期间都有效", "用 DECLARE 声明，且只能在 BEGIN…END 块的开头声明", "局部变量可以在存储过程之外直接使用"],
+          "answer": 2,
+          "explain": "局部变量用 DECLARE 声明，只在声明它的 BEGIN…END 块内有效，名字前不加 @；带 @ 的是用户变量，在整个会话期间都有效。"
+        },
+        {
+          "id": "04735-u05-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "存储过程体：流程控制语句",
+          "stem": "执行下面的语句后，SELECT @r 显示的结果是？",
+          "code": "DELIMITER $$\nCREATE PROCEDURE sp_level(IN score INT, OUT lv VARCHAR(10))\nBEGIN\n  IF score >= 85 THEN SET lv = '优秀';\n  ELSEIF score >= 60 THEN SET lv = '合格';\n  ELSE SET lv = '不合格';\n  END IF;\nEND $$\nDELIMITER ;\nCALL sp_level(75, @r);\nSELECT @r;",
+          "options": ["合格", "优秀", "不合格", "NULL"],
+          "answer": 0,
+          "explain": "75 不满足 score >= 85，但满足 score >= 60，于是执行 ELSEIF 分支，lv 被赋值为“合格”，并通过 OUT 参数传给用户变量 @r。"
+        },
+        {
+          "id": "04735-u05-l1-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "调用存储过程",
+          "stem": "在 MySQL 中，调用存储过程使用____语句。",
+          "answers": ["CALL"],
+          "explain": "格式为 CALL sp_name([参数, …])；OUT 参数的位置通常传入一个用户变量（如 @r）来接收结果。"
+        },
+        {
+          "id": "04735-u05-l1-q6",
+          "type": "fill",
+          "level": "领会",
+          "kp": "存储过程体：局部变量",
+          "stem": "在存储过程中，可以用 SELECT … ____ 语句把查询得到的一行结果赋给局部变量。",
+          "answers": ["INTO"],
+          "explain": "例如 SELECT COUNT(*) INTO num FROM S; 查询结果最多只能有一行：返回多行会报错；没有结果时变量保持原值，并产生“无数据”警告。"
+        },
+        {
+          "id": "04735-u05-l1-q7",
+          "type": "short",
+          "form": "简答",
+          "level": "领会",
+          "kp": "存储过程的基本概念",
+          "stem": "简述使用存储过程的优点。",
+          "points": [
+            "可增强 SQL 语言的功能和灵活性（可使用流程控制语句）",
+            "良好的封装性：调用者不必了解过程内部的实现",
+            "高性能：执行一次后代码驻留在缓存中，再次调用速度快",
+            "可减少网络流量：只需传送调用语句和参数",
+            "可作为一种安全机制，确保数据库的安全性和数据的完整性"
+          ],
+          "explain": "五点各写关键词再补半句解释：功能灵活、封装性、高性能、减少网络流量、安全机制。",
+          "verify": "核对教材 5.1 节存储过程优点的条目（本题按增强功能和灵活性、封装性、高性能、减少网络流量、安全机制五点归纳）。"
+        },
+        {
+          "id": "04735-u05-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "创建存储过程",
+          "stem": "学生表 S(Sno, Sname, Ssex, Sage, Sdept)。\n(1) 创建存储过程 sp_count_dept：输入系名，输出该系的学生人数；\n(2) 调用该存储过程统计“计算机”系的人数，并显示结果；\n(3) 删除该存储过程。",
+          "points": [
+            "用 DELIMITER 修改结束符，CREATE PROCEDURE sp_count_dept(IN …, OUT …)",
+            "BEGIN … END 中 SELECT COUNT(*) INTO 输出参数 … WHERE Sdept = 系名",
+            "CALL sp_count_dept('计算机', @n); SELECT @n;",
+            "DROP PROCEDURE sp_count_dept;"
+          ],
+          "answer": "DELIMITER $$\nCREATE PROCEDURE sp_count_dept(IN dname VARCHAR(30), OUT num INT)\nBEGIN\n  SELECT COUNT(*) INTO num FROM S WHERE Sdept = dname;\nEND $$\nDELIMITER ;\nCALL sp_count_dept('计算机', @n);\nSELECT @n;\nDROP PROCEDURE sp_count_dept;",
+          "explain": "参数名不要与列名相同：若参数也叫 Sdept，MySQL 会把 WHERE Sdept = Sdept 中的两个名字都当作参数，条件对每一行都成立，结果变成全部学生的人数。删除时也可以写 DROP PROCEDURE IF EXISTS。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u05-l2",
+      "title": "游标与存储函数",
+      "questions": [
+        {
+          "id": "04735-u05-l2-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "存储过程体：流程控制语句",
+          "stem": "关于 MySQL 存储过程中的循环语句，下列说法正确的是？",
+          "options": ["WHILE 语句先执行循环体，再判断条件", "LOOP 语句本身带有循环结束条件", "ITERATE 语句用于退出整个循环", "REPEAT 语句的循环体至少执行一次"],
+          "answer": 3,
+          "explain": "REPEAT…UNTIL 先执行后判断，循环体至少执行一次；WHILE 先判断后执行；LOOP 本身没有结束条件，要用 LEAVE 跳出；ITERATE 是结束本次循环、开始下一次循环。"
+        },
+        {
+          "id": "04735-u05-l2-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "游标",
+          "stem": "在存储过程中使用游标，正确的操作顺序是？",
+          "options": ["声明游标→打开游标→读取数据→关闭游标", "打开游标→声明游标→读取数据→关闭游标", "声明游标→读取数据→打开游标→关闭游标", "打开游标→读取数据→声明游标→关闭游标"],
+          "answer": 0,
+          "explain": "依次使用 DECLARE … CURSOR FOR、OPEN、FETCH … INTO、CLOSE；游标只能在存储过程、存储函数等存储程序中使用，不能在普通查询中单独使用。"
+        },
+        {
+          "id": "04735-u05-l2-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "游标",
+          "stem": "执行 CALL sp_rows(@x) 后，@x 的值表示什么？",
+          "code": "DELIMITER $$\nCREATE PROCEDURE sp_rows(OUT n INT)\nBEGIN\n  DECLARE sid CHAR(10);\n  DECLARE done INT DEFAULT 0;\n  DECLARE cur CURSOR FOR SELECT Sno FROM S;\n  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;\n  SET n = 0;\n  OPEN cur;\n  FETCH cur INTO sid;\n  WHILE done = 0 DO\n    SET n = n + 1;\n    FETCH cur INTO sid;\n  END WHILE;\n  CLOSE cur;\nEND $$\nDELIMITER ;",
+          "options": ["S 表中第一个学生的学号", "S 表中的记录行数", "S 表中最后一个学生的学号", "S 表的列数"],
+          "answer": 1,
+          "explain": "游标逐行读取 S 表的学号，每读到一行 n 加 1；读完后再 FETCH 会触发 NOT FOUND 处理程序，把 done 置为 1，循环结束，n 就是表中的行数。"
+        },
+        {
+          "id": "04735-u05-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "调用存储函数",
+          "stem": "已创建存储函数 fn_name(sid CHAR(10))，下列调用方式正确的是？",
+          "options": ["CALL fn_name('2024001');", "EXECUTE fn_name('2024001');", "SELECT fn_name('2024001');", "RUN FUNCTION fn_name('2024001');"],
+          "answer": 2,
+          "explain": "存储函数像内置函数一样，直接在 SELECT 等语句中调用，不需要 CALL；CALL 用于调用存储过程。"
+        },
+        {
+          "id": "04735-u05-l2-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "创建存储函数",
+          "stem": "创建存储函数时，在函数头部用____子句声明函数返回值的数据类型。",
+          "answers": ["RETURNS"],
+          "explain": "注意区分：RETURNS 写在函数头部声明返回类型，RETURN 写在函数体中返回具体的值。"
+        },
+        {
+          "id": "04735-u05-l2-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "游标",
+          "stem": "在存储过程中，读取游标当前指向的一行数据、并使游标指向下一行的语句是____。",
+          "answers": ["FETCH", "FETCH…INTO"],
+          "explain": "格式为 FETCH cursor_name INTO 变量1 [, 变量2 …]，变量的个数要与游标定义中 SELECT 的列数一致。"
+        },
+        {
+          "id": "04735-u05-l2-q7",
+          "type": "short",
+          "form": "简答",
+          "level": "领会",
+          "kp": "存储函数与存储过程的区别",
+          "stem": "简述存储函数与存储过程的区别。",
+          "points": [
+            "存储函数不能有输出参数，它本身就返回值；存储过程可以有 OUT/INOUT 参数",
+            "存储函数直接在 SELECT 等语句中调用，不用 CALL；存储过程必须用 CALL 调用",
+            "存储函数体中必须包含 RETURN 语句；存储过程中不允许使用 RETURN 语句"
+          ],
+          "explain": "三点对照着记：参数、调用方式、RETURN 语句。"
+        },
+        {
+          "id": "04735-u05-l2-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "创建存储函数",
+          "stem": "选课表 SC(Sno, Cno, Grade)。\n(1) 创建存储函数 fn_avg_grade：输入学号，返回该学生的平均成绩；\n(2) 写出调用该函数查询学号 2024001 的平均成绩的语句；\n(3) 写出删除该函数的语句。",
+          "points": [
+            "CREATE FUNCTION fn_avg_grade(sid CHAR(10)) RETURNS DECIMAL(5,2)",
+            "函数体中 SELECT AVG(Grade) INTO 局部变量 … WHERE Sno = sid",
+            "函数体用 RETURN 返回结果",
+            "SELECT fn_avg_grade('2024001');",
+            "DROP FUNCTION fn_avg_grade;"
+          ],
+          "answer": "DELIMITER $$\nCREATE FUNCTION fn_avg_grade(sid CHAR(10))\n  RETURNS DECIMAL(5,2)\nBEGIN\n  DECLARE avg_g DECIMAL(5,2);\n  SELECT AVG(Grade) INTO avg_g FROM SC WHERE Sno = sid;\n  RETURN avg_g;\nEND $$\nDELIMITER ;\nSELECT fn_avg_grade('2024001');\nDROP FUNCTION fn_avg_grade;",
+          "explain": "函数的参数不写 IN/OUT，一律是输入参数。若在开启了二进制日志的 MySQL 8.0 上实际运行，需要在 RETURNS 子句后加 READS SQL DATA（或 DETERMINISTIC），否则会报 1418 错误。",
+          "verify": "核对教材存储函数示例的写法（是否带 DETERMINISTIC、READS SQL DATA 等特征子句），答题时以教材格式为准。"
+        }
+      ]
+    }
+  ]
+}

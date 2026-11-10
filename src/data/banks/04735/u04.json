@@ -1,0 +1,482 @@
+{
+  "course": "04735",
+  "unit": 4,
+  "title": "SQL 与关系数据库基本操作",
+  "lessons": [
+    {
+      "id": "04735-u04-l1",
+      "title": "SQL 概述与数据库的定义",
+      "questions": [
+        {
+          "id": "04735-u04-l1-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "SQL 的组成",
+          "stem": "SQL 中的 GRANT 和 REVOKE 语句属于？",
+          "options": ["数据定义语言（DDL）", "数据控制语言（DCL）", "数据操纵语言（DML）", "嵌入式 SQL"],
+          "answer": 1,
+          "explain": "DCL 用于授予或收回访问数据库的权限，包括 GRANT、REVOKE；DDL 包括 CREATE、ALTER、DROP；DML 包括 SELECT、INSERT、UPDATE、DELETE。"
+        },
+        {
+          "id": "04735-u04-l1-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "SQL 的基本概念",
+          "stem": "SQL 支持数据库的三级模式结构，其中视图和部分基本表对应的是？",
+          "options": ["外模式", "模式", "内模式", "模式/内模式映像"],
+          "answer": 0,
+          "explain": "外模式对应视图和部分基本表，模式对应基本表，内模式对应存储文件；视图是从基本表导出的虚表。",
+          "verify": "核对教材 4.1 节是否讲 SQL 与三级模式的对应关系（外模式—视图和部分基本表，模式—基本表，内模式—存储文件）。"
+        },
+        {
+          "id": "04735-u04-l1-q3",
+          "type": "single",
+          "level": "识记",
+          "kp": "MySQL 中的变量",
+          "stem": "在 MySQL 中，用户变量的名字前面要加的符号是？",
+          "options": ["@@", "#", "@", "$"],
+          "answer": 2,
+          "explain": "用户变量以 @ 开头，如 SET @n = 1；系统变量以 @@ 开头，如 @@version；存储过程中用 DECLARE 声明的局部变量不加 @。"
+        },
+        {
+          "id": "04735-u04-l1-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "数据库的定义",
+          "stem": "下面语句中 IF NOT EXISTS 的作用是？",
+          "code": "CREATE DATABASE IF NOT EXISTS db_shop;",
+          "options": ["数据库已存在时先删除再重建", "数据库不存在时报错", "数据库已存在时自动改名后再创建", "数据库已存在时不再创建，也不报错"],
+          "answer": 3,
+          "explain": "不加 IF NOT EXISTS 时，若同名数据库已存在会报错；加上后已存在就跳过创建，只给出警告。删除时对应的写法是 DROP DATABASE IF EXISTS。"
+        },
+        {
+          "id": "04735-u04-l1-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "SQL 概述",
+          "stem": "SQL 是____的英文缩写，它集数据查询、数据定义、数据操纵和数据控制功能于一体。",
+          "answers": ["结构化查询语言", "Structured Query Language"],
+          "explain": "SQL（Structured Query Language）是关系数据库的标准语言，MySQL、Oracle、SQL Server 等都支持。"
+        },
+        {
+          "id": "04735-u04-l1-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "数据库的定义",
+          "stem": "在 MySQL 中，CREATE SCHEMA 与 CREATE ____ 的作用相同，都用于创建数据库。",
+          "answers": ["DATABASE"],
+          "explain": "MySQL 中 SCHEMA 是 DATABASE 的同义词，因此 SHOW SCHEMAS 与 SHOW DATABASES 也等价。"
+        },
+        {
+          "id": "04735-u04-l1-q7",
+          "type": "short",
+          "form": "简答",
+          "level": "识记",
+          "kp": "SQL 的组成",
+          "stem": "按功能划分，SQL 主要由哪几部分组成？各举出相应的语句。",
+          "points": [
+            "数据定义语言（DDL）：CREATE、ALTER、DROP，定义数据库对象",
+            "数据操纵语言（DML）：SELECT、INSERT、UPDATE、DELETE",
+            "数据控制语言（DCL）：GRANT、REVOKE，授予和收回权限",
+            "此外还有嵌入式和动态 SQL 规则、SQL 调用和会话规则"
+          ],
+          "explain": "前三部分是重点，每部分写出名称、英文缩写和代表语句即可。",
+          "verify": "核对教材 4.1 节 SQL 组成的条目（是否包括“嵌入式和动态 SQL 规则”“SQL 调用和会话规则”，SELECT 是否归入 DML）。"
+        },
+        {
+          "id": "04735-u04-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "数据库的定义",
+          "stem": "用 MySQL 语句完成：\n(1) 创建数据库 db_library，若已存在则不创建，默认字符集为 utf8；\n(2) 将 db_library 设为当前数据库；\n(3) 查看当前服务器上所有的数据库；\n(4) 删除数据库 db_test（若存在）。",
+          "points": [
+            "(1) CREATE DATABASE 加 IF NOT EXISTS 和字符集子句",
+            "(2) USE db_library;",
+            "(3) SHOW DATABASES;",
+            "(4) DROP DATABASE IF EXISTS db_test;"
+          ],
+          "answer": "CREATE DATABASE IF NOT EXISTS db_library\n  DEFAULT CHARACTER SET utf8;\nUSE db_library;\nSHOW DATABASES;\nDROP DATABASE IF EXISTS db_test;",
+          "explain": "MySQL 中 DATABASE 都可以换成 SCHEMA；IF NOT EXISTS / IF EXISTS 用来避免数据库已存在或不存在时报错。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u04-l2",
+      "title": "表与索引的定义",
+      "questions": [
+        {
+          "id": "04735-u04-l2-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "修改表结构",
+          "stem": "在 MySQL 中，要同时修改某一列的列名和数据类型，应使用 ALTER TABLE 语句的哪个子句？",
+          "options": ["MODIFY [COLUMN]", "ALTER [COLUMN]", "CHANGE [COLUMN]", "RENAME [TO]"],
+          "answer": 2,
+          "explain": "CHANGE 可以同时改列名和数据类型；MODIFY 只改数据类型（或位置），不能改列名；ALTER 用于设置或删除列的默认值；RENAME 用于给表改名。"
+        },
+        {
+          "id": "04735-u04-l2-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "修改表结构",
+          "stem": "下面语句的作用是？",
+          "code": "ALTER TABLE student ALTER COLUMN ssex SET DEFAULT '女';",
+          "options": ["把 ssex 列的默认值设为“女”", "把所有学生的 ssex 值都改为“女”", "把 ssex 列的数据类型改为字符型", "在表中新增一个 ssex 列"],
+          "answer": 0,
+          "explain": "ALTER [COLUMN] 子句用于设置（SET DEFAULT）或删除（DROP DEFAULT）列的默认值，不会改动表中已有的数据；修改已有数据要用 UPDATE。"
+        },
+        {
+          "id": "04735-u04-l2-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "索引",
+          "stem": "关于索引，下列说法错误的是？",
+          "options": ["索引可以加快数据查询的速度", "索引需要占用额外的存储空间", "对表进行增删改时，系统需要维护索引", "索引越多，数据更新的速度越快"],
+          "answer": 3,
+          "explain": "索引能提高查询速度，但要占用存储空间，而且插入、删除、修改数据时要同步维护索引，所以索引越多，更新越慢。"
+        },
+        {
+          "id": "04735-u04-l2-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "索引",
+          "stem": "下列约束或索引中，一个表最多只能有一个的是？",
+          "options": ["普通索引（INDEX）", "主键（PRIMARY KEY）", "唯一性索引（UNIQUE）", "外键（FOREIGN KEY）"],
+          "answer": 1,
+          "explain": "每个表只能定义一个主键（可以由多列组成），而 UNIQUE、普通索引和外键都可以有多个。主键是一种特殊的唯一性索引，主键列不能为 NULL。"
+        },
+        {
+          "id": "04735-u04-l2-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "索引",
+          "stem": "要在 student 表的 sname 列上建立唯一性索引，下面语句中①处应填____。",
+          "code": "CREATE ① INDEX idx_sname ON student(sname);",
+          "answers": ["UNIQUE"],
+          "explain": "CREATE UNIQUE INDEX 创建唯一性索引，索引列的值不能重复；不写 UNIQUE 则创建普通索引。"
+        },
+        {
+          "id": "04735-u04-l2-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "表的定义",
+          "stem": "在 MySQL 中，为整数列设置____属性后，插入记录时系统会自动为该列生成递增的值。",
+          "answers": ["AUTO_INCREMENT"],
+          "explain": "AUTO_INCREMENT 一般用于整数类型的主键列；每个表只能有一个这样的列，且该列必须建有索引。"
+        },
+        {
+          "id": "04735-u04-l2-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "表的定义",
+          "stem": "在数据库 db_school 中创建学生表 student，结构如下：\nsno 学号 CHAR(10)，主键；\nsname 姓名 VARCHAR(20)，不允许为空；\nssex 性别 CHAR(2)，默认值为“男”；\nsage 年龄 INT；\nsdept 所在系 VARCHAR(30)。\n然后在 sname 列上创建普通索引 idx_sname。",
+          "points": [
+            "先 USE db_school（或写成 db_school.student）",
+            "sno CHAR(10) 定义为 PRIMARY KEY",
+            "sname VARCHAR(20) NOT NULL",
+            "ssex CHAR(2) DEFAULT '男'",
+            "CREATE INDEX idx_sname ON student(sname);"
+          ],
+          "answer": "USE db_school;\nCREATE TABLE student (\n  sno   CHAR(10) NOT NULL PRIMARY KEY,\n  sname VARCHAR(20) NOT NULL,\n  ssex  CHAR(2) DEFAULT '男',\n  sage  INT,\n  sdept VARCHAR(30)\n);\nCREATE INDEX idx_sname ON student(sname);",
+          "explain": "主键也可以写成表级约束 PRIMARY KEY(sno)；索引也可以用 ALTER TABLE student ADD INDEX idx_sname(sname) 创建。"
+        },
+        {
+          "id": "04735-u04-l2-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "修改表结构",
+          "stem": "已有表 student(sno, sname, ssex, sage, sdept)，用 ALTER TABLE 语句完成：\n(1) 增加一列 phone CHAR(11)，放在 sname 列之后；\n(2) 把 sdept 列改名为 dept，类型改为 VARCHAR(40)；\n(3) 删除 ssex 列的默认值；\n(4) 删除 sage 列。",
+          "points": [
+            "(1) ADD COLUMN phone CHAR(11) AFTER sname",
+            "(2) CHANGE COLUMN sdept dept VARCHAR(40)",
+            "(3) ALTER COLUMN ssex DROP DEFAULT",
+            "(4) DROP COLUMN sage"
+          ],
+          "answer": "ALTER TABLE student ADD COLUMN phone CHAR(11) AFTER sname;\nALTER TABLE student CHANGE COLUMN sdept dept VARCHAR(40);\nALTER TABLE student ALTER COLUMN ssex DROP DEFAULT;\nALTER TABLE student DROP COLUMN sage;",
+          "explain": "既改列名又改类型用 CHANGE（旧名、新名、类型都要写）；只改类型用 MODIFY；默认值用 ALTER … SET/DROP DEFAULT。四个子句也可以用逗号隔开写在一条 ALTER TABLE 语句中。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u04-l3",
+      "title": "数据更新：插入、修改与删除",
+      "questions": [
+        {
+          "id": "04735-u04-l3-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "删除数据",
+          "stem": "执行下面语句的结果是？",
+          "code": "DELETE FROM student;",
+          "options": ["删除 student 表的结构和全部数据", "删除表中所有记录，表结构保留", "语法错误，DELETE 必须带 WHERE 子句", "只删除表中的第一条记录"],
+          "answer": 1,
+          "explain": "DELETE 省略 WHERE 子句时删除表中的全部行，但表仍然存在；要把表结构一起删除应使用 DROP TABLE。"
+        },
+        {
+          "id": "04735-u04-l3-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "插入数据",
+          "stem": "已有表 S_cs，结构与学生表 S 完全相同。要把 S 中计算机系的学生一次性全部复制到 S_cs 中，应使用？",
+          "options": ["INSERT INTO … VALUES 语句", "INSERT INTO … SET 语句", "SELECT … INTO OUTFILE 语句", "INSERT INTO … SELECT 语句"],
+          "answer": 3,
+          "explain": "INSERT INTO S_cs SELECT * FROM S WHERE Sdept = '计算机'; 可以把查询结果的多行一次插入；VALUES 和 SET 形式要逐个给出列值。"
+        },
+        {
+          "id": "04735-u04-l3-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "插入数据",
+          "stem": "学生表 S 有 Sno、Sname、Ssex、Sage、Sdept 共 5 列。执行下面语句的结果是？",
+          "code": "INSERT INTO S VALUES ('2024002', '张强', '男', 20);",
+          "options": ["插入成功，Sdept 取 NULL", "插入成功，Sdept 取默认值", "执行出错，值的个数与表的列数不符", "插入成功，多出的列被自动忽略"],
+          "answer": 2,
+          "explain": "省略列名表时，VALUES 中必须按表中列的顺序为每一列提供值，只给 4 个值会报错。只想插入部分列时，应在表名后写出列名表。"
+        },
+        {
+          "id": "04735-u04-l3-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "修改数据",
+          "stem": "选课表 SC(Sno, Cno, Grade)。执行下面语句的效果是？",
+          "code": "UPDATE SC SET Grade = Grade + 5\nWHERE Cno = 'C01' AND Grade < 60;",
+          "options": ["课程 C01 中低于 60 分的成绩各加 5 分", "所有课程中低于 60 分的成绩各加 5 分", "课程 C01 的所有成绩各加 5 分", "把课程 C01 中低于 60 分的成绩改为 5 分"],
+          "answer": 0,
+          "explain": "WHERE 中两个条件用 AND 连接，只修改同时满足“课程号为 C01”和“成绩低于 60”的行；Grade = Grade + 5 表示在原值上加 5。"
+        },
+        {
+          "id": "04735-u04-l3-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "插入数据",
+          "stem": "MySQL 的 INSERT 语句除了用 VALUES 子句给出各列的值，还可以用____子句为各列逐一赋值。",
+          "answers": ["SET"],
+          "explain": "例如 INSERT INTO S SET Sno = '2024003', Sname = '李丽'; 没有指定的列取其默认值。"
+        },
+        {
+          "id": "04735-u04-l3-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "删除数据",
+          "stem": "DELETE 语句若省略____子句，将删除表中的全部记录。",
+          "answers": ["WHERE"],
+          "explain": "UPDATE 语句也一样：没有 WHERE 子句会修改表中所有行，所以执行前一定要确认条件。"
+        },
+        {
+          "id": "04735-u04-l3-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "数据更新",
+          "stem": "设有学生选课数据库：\n学生 S(Sno, Sname, Ssex, Sage, Sdept)\n课程 C(Cno, Cname, Credit)\n选课 SC(Sno, Cno, Grade)\n用 SQL 语句完成：\n(1) 插入一名学生：学号 2024001，姓名王芳，女，19 岁，计算机系；\n(2) 将课程号为 C03 的课程的学分改为 3；\n(3) 删除学号为 2024009 的学生的全部选课记录；\n(4) 将计算机系所有学生 C01 课程的成绩加 5 分。",
+          "points": [
+            "(1) INSERT INTO S … VALUES ('2024001', '王芳', '女', 19, '计算机')",
+            "(2) UPDATE C SET Credit = 3 WHERE Cno = 'C03'",
+            "(3) DELETE FROM SC WHERE Sno = '2024009'",
+            "(4) UPDATE SC … WHERE Cno = 'C01' AND Sno IN (子查询)"
+          ],
+          "answer": "INSERT INTO S(Sno, Sname, Ssex, Sage, Sdept)\n  VALUES ('2024001', '王芳', '女', 19, '计算机');\nUPDATE C SET Credit = 3 WHERE Cno = 'C03';\nDELETE FROM SC WHERE Sno = '2024009';\nUPDATE SC SET Grade = Grade + 5\n  WHERE Cno = 'C01'\n    AND Sno IN (SELECT Sno FROM S WHERE Sdept = '计算机');",
+          "explain": "第 (4) 小题要修改的是 SC 表，但“计算机系”这一信息在 S 表中，所以用 IN 子查询先找出计算机系学生的学号。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u04-l4",
+      "title": "数据查询：单表查询与分组统计",
+      "questions": [
+        {
+          "id": "04735-u04-l4-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "SELECT 语句",
+          "stem": "在 SELECT 语句中，用于消除查询结果中重复行的关键字是？",
+          "options": ["UNIQUE", "DISTINCT", "ALL", "LIMIT"],
+          "answer": 1,
+          "explain": "SELECT DISTINCT 去掉结果中完全相同的行；ALL 是默认值，表示保留重复行。"
+        },
+        {
+          "id": "04735-u04-l4-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "WHERE 子句与条件查询",
+          "stem": "下面语句查询的是？",
+          "code": "SELECT * FROM S WHERE Sname LIKE '张_';",
+          "options": ["姓“张”的所有学生", "姓名中含有“张”字的学生", "姓名以“_”结尾的学生", "姓“张”且姓名只有两个字的学生"],
+          "answer": 3,
+          "explain": "LIKE 中 % 匹配任意多个字符（包括零个），_ 恰好匹配一个字符，所以 '张_' 只匹配“张”加一个字的姓名；查所有姓张的学生应写 '张%'。"
+        },
+        {
+          "id": "04735-u04-l4-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "GROUP BY 子句与 HAVING 子句",
+          "stem": "关于 WHERE 子句与 HAVING 子句，下列说法正确的是？",
+          "options": ["WHERE 子句中可以直接使用聚合函数", "HAVING 子句必须写在 GROUP BY 子句之前", "HAVING 子句用于筛选分组，其条件中可以使用聚合函数", "使用 GROUP BY 子句后就不能再使用 WHERE 子句"],
+          "answer": 2,
+          "explain": "WHERE 在分组前筛选行，不能使用聚合函数；HAVING 在分组后筛选组，可以使用聚合函数。子句顺序为 WHERE → GROUP BY → HAVING → ORDER BY → LIMIT。"
+        },
+        {
+          "id": "04735-u04-l4-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "LIMIT 子句",
+          "stem": "下面语句返回的是按年龄降序排列后的？",
+          "code": "SELECT * FROM S ORDER BY Sage DESC LIMIT 2, 3;",
+          "options": ["第 3～5 行", "第 2～4 行", "第 2～3 行", "第 3～4 行"],
+          "answer": 0,
+          "explain": "LIMIT 2, 3 表示跳过前 2 行（偏移量从 0 开始计），再返回 3 行，即第 3、4、5 行；等价于 LIMIT 3 OFFSET 2。"
+        },
+        {
+          "id": "04735-u04-l4-q5",
+          "type": "fill",
+          "level": "领会",
+          "kp": "聚合函数",
+          "stem": "用 COUNT(列名) 统计行数时，该列值为____的行不计算在内；COUNT(*) 则统计所有行。",
+          "answers": ["NULL", "空值", "空"],
+          "explain": "除 COUNT(*) 外，COUNT(列名)、SUM、AVG、MAX、MIN 都会忽略 NULL 值。"
+        },
+        {
+          "id": "04735-u04-l4-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "ORDER BY 子句",
+          "stem": "ORDER BY 子句中省略排序方式时，默认按____排序。",
+          "answers": ["升序", "ASC", "升序（ASC）"],
+          "explain": "ASC 为升序（默认），DESC 为降序；可以按多列排序，如 ORDER BY Sdept, Sage DESC。"
+        },
+        {
+          "id": "04735-u04-l4-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "单表查询",
+          "stem": "学生表 S(Sno, Sname, Ssex, Sage, Sdept)，用 SQL 语句完成：\n(1) 查询计算机系年龄在 18～20 岁（含 18 和 20）之间的学生的学号和姓名；\n(2) 查询所有姓“李”的学生的全部信息；\n(3) 统计各系的学生人数，显示系名和人数；\n(4) 查询学生人数超过 100 人的系名。",
+          "points": [
+            "(1) WHERE Sdept = '计算机' AND Sage BETWEEN 18 AND 20",
+            "(2) WHERE Sname LIKE '李%'",
+            "(3) SELECT Sdept, COUNT(*) … GROUP BY Sdept",
+            "(4) GROUP BY Sdept HAVING COUNT(*) > 100"
+          ],
+          "answer": "SELECT Sno, Sname FROM S\n  WHERE Sdept = '计算机' AND Sage BETWEEN 18 AND 20;\nSELECT * FROM S WHERE Sname LIKE '李%';\nSELECT Sdept, COUNT(*) AS 人数 FROM S GROUP BY Sdept;\nSELECT Sdept FROM S\n  GROUP BY Sdept HAVING COUNT(*) > 100;",
+          "explain": "BETWEEN a AND b 包含两个端点；对分组结果设条件必须用 HAVING，不能写在 WHERE 中。"
+        },
+        {
+          "id": "04735-u04-l4-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "分组统计查询",
+          "stem": "选课表 SC(Sno, Cno, Grade)，用 SQL 语句完成：\n(1) 查询选修了 C01 课程的学生的学号和成绩，按成绩降序排列；\n(2) 查询每门课程的课程号、选课人数和平均成绩；\n(3) 查询平均成绩不低于 85 分的学生的学号及其平均成绩；\n(4) 查询 C02 课程成绩最高的前 3 条选课记录。",
+          "points": [
+            "(1) WHERE Cno = 'C01' ORDER BY Grade DESC",
+            "(2) SELECT Cno, COUNT(*), AVG(Grade) … GROUP BY Cno",
+            "(3) GROUP BY Sno HAVING AVG(Grade) >= 85",
+            "(4) WHERE Cno = 'C02' ORDER BY Grade DESC LIMIT 3"
+          ],
+          "answer": "SELECT Sno, Grade FROM SC\n  WHERE Cno = 'C01' ORDER BY Grade DESC;\nSELECT Cno, COUNT(*) AS 人数, AVG(Grade) AS 平均成绩\n  FROM SC GROUP BY Cno;\nSELECT Sno, AVG(Grade) AS 平均成绩 FROM SC\n  GROUP BY Sno HAVING AVG(Grade) >= 85;\nSELECT * FROM SC WHERE Cno = 'C02'\n  ORDER BY Grade DESC LIMIT 3;",
+          "explain": "“前 n 条”用 ORDER BY … LIMIT n；“不低于”是 >=，“超过”是 >，要看清题目用词。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u04-l5",
+      "title": "连接查询、子查询与视图",
+      "questions": [
+        {
+          "id": "04735-u04-l5-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "多表连接查询",
+          "stem": "关于下面查询的结果，说法正确的是？",
+          "code": "SELECT S.Sno, Sname, Cno\nFROM S LEFT JOIN SC ON S.Sno = SC.Sno;",
+          "options": ["只包含选了课的学生", "包含全部学生，没选课的学生其 Cno 为 NULL", "包含全部选课记录，没有对应学生的 Sname 为 NULL", "结果是 S 与 SC 的笛卡儿积"],
+          "answer": 1,
+          "explain": "左外连接保留左表（S）的全部行，右表中没有匹配行时，相应的列填 NULL；只返回匹配行的是内连接，笛卡儿积是交叉连接。"
+        },
+        {
+          "id": "04735-u04-l5-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "子查询",
+          "stem": "关于带 EXISTS 的子查询，下列说法正确的是？",
+          "options": ["EXISTS 后的子查询只能返回一列", "子查询返回多行时 EXISTS 会出错", "子查询的结果集不为空时，EXISTS 的结果为 TRUE", "EXISTS 子查询只能用在 DELETE 语句中"],
+          "answer": 2,
+          "explain": "EXISTS 只判断子查询有没有返回行：有行为 TRUE，没有行为 FALSE，所以子查询通常写成 SELECT *；NOT EXISTS 正好相反。"
+        },
+        {
+          "id": "04735-u04-l5-q3",
+          "type": "single",
+          "level": "识记",
+          "kp": "视图的概念",
+          "stem": "关于视图，下列说法正确的是？",
+          "options": ["数据库中只存放视图的定义，不存放视图对应的数据", "视图和基本表一样，在数据库中实际存储数据", "视图只能从一个基本表导出", "所有视图都可以进行插入、修改和删除操作"],
+          "answer": 0,
+          "explain": "视图是从一个或多个表（或视图）导出的虚表，数据仍存放在基本表中，查询视图时才按定义从基本表取数据；并不是所有视图都可以更新。"
+        },
+        {
+          "id": "04735-u04-l5-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "更新视图",
+          "stem": "下列视图中，不能通过它对基本表执行 UPDATE 操作的是？",
+          "options": ["从一个表中选取部分行和列的视图", "定义中带 WITH CHECK OPTION 的单表视图", "对单表中的某些列取了别名的视图", "定义中包含 GROUP BY 和聚合函数的视图"],
+          "answer": 3,
+          "explain": "视图定义中含有聚合函数、DISTINCT、GROUP BY、HAVING、UNION 等时，视图中的行与基本表中的行不再一一对应，因此不可更新。"
+        },
+        {
+          "id": "04735-u04-l5-q5",
+          "type": "fill",
+          "level": "领会",
+          "kp": "视图的定义",
+          "stem": "创建视图时加上 WITH ____ OPTION 子句，可以保证通过视图插入或修改的数据满足视图定义中的条件。",
+          "answers": ["CHECK"],
+          "explain": "例如视图只含计算机系学生并带 WITH CHECK OPTION，通过该视图插入其他系的学生会被拒绝。"
+        },
+        {
+          "id": "04735-u04-l5-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "多表连接查询",
+          "stem": "使用 INNER JOIN 进行内连接时，连接条件写在关键字____之后。",
+          "answers": ["ON"],
+          "explain": "如 FROM S INNER JOIN SC ON S.Sno = SC.Sno；INNER 可以省略，直接写 JOIN。"
+        },
+        {
+          "id": "04735-u04-l5-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "连接查询与子查询",
+          "stem": "设有学生选课数据库：\n学生 S(Sno, Sname, Ssex, Sage, Sdept)\n课程 C(Cno, Cname, Credit)\n选课 SC(Sno, Cno, Grade)\n用 SQL 语句完成：\n(1) 查询选修了“数据库原理”课程的学生的学号、姓名和成绩；\n(2) 查询没有选修任何课程的学生的学号和姓名；\n(3) 查询年龄比计算机系所有学生都大的学生的姓名。",
+          "points": [
+            "(1) S、SC、C 三表连接，条件 Cname = '数据库原理'",
+            "(2) WHERE Sno NOT IN (SELECT Sno FROM SC)",
+            "(3) WHERE Sage > ALL (SELECT Sage FROM S WHERE Sdept = '计算机')"
+          ],
+          "answer": "SELECT S.Sno, Sname, Grade\n  FROM S JOIN SC ON S.Sno = SC.Sno\n         JOIN C ON SC.Cno = C.Cno\n  WHERE Cname = '数据库原理';\nSELECT Sno, Sname FROM S\n  WHERE Sno NOT IN (SELECT Sno FROM SC);\nSELECT Sname FROM S\n  WHERE Sage > ALL (SELECT Sage FROM S WHERE Sdept = '计算机');",
+          "explain": "(1) 也可写成 FROM S, SC, C WHERE S.Sno = SC.Sno AND SC.Cno = C.Cno AND …；(2) 也可用 NOT EXISTS；(3) 在子查询结果非空且不含 NULL 时，也可写成 Sage > (SELECT MAX(Sage) …)。两个表都有的列（如 Sno）必须加表名前缀。"
+        },
+        {
+          "id": "04735-u04-l5-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "视图",
+          "stem": "学生表 S(Sno, Sname, Ssex, Sage, Sdept)、选课表 SC(Sno, Cno, Grade)。用 SQL 语句完成：\n(1) 创建视图 v_cs，包含计算机系学生的学号、姓名和年龄，并保证通过该视图进行的更新只涉及计算机系学生；\n(2) 通过视图 v_cs 查询年龄小于 20 岁的学生；\n(3) 创建视图 v_avg，包含每个学生的学号和平均成绩（列名为 avg_grade）；\n(4) 删除视图 v_cs。",
+          "points": [
+            "(1) CREATE VIEW v_cs AS SELECT … WHERE Sdept = '计算机'",
+            "(1) 末尾加 WITH CHECK OPTION",
+            "(2) SELECT * FROM v_cs WHERE Sage < 20",
+            "(3) CREATE VIEW v_avg(Sno, avg_grade) AS … GROUP BY Sno",
+            "(4) DROP VIEW v_cs"
+          ],
+          "answer": "CREATE VIEW v_cs AS\n  SELECT Sno, Sname, Sage FROM S\n  WHERE Sdept = '计算机'\n  WITH CHECK OPTION;\nSELECT * FROM v_cs WHERE Sage < 20;\nCREATE VIEW v_avg(Sno, avg_grade) AS\n  SELECT Sno, AVG(Grade) FROM SC GROUP BY Sno;\nDROP VIEW v_cs;",
+          "explain": "视图 v_avg 含聚合函数和 GROUP BY，只能查询，不能通过它更新数据；查询视图的写法与查询基本表完全相同。"
+        }
+      ]
+    }
+  ]
+}

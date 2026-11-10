@@ -1,0 +1,390 @@
+{
+  "course": "04735",
+  "unit": 6,
+  "title": "数据库安全与保护",
+  "lessons": [
+    {
+      "id": "04735-u06-l1",
+      "title": "完整性约束与触发器",
+      "questions": [
+        {
+          "id": "04735-u06-l1-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "主键约束与候选键约束",
+          "stem": "关于 MySQL 中的 PRIMARY KEY 约束和 UNIQUE 约束，下列说法正确的是？",
+          "options": ["一个表可以定义多个 PRIMARY KEY 约束", "定义 UNIQUE 约束时系统不会自动创建索引", "一个表只能有一个主键，但可以定义多个 UNIQUE 约束", "UNIQUE 约束的列和主键列一样不允许取 NULL"],
+          "answer": 2,
+          "explain": "主键的值唯一且不能为 NULL，每个表只能有一个；UNIQUE（候选键）约束可以有多个，列值允许为 NULL；两种约束系统都会自动创建相应的索引。"
+        },
+        {
+          "id": "04735-u06-l1-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "参照完整性约束",
+          "stem": "在参照表中定义外键时指定了 ON DELETE CASCADE。删除被参照表中的某条记录时，系统会？",
+          "options": ["拒绝删除被参照表中的记录", "自动删除参照表中与之匹配的记录", "把参照表中匹配记录的外键值设为 NULL", "不做任何检查，直接删除"],
+          "answer": 1,
+          "explain": "CASCADE（级联）同步删除或更新参照表中的匹配行；RESTRICT（限制）拒绝操作；SET NULL（置空）把匹配行的外键值设为 NULL，要求外键列允许为空。"
+        },
+        {
+          "id": "04735-u06-l1-q3",
+          "type": "single",
+          "level": "识记",
+          "kp": "参照完整性约束",
+          "stem": "定义外键时若没有指定 ON DELETE 和 ON UPDATE 子句，MySQL 默认采用的策略相当于？",
+          "options": ["CASCADE（级联）", "SET NULL（置空）", "SET DEFAULT（置默认值）", "RESTRICT（限制）"],
+          "answer": 3,
+          "explain": "不指定时，删除或更新被参照表中已被外键引用的记录会被拒绝，即限制策略；MySQL（InnoDB）中 NO ACTION 与 RESTRICT 的效果相同。",
+          "verify": "核对教材对未指定参照动作时默认策略的表述（是否写作 RESTRICT）。"
+        },
+        {
+          "id": "04735-u06-l1-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "触发器的概念",
+          "stem": "关于 MySQL 触发器，下列说法正确的是？",
+          "options": ["触发器由表上的插入、修改或删除事件自动激活", "触发器需要用 CALL 语句显式调用", "触发器可以创建在视图和临时表上", "DELETE 触发器中可以引用 NEW 访问被删除的行"],
+          "answer": 0,
+          "explain": "触发器是由 INSERT、UPDATE、DELETE 事件驱动的数据库对象，不能被调用，只能建在永久表上；DELETE 触发器用 OLD 访问被删除的行。删除触发器用 DROP TRIGGER。"
+        },
+        {
+          "id": "04735-u06-l1-q5",
+          "type": "single",
+          "level": "识记",
+          "kp": "使用触发器：NEW 与 OLD",
+          "stem": "在 UPDATE 触发器中，要引用某列被修改之前的值，应使用？",
+          "options": ["NEW.列名", "INSERTED.列名", "DELETED.列名", "OLD.列名"],
+          "answer": 3,
+          "explain": "MySQL 中 OLD 表示修改前（或被删除）的行，NEW 表示修改后（或新插入）的行；INSERTED、DELETED 是 SQL Server 的写法。"
+        },
+        {
+          "id": "04735-u06-l1-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "参照完整性约束",
+          "stem": "在 MySQL 中，外键约束只有在使用____存储引擎的表上才能真正起作用。",
+          "answers": ["InnoDB"],
+          "explain": "MyISAM 等存储引擎会忽略外键定义；MySQL 5.5 起默认存储引擎就是 InnoDB，也可以在建表时显式写 ENGINE = InnoDB。"
+        },
+        {
+          "id": "04735-u06-l1-q7",
+          "type": "fill",
+          "level": "识记",
+          "kp": "创建触发器",
+          "stem": "MySQL 创建触发器时要写 FOR EACH ____，表示对受影响的每一行都执行一次触发动作。",
+          "answers": ["ROW"],
+          "explain": "MySQL 只支持行级触发器；触发时机为 BEFORE 或 AFTER，触发事件为 INSERT、UPDATE 或 DELETE。"
+        },
+        {
+          "id": "04735-u06-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "定义与实现完整性约束",
+          "stem": "已有学生表 S（主键 Sno CHAR(10)）和课程表 C（主键 Cno CHAR(6)）。创建选课表 SC(Sno, Cno, Grade)，要求：主键为 (Sno, Cno)；Sno 参照 S 表，删除学生时级联删除其选课记录；Cno 参照 C 表，已被选修的课程不允许删除；Grade 为整数且取值在 0～100 之间。",
+          "points": [
+            "PRIMARY KEY (Sno, Cno) 作为表级约束定义",
+            "FOREIGN KEY (Sno) REFERENCES S(Sno) ON DELETE CASCADE",
+            "FOREIGN KEY (Cno) REFERENCES C(Cno)，ON DELETE RESTRICT 可省略",
+            "Grade INT CHECK (Grade BETWEEN 0 AND 100)"
+          ],
+          "answer": "CREATE TABLE SC (\n  Sno   CHAR(10) NOT NULL,\n  Cno   CHAR(6)  NOT NULL,\n  Grade INT CHECK (Grade BETWEEN 0 AND 100),\n  PRIMARY KEY (Sno, Cno),\n  CONSTRAINT fk_sc_s FOREIGN KEY (Sno) REFERENCES S(Sno)\n    ON DELETE CASCADE,\n  CONSTRAINT fk_sc_c FOREIGN KEY (Cno) REFERENCES C(Cno)\n    ON DELETE RESTRICT\n) ENGINE = InnoDB;",
+          "explain": "复合主键只能用表级约束定义；外键列的类型要与被参照列一致；CONSTRAINT 子句给约束命名，便于以后删除。MySQL 8.0.16 之前的版本只解析 CHECK 约束而不强制执行，8.0.16 起才真正生效。"
+        },
+        {
+          "id": "04735-u06-l1-q9",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "创建触发器",
+          "stem": "选课表 SC(Sno, Cno, Grade)。创建触发器 tr_sc_insert：向 SC 插入记录之前，若成绩小于 0 则自动改为 0，若大于 100 则自动改为 100。",
+          "points": [
+            "CREATE TRIGGER tr_sc_insert BEFORE INSERT ON SC FOR EACH ROW",
+            "IF NEW.Grade < 0 THEN SET NEW.Grade = 0",
+            "ELSEIF NEW.Grade > 100 THEN SET NEW.Grade = 100",
+            "多条语句放在 BEGIN … END 中，并用 DELIMITER 修改结束符"
+          ],
+          "answer": "DELIMITER $$\nCREATE TRIGGER tr_sc_insert BEFORE INSERT ON SC\nFOR EACH ROW\nBEGIN\n  IF NEW.Grade < 0 THEN\n    SET NEW.Grade = 0;\n  ELSEIF NEW.Grade > 100 THEN\n    SET NEW.Grade = 100;\n  END IF;\nEND $$\nDELIMITER ;",
+          "explain": "只有在 BEFORE 触发器中才能用 SET 修改 NEW 中的值；AFTER 触发器执行时行已经写入，不能再修改 NEW。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u06-l2",
+      "title": "用户管理与权限控制",
+      "questions": [
+        {
+          "id": "04735-u06-l2-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "用户账号管理",
+          "stem": "创建一个只允许从本机登录的用户 zhang，密码为 123。正确的语句是？",
+          "options": ["CREATE USER zhang PASSWORD '123';", "CREATE USER 'zhang'@'localhost' IDENTIFIED BY '123';", "CREATE LOGIN 'zhang'@'localhost' WITH '123';", "ADD USER 'zhang'@'localhost' IDENTIFIED '123';"],
+          "answer": 1,
+          "explain": "MySQL 账号的格式是 '用户名'@'主机名'，localhost 表示只能从本机登录，密码用 IDENTIFIED BY 指定；CREATE LOGIN 是 SQL Server 的语法。"
+        },
+        {
+          "id": "04735-u06-l2-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "用户账号管理",
+          "stem": "执行下面的语句时省略了主机名，则该用户的主机名默认为？",
+          "code": "CREATE USER 'wang' IDENTIFIED BY 'abc';",
+          "options": ["localhost，只能从本机登录", "127.0.0.1", "空串，不能登录", "%，可以从任意主机登录"],
+          "answer": 3,
+          "explain": "省略主机名时默认为 '%'，表示允许从任何主机连接；要限制为只能从本机登录，须写成 'wang'@'localhost'。"
+        },
+        {
+          "id": "04735-u06-l2-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "权限的授予",
+          "stem": "GRANT 语句中 WITH GRANT OPTION 子句的作用是？",
+          "options": ["允许被授权用户把获得的权限再授予其他用户", "在授权的同时创建新用户", "授予用户全部权限", "使权限只在当前会话中有效"],
+          "answer": 0,
+          "explain": "WITH GRANT OPTION 实现权限的转移；授予全部权限用 ALL（或 ALL PRIVILEGES）。"
+        },
+        {
+          "id": "04735-u06-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "权限的授予",
+          "stem": "下面语句授予用户 li 的是？",
+          "code": "GRANT SELECT ON db_school.* TO 'li'@'localhost';",
+          "options": ["所有数据库中所有表的查询权限", "db_school 数据库中名为 * 的表的查询权限", "db_school 数据库中所有表的查询权限", "创建 db_school 数据库的权限"],
+          "answer": 2,
+          "explain": "db_name.* 表示该数据库中的所有表（数据库级权限）；*.* 表示所有数据库的所有表（全局权限）；db_name.tbl_name 表示某一张表。"
+        },
+        {
+          "id": "04735-u06-l2-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "权限的撤销",
+          "stem": "在 MySQL 中，收回已授予用户的权限使用____语句。",
+          "answers": ["REVOKE"],
+          "explain": "格式为 REVOKE 权限 ON 对象 FROM 用户；注意授权用 TO，收回用 FROM。"
+        },
+        {
+          "id": "04735-u06-l2-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "用户账号管理",
+          "stem": "MySQL 的用户账号信息保存在系统数据库 mysql 的____表中。",
+          "answers": ["user", "mysql.user"],
+          "explain": "可以用 SELECT user, host FROM mysql.user; 查看已有的用户。"
+        },
+        {
+          "id": "04735-u06-l2-q7",
+          "type": "fill",
+          "level": "识记",
+          "kp": "用户账号管理",
+          "stem": "在 MySQL 中，修改已有用户账号的名字使用____ USER 语句。",
+          "answers": ["RENAME"],
+          "explain": "如 RENAME USER 'wang'@'localhost' TO 'wang2'@'localhost'; 删除用户用 DROP USER。"
+        },
+        {
+          "id": "04735-u06-l2-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "账户权限管理",
+          "stem": "数据库 db_school 中有学生表 S 和选课表 SC(Sno, Cno, Grade)。用 SQL 语句完成：\n(1) 创建用户 'wang'@'localhost'，密码为 abc123；\n(2) 授予他对 S 表的 SELECT 和 INSERT 权限，并允许他把这些权限转授给其他用户；\n(3) 授予他修改 SC 表 Grade 列的权限；\n(4) 收回他对 S 表的 INSERT 权限。",
+          "points": [
+            "(1) CREATE USER 'wang'@'localhost' IDENTIFIED BY 'abc123'",
+            "(2) GRANT SELECT, INSERT ON db_school.S TO … WITH GRANT OPTION",
+            "(3) GRANT UPDATE(Grade) ON db_school.SC TO 'wang'@'localhost'",
+            "(4) REVOKE INSERT ON db_school.S FROM 'wang'@'localhost'"
+          ],
+          "answer": "CREATE USER 'wang'@'localhost' IDENTIFIED BY 'abc123';\nGRANT SELECT, INSERT ON db_school.S\n  TO 'wang'@'localhost' WITH GRANT OPTION;\nGRANT UPDATE(Grade) ON db_school.SC TO 'wang'@'localhost';\nREVOKE INSERT ON db_school.S FROM 'wang'@'localhost';",
+          "explain": "列级权限把列名写在权限后的括号里，如 UPDATE(Grade)；授权和收回的对象都写成“数据库名.表名”。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u06-l3",
+      "title": "事务与并发控制",
+      "questions": [
+        {
+          "id": "04735-u06-l3-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "事务的特征",
+          "stem": "事务中的操作要么全部执行，要么全部不执行，这体现了事务的？",
+          "options": ["一致性", "隔离性", "原子性", "持续性"],
+          "answer": 2,
+          "explain": "原子性指事务是不可分割的工作单位；一致性指事务使数据库从一个一致状态变到另一个一致状态；隔离性指并发执行的事务互不干扰。"
+        },
+        {
+          "id": "04735-u06-l3-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "并发操作问题",
+          "stem": "事务 T1 读取了事务 T2 修改后尚未提交的数据，随后 T2 因故回滚，T1 读到的数据与数据库中的不一致。这种问题称为？",
+          "options": ["丢失更新", "读“脏”数据", "不可重复读", "死锁"],
+          "answer": 1,
+          "explain": "读到其他事务未提交、后来又被撤销的数据就是读“脏”数据；丢失更新是两个事务修改同一数据，后提交的结果覆盖了先提交的结果。"
+        },
+        {
+          "id": "04735-u06-l3-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "封锁：排他锁与共享锁",
+          "stem": "事务 T 对数据 R 加了 S 锁（共享锁）后，在 T 释放该锁之前，其他事务对 R？",
+          "options": ["可以加 S 锁，但不能加 X 锁", "可以加 S 锁，也可以加 X 锁", "可以加 X 锁，但不能加 S 锁", "既不能加 S 锁，也不能加 X 锁"],
+          "answer": 0,
+          "explain": "S 锁与 S 锁相容，与 X 锁不相容；若 T 加的是 X 锁（排他锁），其他事务就不能再对 R 加任何锁。"
+        },
+        {
+          "id": "04735-u06-l3-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "封锁的级别",
+          "stem": "下列封锁级别中，除了能防止丢失更新和读“脏”数据外，还能防止不可重复读的是？",
+          "options": ["0 级封锁", "1 级封锁", "2 级封锁", "3 级封锁"],
+          "answer": 3,
+          "explain": "1 级封锁可防止丢失更新；2 级封锁在此基础上防止读“脏”数据；3 级封锁要求读数据时加的锁到事务结束才释放，因此还能防止不可重复读。",
+          "verify": "核对教材 6.4 节封锁级别的名称与表述（0～3 级封锁，或一级、二级、三级封锁协议）。"
+        },
+        {
+          "id": "04735-u06-l3-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "可串行化调度与两段封锁法",
+          "stem": "关于两段封锁协议，下列说法正确的是？",
+          "options": ["若并发事务都遵守两段封锁协议，则它们的任何并发调度都是可串行化的", "遵守两段封锁协议的事务不会发生死锁", "可串行化的调度中，所有事务一定都遵守两段封锁协议", "事务进入收缩阶段后仍可以申请新的锁"],
+          "answer": 0,
+          "explain": "两段封锁是可串行化的充分条件而非必要条件；事务分为获得锁的扩展（发展）阶段和释放锁的收缩阶段，收缩阶段不能再申请锁；遵守两段封锁协议仍可能发生死锁。",
+          "verify": "核对教材是否讲两段封锁法以及两个阶段的名称（扩展阶段/发展阶段、收缩阶段）。"
+        },
+        {
+          "id": "04735-u06-l3-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "活锁与死锁",
+          "stem": "关于活锁与死锁，下列说法正确的是？",
+          "options": ["一次封锁法和顺序封锁法用于诊断死锁", "活锁是指两个事务互相等待对方释放锁", "采用先来先服务的策略可以避免活锁", "发生死锁后系统只能等待，无法解除"],
+          "answer": 2,
+          "explain": "活锁是某个事务长期得不到锁，用先来先服务即可避免；死锁是事务之间循环等待，可用一次封锁法、顺序封锁法预防，用超时法、等待图法诊断，并撤销代价最小的事务来解除。",
+          "verify": "核对教材对死锁预防与诊断方法的叫法（一次封锁法、顺序封锁法、超时法、等待图法）。"
+        },
+        {
+          "id": "04735-u06-l3-q7",
+          "type": "fill",
+          "level": "识记",
+          "kp": "事务的特征",
+          "stem": "一个事务一旦提交，它对数据库中数据的改变就是永久性的，这称为事务的____。",
+          "answers": ["持续性", "持久性", "永久性", "Durability"],
+          "explain": "ACID 即原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）、持续性（Durability，也叫持久性）。"
+        },
+        {
+          "id": "04735-u06-l3-q8",
+          "type": "fill",
+          "level": "识记",
+          "kp": "事务的概念",
+          "stem": "事务执行中出现故障时，可以用____语句撤销事务中已完成的操作，使数据库回到事务开始前的状态。",
+          "answers": ["ROLLBACK"],
+          "explain": "COMMIT 提交事务，使修改永久生效；ROLLBACK 回滚事务。MySQL 中用 START TRANSACTION（或 BEGIN）显式开始一个事务。"
+        },
+        {
+          "id": "04735-u06-l3-q9",
+          "type": "short",
+          "form": "简答",
+          "level": "领会",
+          "kp": "事务的特征",
+          "stem": "什么是事务？简述事务的 ACID 特性。",
+          "points": [
+            "事务：用户定义的一个数据操作序列，要么全做要么全不做",
+            "原子性：事务中的操作要么全部执行，要么全部不执行",
+            "一致性：事务使数据库从一个一致性状态变到另一个一致性状态",
+            "隔离性：一个事务的执行不能被其他并发事务干扰",
+            "持续性（持久性）：事务一旦提交，对数据库的改变就是永久的"
+          ],
+          "explain": "先给事务下定义（不可分割的工作单位），再按 A、C、I、D 逐条解释，每条一句话。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u06-l4",
+      "title": "备份与恢复",
+      "questions": [
+        {
+          "id": "04735-u06-l4-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "备份与恢复的概念",
+          "stem": "关于数据库备份与恢复，下列说法正确的是？",
+          "options": ["只要使用了事务，就不需要再做备份", "数据库恢复以备份为基础，备份越及时，恢复后丢失的数据越少", "备份只能保存表结构，不能保存数据", "恢复数据库时不需要任何备份文件"],
+          "answer": 1,
+          "explain": "备份是制作数据库的副本；恢复是在数据库出现故障或遭到破坏时把备份加载回系统，使数据库回到备份时的正确状态，所以恢复离不开备份。"
+        },
+        {
+          "id": "04735-u06-l4-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "使用 SQL 语句备份和恢复表数据",
+          "stem": "要把 db_school 数据库中 S 表的数据导出到文件 D:/bak/s.txt，正确的语句是？",
+          "options": ["SELECT * FROM db_school.S INTO OUTFILE 'D:/bak/s.txt';", "LOAD DATA INFILE 'D:/bak/s.txt' INTO TABLE db_school.S;", "EXPORT TABLE db_school.S TO 'D:/bak/s.txt';", "SELECT * INTO 'D:/bak/s.txt' FROM db_school.S;"],
+          "answer": 0,
+          "explain": "SELECT … INTO OUTFILE 把查询结果导出到文件（备份）；LOAD DATA … INFILE 正好相反，把文件中的数据导入表中（恢复）。"
+        },
+        {
+          "id": "04735-u06-l4-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "使用 SQL 语句备份和恢复表数据",
+          "stem": "要把用 SELECT … INTO OUTFILE 导出的文本文件中的数据重新导入到表中，应使用？",
+          "options": ["INSERT … SELECT 语句", "SELECT … INTO DUMPFILE 语句", "LOAD DATA … INFILE 语句", "SOURCE … INTO TABLE 语句"],
+          "answer": 2,
+          "explain": "LOAD DATA INFILE '文件名' INTO TABLE 表名 用于导入数据，导入时的 FIELDS、LINES 选项要与导出时一致。"
+        },
+        {
+          "id": "04735-u06-l4-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "MySQL 数据库备份与恢复的方法",
+          "stem": "在 MySQL 中，常用来把整个数据库导出为包含 CREATE、INSERT 等语句的 SQL 脚本文件的客户端工具是？",
+          "options": ["mysqladmin", "mysqlbinlog", "mysqlimport", "mysqldump"],
+          "answer": 3,
+          "explain": "mysqldump 生成 SQL 脚本进行备份，恢复时用 mysql 客户端执行该脚本；mysqlbinlog 用于处理二进制日志，mysqlimport 用于导入文本文件。",
+          "verify": "核对教材 6.5 节是否介绍 mysqldump、mysqlbinlog 等客户端工具（若教材只讲 SELECT…INTO OUTFILE 和 LOAD DATA…INFILE，本题作为了解）。"
+        },
+        {
+          "id": "04735-u06-l4-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "使用 SQL 语句备份和恢复表数据",
+          "stem": "使用 SELECT … INTO OUTFILE 导出数据时，指定的文件不能是____的文件，以防止覆盖重要文件。",
+          "answers": ["已经存在", "已存在", "已有", "存在", "现有", "已经存在的", "已存在的", "已有的"],
+          "explain": "导出文件由服务器新建，若同名文件已经存在会报错，这样可以防止数据库表文件等被覆盖。"
+        },
+        {
+          "id": "04735-u06-l4-q6",
+          "type": "fill",
+          "level": "领会",
+          "kp": "使用 SQL 语句备份和恢复表数据",
+          "stem": "导出或导入数据时，用 FIELDS ____ BY 子句指定字段之间的分隔符（如逗号）。",
+          "answers": ["TERMINATED"],
+          "explain": "FIELDS 还有 ENCLOSED BY（字段包围符）和 ESCAPED BY（转义符）选项；LINES TERMINATED BY 用于指定行结束符。"
+        },
+        {
+          "id": "04735-u06-l4-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "使用 SQL 语句备份和恢复表数据",
+          "stem": "把数据库 db_school 中 S 表的全部数据备份到文件 D:/backup/s.txt，要求字段之间用逗号分隔，字符串用双引号括起，每行以换行符结束；然后把该文件中的数据导入到结构相同的表 db_school.S_copy 中。写出相应的 SQL 语句。",
+          "points": [
+            "SELECT * FROM db_school.S INTO OUTFILE 'D:/backup/s.txt'",
+            "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"'",
+            "LINES TERMINATED BY '\\n'",
+            "LOAD DATA INFILE 'D:/backup/s.txt' INTO TABLE db_school.S_copy",
+            "导入时 FIELDS、LINES 选项要与导出时保持一致"
+          ],
+          "answer": "SELECT * FROM db_school.S\n  INTO OUTFILE 'D:/backup/s.txt'\n  FIELDS TERMINATED BY ','\n         OPTIONALLY ENCLOSED BY '\"'\n  LINES TERMINATED BY '\\n';\nLOAD DATA INFILE 'D:/backup/s.txt'\n  INTO TABLE db_school.S_copy\n  FIELDS TERMINATED BY ','\n         OPTIONALLY ENCLOSED BY '\"'\n  LINES TERMINATED BY '\\n';",
+          "explain": "OPTIONALLY 表示只给字符串类型的字段加双引号。实际运行时还受服务器 secure_file_priv 参数的限制，文件路径必须在允许的目录中。"
+        }
+      ]
+    }
+  ]
+}
