@@ -1,0 +1,69 @@
+{
+  "course": "00898",
+  "unit": 90,
+  "title": "专项：简答题",
+  "lessons": [
+    {
+      "id": "00898-u90-l1",
+      "title": "简答题（一）：Web基础、JSP语法、内置对象与Cookie",
+      "questions": [
+        { "id": "00898-u90-l1-q1", "type": "short", "form": "简答", "level": "领会", "kp": "客户端与服务器端网页语言的不同",
+          "stem": "简述客户端执行的网页语言与服务器端执行的网页语言有哪些不同。",
+          "points": ["执行位置：客户端语言（如JavaScript）随网页下载到浏览器中执行；服务器端语言（如JSP、PHP）在Web服务器上执行", "源代码：客户端脚本的源代码随网页发给用户，可以看到；服务器端只把执行结果（HTML）发给浏览器", "功能：服务器端程序能访问数据库等服务器资源；客户端脚本不能直接访问服务器端数据库，多用于表单校验和页面特效", "负担与依赖：客户端脚本响应快、能减轻服务器负担，但依赖浏览器的支持；服务器端程序占用服务器资源，与浏览器种类无关"],
+          "explain": "从“在哪里执行、源代码是否可见、能做什么、对服务器和浏览器的依赖”四个方面对比作答。" },
+        { "id": "00898-u90-l1-q2", "type": "short", "form": "简答", "level": "领会", "kp": "B/S模式和C/S模式的工作优缺点",
+          "stem": "试比较B/S模式与C/S模式的优缺点。",
+          "points": ["C/S优点：客户端安装专用软件，界面和交互能力强、响应速度快，部分处理在客户端完成，可减轻服务器负担", "C/S缺点：每台客户机都要安装、升级软件，维护成本高，跨平台性差，多用于局域网", "B/S优点：客户端只需浏览器，维护和升级集中在服务器端，部署方便", "B/S优点：跨平台，可以通过Internet随时随地访问，便于扩展", "B/S缺点：界面交互能力和响应速度相对较弱，处理集中在服务器上，服务器负担重，安全性需要额外保障"],
+          "explain": "两种模式的优缺点基本互补：C/S强在交互和速度，B/S强在维护、部署和访问范围。" },
+        { "id": "00898-u90-l1-q3", "type": "short", "form": "简答", "level": "识记", "kp": "JSP指令元素的定义、特点、语法格式；page、include、taglib指令",
+          "stem": "JSP的指令元素有哪几种？分别写出语法格式并说明作用。",
+          "points": ["指令的一般格式为<%@ 指令名 属性=\"值\" %>，在翻译阶段起作用，本身不产生输出", "page指令：<%@ page 属性=\"值\" %>，设置页面属性，如contentType、import、errorPage等", "include指令：<%@ include file=\"文件名\" %>，在翻译时把指定文件的内容静态包含到当前页面中", "taglib指令：<%@ taglib uri=\"标签库URI\" prefix=\"前缀\" %>，引入标签库并指定标签前缀", "page指令的import属性可以多次出现（导入不同的包），其他属性（如contentType）一般只能设置一次"],
+          "explain": "三种指令：page、include、taglib。每种都写出语法格式和作用，page指令再列举几个常用属性。" },
+        { "id": "00898-u90-l1-q4", "type": "short", "form": "简答", "level": "领会", "kp": "get和post传参方法的不同、数据大小的限制",
+          "stem": "比较表单以GET方式和POST方式提交数据的区别。",
+          "points": ["参数位置：GET把参数以“?名=值&名=值”的形式附在URL后面；POST把参数放在HTTP请求体中", "可见性：GET的参数显示在地址栏，可能被记录和收藏，安全性较差；POST的参数在地址栏中看不到", "数据量：GET受URL长度限制，只适合传送少量数据；POST的数据量基本不受限制，上传文件必须用POST", "默认方式：<form>未指定method时默认为GET，超链接发出的也是GET请求；Servlet中分别由doGet()、doPost()处理", "编码：POST可在读取参数前用request.setCharacterEncoding()设置编码，GET参数的解码由服务器决定"],
+          "explain": "最常考的是前三点：参数放在哪里、是否显示在地址栏、数据量是否受限。" },
+        { "id": "00898-u90-l1-q5", "type": "short", "form": "简答", "level": "领会", "kp": "out对象的作用、缓冲区的概念；clear、clearBuffer、flush方法的区别",
+          "stem": "简述out对象缓冲区的作用，并说明clear()、clearBuffer()和flush()三个方法的区别。",
+          "points": ["out是带缓冲的JspWriter对象，输出内容先写入缓冲区（默认8KB，可用page指令的buffer属性设置）", "缓冲区满或页面执行完毕时才把内容发给客户端，减少传输次数，提高输出效率", "内容发出之前，还可以清除缓冲区，或者进行转发、重定向", "flush()：立即把缓冲区中的内容输出到客户端", "clear()：清除缓冲区内容而不输出，若缓冲区已经flush过，会抛出IOException", "clearBuffer()：清除缓冲区内容而不输出，即使已经flush过也不会抛出异常"],
+          "explain": "flush()是“发出去”，clear()和clearBuffer()是“扔掉”；后两者的区别只在flush过之后是否抛出异常。" },
+        { "id": "00898-u90-l1-q6", "type": "short", "form": "简答", "level": "领会", "kp": "Cookie和session的关系",
+          "stem": "说明Cookie与session的区别和联系。",
+          "points": ["存放位置：Cookie的数据保存在客户端浏览器；session的数据保存在服务器端", "安全性：Cookie明文保存，可能被查看和篡改；session相对安全，适合保存登录状态等重要信息", "容量与类型：单个Cookie一般不超过4KB，只能保存字符串；session可以保存任意Java对象", "有效期：Cookie可用setMaxAge()长期保存；session在超时、调用invalidate()或服务器关闭时失效，用户多时占用服务器资源", "联系：session ID通常保存在名为JSESSIONID的Cookie中；禁用Cookie时可改用URL重写传递"],
+          "explain": "区别从“位置、安全、容量、有效期”四个方面写，联系抓住“session ID靠Cookie传递”这一点。" }
+      ]
+    },
+    {
+      "id": "00898-u90-l2",
+      "title": "简答题（二）：JavaBean、文件、JDBC与Servlet",
+      "questions": [
+        { "id": "00898-u90-l2-q1", "type": "short", "form": "简答", "level": "领会", "kp": "JavaBean的特征（必须满足哪些条件）；采用JavaBean的优势和必要性",
+          "stem": "在JSP中使用的JavaBean必须满足哪些条件？引入JavaBean有什么好处？",
+          "points": ["必须是public类，一般放在包中（编译后的class文件放在WEB-INF/classes下对应的目录中）", "必须有public的无参构造方法，供<jsp:useBean>创建实例", "属性一般为private，通过public的getXxx()、setXxx()方法读写（boolean属性的读方法可写成isXxx()）", "好处：把业务逻辑和数据处理从JSP页面中分离出来，页面只负责显示，结构清晰", "好处：JavaBean可以被多个页面重复使用，便于分工开发、维护和扩展"],
+          "explain": "条件记三条：public类、public无参构造方法、private属性加public的get/set方法；好处围绕“分离”和“重用”展开。",
+          "verify": "核对教材所列JavaBean必须满足的条件（条数和表述，如是否要求实现Serializable接口）。" },
+        { "id": "00898-u90-l2-q2", "type": "short", "form": "简答", "level": "领会", "kp": "Servlet与JSP的关系和区别；JavaBean的定义和作用",
+          "stem": "JSP、Servlet和JavaBean在Web应用中各起什么作用？它们之间是什么关系？",
+          "points": ["Servlet：在服务器端容器中运行的Java类，接收请求、调用业务处理并控制流程，在MVC中充当控制器", "JSP：在HTML中嵌入Java代码的页面，适合负责显示（视图）；第一次被请求时被翻译、编译成Servlet运行，本质上就是Servlet", "JavaBean：遵循规范的可重用Java组件，封装业务逻辑和数据（模型），JSP可以用<jsp:useBean>等标签调用", "关系：JSP克服了Servlet用out.println()输出页面的繁琐；JavaBean把业务逻辑从页面中分离出来", "协作过程（MVC）：Servlet接收请求→调用JavaBean处理→把结果存入request或session→转发给JSP显示"],
+          "explain": "先分别写三者的作用，再写“JSP本质上是Servlet”和三者在MVC中的协作过程。" },
+        { "id": "00898-u90-l2-q3", "type": "short", "form": "简答", "level": "识记", "kp": "数据流的概念（分类、每种数据流的顶层操作类、出现的异常和返回值）",
+          "stem": "简述Java中数据流的分类，并写出各类数据流的顶层类。",
+          "points": ["按数据的流向分为输入流和输出流：输入流从数据源读取数据，输出流向目的地写入数据", "按处理的数据单位分为字节流和字符流", "字节流以字节为单位，顶层类是InputStream和OutputStream，适合处理图片等二进制文件", "字符流以字符为单位，顶层类是Reader和Writer，适合处理文本文件", "这些类都在java.io包中，读写出错时抛出IOException；read()读到流的末尾时返回-1"],
+          "explain": "两种分法（按流向、按数据单位）加上四个顶层抽象类是得分关键。",
+          "verify": "核对教材对数据流分类的具体说法（是否还提到节点流与处理流等）。" },
+        { "id": "00898-u90-l2-q4", "type": "short", "form": "简答", "level": "领会", "kp": "JDBC对数据库的操作步骤",
+          "stem": "简述使用JDBC访问数据库的基本步骤，并写出每一步用到的主要方法。",
+          "points": ["加载驱动程序：Class.forName(\"驱动程序类名\")", "建立连接：DriverManager.getConnection(url, 用户名, 密码)，得到Connection对象", "创建语句对象：conn.createStatement()或conn.prepareStatement(sql)", "执行SQL语句：查询用executeQuery()得到ResultSet，增删改用executeUpdate()返回受影响的行数", "处理结果：用rs.next()逐行移动，用getXxx()按列名或列序号取值", "关闭资源：按ResultSet、Statement、Connection的顺序依次调用close()"],
+          "explain": "六个步骤的顺序不能乱；写代码题也按这个顺序组织，并处理ClassNotFoundException和SQLException。" },
+        { "id": "00898-u90-l2-q5", "type": "short", "form": "简答", "level": "识记", "kp": "Statement的作用、创建和相关方法（执行SQL语句的方法）",
+          "stem": "Statement接口中用于执行SQL语句的方法有哪几个？分别说明它们的用途和返回值。",
+          "points": ["executeQuery(String sql)：执行SELECT查询语句，返回ResultSet结果集", "executeUpdate(String sql)：执行INSERT、UPDATE、DELETE语句，返回受影响的行数", "executeUpdate()也可以执行CREATE TABLE、DROP TABLE等DDL语句，此时返回0", "execute(String sql)：可以执行任意SQL语句，返回boolean值", "execute()返回true时用getResultSet()取结果集，返回false时用getUpdateCount()取更新行数"],
+          "explain": "三个方法按“用于什么语句＋返回什么”对应记忆；Statement对象由conn.createStatement()创建。" },
+        { "id": "00898-u90-l2-q6", "type": "short", "form": "简答", "level": "领会", "kp": "ServletConfig和ServletContext的作用和不同、所属包",
+          "stem": "比较ServletConfig与ServletContext的作用和区别。",
+          "points": ["共同点：都是javax.servlet包中的接口，对象都由Servlet容器创建", "ServletConfig：每个Servlet一个，代表该Servlet的配置，容器调用init()时传入", "ServletConfig用getInitParameter()读取<servlet>中的<init-param>", "ServletContext：每个Web应用只有一个，代表整个应用，即JSP中的application", "ServletContext用getInitParameter()读取<context-param>中的参数", "ServletContext用setAttribute()/getAttribute()在整个应用中共享数据"],
+          "explain": "一句话区分：ServletConfig“一个Servlet一个”（用getServletConfig()获得），管本Servlet的配置；ServletContext“一个应用一个”（用getServletContext()获得），管全局参数和共享数据。" }
+      ]
+    }
+  ]
+}

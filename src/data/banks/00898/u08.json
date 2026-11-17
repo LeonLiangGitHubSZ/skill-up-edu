@@ -136,6 +136,51 @@
           "points": ["作用：避免每次访问都创建、关闭物理连接，减少开销，提高响应速度", "作用：统一管理并限制连接数量，防止数据库因连接过多而崩溃", "原理：初始化时预先创建若干连接放入池中", "原理：需要时从池中取空闲连接；用完调用close()归还池中，并不真正关闭", "无空闲连接时，未达最大连接数则新建，达到上限则等待；长时间空闲的连接被释放"],
           "explain": "本章重点难点（连接池的创建和管理）。先写作用，再按“初始化→分配→归还→扩充/等待→释放”的顺序写原理。" }
       ]
+    },
+    {
+      "id": "00898-u08-l4",
+      "title": "JDBC代码阅读：PreparedStatement、ResultSet与事务",
+      "questions": [
+        { "id": "00898-u08-l4-q1", "type": "single", "level": "领会", "kp": "Statement的相关方法（PreparedStatement的参数序号）",
+          "stem": "执行下面的代码段，实际执行的查询条件相当于？",
+          "code": "String sql = \"SELECT name FROM student WHERE age > ? AND sex = ?\";\nPreparedStatement ps = conn.prepareStatement(sql);\nps.setString(2, \"女\");\nps.setInt(1, 18);\nResultSet rs = ps.executeQuery();",
+          "options": ["age > '女' AND sex = 18", "age > 18 AND sex = '女'", "参数设置顺序与?的顺序不一致，抛出异常", "age > 2 AND sex = 1"], "answer": 1,
+          "explain": "setXxx()的第一个参数是?在SQL语句中的序号（从1开始），与调用setXxx()的先后顺序无关：第1个?是age的条件，第2个?是sex的条件。" },
+        { "id": "00898-u08-l4-q2", "type": "single", "level": "应用", "kp": "使用ResultSet处理结果集（数据定位位置）",
+          "stem": "student表按id排序依次为张三、李四、王五。rs是用可滚动的Statement执行“SELECT * FROM student ORDER BY id”得到的结果集，执行下面的代码段后输出的是？",
+          "code": "rs.last();\nout.print(rs.getRow() + \" \");\nrs.absolute(2);\nout.print(rs.getString(\"name\") + \" \");\nrs.previous();\nout.print(rs.getString(\"name\"));",
+          "options": ["3 张三 李四", "2 李四 张三", "3 李四 张三", "3 李四 王五"], "answer": 2,
+          "explain": "last()移到最后一行，getRow()返回当前行号3（常用来求记录总数）；absolute(2)定位到第2行李四；previous()后退一行到张三。这些定位方法只能用于可滚动的结果集。" },
+        { "id": "00898-u08-l4-q3", "type": "single", "level": "应用", "kp": "数据库操作的类别和相关操作（事务的提交与回滚）",
+          "stem": "account表中账户1、2的余额分别为500和300（数据库支持事务）。执行下面的代码段时，第二条UPDATE语句因表名写错而抛出SQLException。执行后两个账户的余额分别是？",
+          "code": "conn.setAutoCommit(false);\nStatement stmt = conn.createStatement();\ntry {\n  stmt.executeUpdate(\"UPDATE account SET money = money - 100 WHERE id = 1\");\n  stmt.executeUpdate(\"UPDATE acount SET money = money + 100 WHERE id = 2\");\n  conn.commit();\n} catch (SQLException e) {\n  conn.rollback();\n}",
+          "options": ["500和300", "400和300", "400和400", "500和400"], "answer": 0,
+          "explain": "关闭自动提交后，两条UPDATE属于同一个事务；第二条出错时跳到catch执行rollback()，第一条的修改也被撤销，所以余额不变。如果没有关闭自动提交，第一条执行完就已提交，结果会是400和300。",
+          "verify": "核对教材第8章是否讲到用setAutoCommit()、commit()、rollback()进行事务处理。" },
+        { "id": "00898-u08-l4-q4", "type": "single", "level": "领会", "kp": "Statement的相关方法（PreparedStatement的重复执行）",
+          "stem": "表t原来为空，执行下面的代码段后的结果是？",
+          "code": "PreparedStatement ps = conn.prepareStatement(\n    \"INSERT INTO t(name) VALUES(?)\");\nString[] names = {\"A\", \"B\", \"C\"};\nint n = 0;\nfor (int i = 0; i < names.length; i++) {\n  ps.setString(1, names[i]);\n  n += ps.executeUpdate();\n}\nout.print(n);",
+          "options": ["输出1", "输出0", "抛出SQLException", "输出3"], "answer": 3,
+          "explain": "PreparedStatement预编译一次后，可以反复设置参数、多次执行；每次executeUpdate()插入1行并返回1，累加得3。这正是它多次执行同一语句时效率高的原因。" },
+        { "id": "00898-u08-l4-q5", "type": "single", "level": "应用", "kp": "Statement的相关方法（SQL注入与PreparedStatement）",
+          "stem": "登录验证代码如下。用户在密码框中输入' OR '1'='1，即使用户名和密码都不对也能“登录成功”。正确的改进方法是？",
+          "code": "String sql = \"SELECT * FROM users WHERE name='\" + name\n    + \"' AND pwd='\" + pwd + \"'\";\nResultSet rs = stmt.executeQuery(sql);\nif (rs.next()) {\n  out.print(\"登录成功\");\n}",
+          "options": ["改用executeUpdate()执行这条查询语句", "改用PreparedStatement，用?占位符传入参数", "把rs.next()改为rs.first()", "把SQL中的单引号全部改成双引号"], "answer": 1,
+          "explain": "拼接后的条件变成…AND pwd='' OR '1'='1'，恒为真，这就是SQL注入；PreparedStatement把参数值只当作数据处理，不会改变SQL语句的结构，可以防止注入。" },
+        { "id": "00898-u08-l4-q6", "type": "judge", "level": "识记", "kp": "数据库操作的类别和相关操作（事务）",
+          "stem": "JDBC的Connection默认处于自动提交模式，每条SQL语句执行后立即提交；要把多条语句作为一个事务，应先调用setAutoCommit(false)。",
+          "answer": true,
+          "explain": "关闭自动提交后，用commit()提交事务，出错时用rollback()回滚，使多条语句要么全部生效、要么全部不生效。",
+          "verify": "核对教材第8章是否讲到事务处理（setAutoCommit()、commit()、rollback()）。" },
+        { "id": "00898-u08-l4-q7", "type": "judge", "level": "领会", "kp": "Statement的相关方法（PreparedStatement的执行）",
+          "stem": "使用PreparedStatement执行查询时，应写成ps.executeQuery(sql)，即再把SQL语句作为参数传入一次。",
+          "answer": false, "fix": "“应写成ps.executeQuery(sql)，即再把SQL语句作为参数传入一次”改为“应调用不带参数的ps.executeQuery()，SQL语句在prepareStatement(sql)时已经给出”",
+          "explain": "PreparedStatement在创建时就已绑定并预编译了SQL语句，执行时调用无参的executeQuery()、executeUpdate()；带SQL参数的写法是Statement的用法。" },
+        { "id": "00898-u08-l4-q8", "type": "short", "form": "简答", "level": "领会", "kp": "接口的层次、相关接口；Statement的作用和相关方法",
+          "stem": "比较Statement与PreparedStatement的异同。",
+          "points": ["相同：PreparedStatement是Statement的子接口，都用来执行SQL语句，都由Connection创建", "Statement用createStatement()创建，执行时才把SQL语句作为参数传入", "PreparedStatement用prepareStatement(sql)创建，创建时就传入SQL并预编译，多次执行效率高", "参数：PreparedStatement用?占位符，setXxx(序号, 值)赋值（序号从1开始）；Statement只能拼接字符串", "安全：PreparedStatement能防止SQL注入；Statement拼接用户输入有被注入的风险"],
+          "explain": "先写共同点，再从创建方式、参数、效率、安全四个方面比较不同点。" }
+      ]
     }
   ]
 }

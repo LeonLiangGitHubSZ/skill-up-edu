@@ -42,6 +42,7 @@ for (const course of courses) {
     if (unit.course !== course) err(where, `course 应为 "${course}"`);
     if (unit.unit !== Number(nn)) err(where, `unit 应为 ${Number(nn)}`);
     if (!nonEmpty(unit.title)) err(where, "缺少 title");
+    if (unit.unit >= 90 && !String(unit.title).startsWith("专项：")) err(where, "专项单元（unit ≥ 90）的 title 应以「专项：」开头");
     if (!Array.isArray(unit.lessons) || unit.lessons.length === 0) { err(where, "lessons 为空"); continue; }
 
     unit.lessons.forEach((lesson, li) => {
@@ -52,7 +53,7 @@ for (const course of courses) {
       if (!Array.isArray(lesson.questions)) { err(lw, "questions 不是数组"); return; }
       if (lesson.questions.length < 5 || lesson.questions.length > 10) err(lw, `每课 5–10 题（实际 ${lesson.questions.length}）`);
       const shortCount = lesson.questions.filter((q) => q.type === "short").length;
-      if (shortCount > 2) warn(lw, `主观题 ${shortCount} 道，建议每课不超过 2 道`);
+      if (shortCount > 2 && unit.unit < 90) warn(lw, `主观题 ${shortCount} 道，建议每课不超过 2 道`);
       lessonTotal++;
 
       lesson.questions.forEach((q, qi) => {

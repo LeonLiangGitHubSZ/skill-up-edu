@@ -477,6 +477,227 @@
           "explain": "视图 v_avg 含聚合函数和 GROUP BY，只能查询，不能通过它更新数据；查询视图的写法与查询基本表完全相同。"
         }
       ]
+    },
+    {
+      "id": "04735-u04-l6",
+      "title": "联合查询、自连接、外连接与子查询",
+      "questions": [
+        {
+          "id": "04735-u04-l6-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "联合查询 UNION",
+          "stem": "关于 MySQL 中的 UNION，下列说法正确的是？",
+          "options": ["UNION 默认保留结果中的重复行", "结果集的列名取自最后一个 SELECT 语句", "UNION 只能合并同一个表的查询结果", "各 SELECT 语句选择的列数必须相同，对应列的类型应兼容"],
+          "answer": 3,
+          "explain": "UNION 默认去掉重复行，要保留重复行须写 UNION ALL；结果集的列名取第一个 SELECT 中的列名；各 SELECT 可以查询不同的表，只要列数相同、对应列类型兼容。"
+        },
+        {
+          "id": "04735-u04-l6-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "联合查询 UNION",
+          "stem": "学生表 S 的主码是 Sno。计算机系有 30 名学生，全校年龄小于 19 岁的有 10 人，其中计算机系的有 4 人。执行下面语句返回多少行？",
+          "code": "SELECT Sno FROM S WHERE Sdept = '计算机'\nUNION\nSELECT Sno FROM S WHERE Sage < 19;",
+          "options": ["40", "34", "36", "26"],
+          "answer": 2,
+          "explain": "两个查询分别返回 30 行和 10 行，其中 4 个学号重复；UNION 去掉重复行，结果为 30＋10−4＝36 行。若写成 UNION ALL，则返回 40 行。"
+        },
+        {
+          "id": "04735-u04-l6-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "自连接",
+          "stem": "课程表 C(Cno, Cname, Cpno) 中，Cpno 是该课程的直接先修课的课程号。下面查询得到的是？",
+          "code": "SELECT a.Cno, b.Cpno\nFROM C AS a JOIN C AS b ON a.Cpno = b.Cno;",
+          "options": ["每门课程的间接先修课（先修课的先修课）", "每门课程的直接先修课", "没有先修课的课程", "语法错误：同一个表不能在 FROM 中出现两次"],
+          "answer": 0,
+          "explain": "这是自连接：给同一个表取两个别名，当作两个表来连接。b 是 a 的先修课，b.Cpno 就是 a 的先修课的先修课，即间接先修课。"
+        },
+        {
+          "id": "04735-u04-l6-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "外连接",
+          "stem": "课程表 C(Cno, Cname, Credit)、选课表 SC(Sno, Cno, Grade)。下面语句查询的是？",
+          "code": "SELECT C.Cno, Cname\nFROM C LEFT JOIN SC ON C.Cno = SC.Cno\nWHERE SC.Cno IS NULL;",
+          "options": ["所有学生都选修了的课程", "没有任何学生选修的课程", "成绩为空的选课记录对应的课程", "全部课程"],
+          "answer": 1,
+          "explain": "左外连接保留 C 的全部行，没人选的课程在 SC 一侧的列都填 NULL，再用 SC.Cno IS NULL 筛选，就得到没有学生选修的课程，效果同 WHERE Cno NOT IN (SELECT Cno FROM SC)。"
+        },
+        {
+          "id": "04735-u04-l6-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "比较子查询：ANY 与 ALL",
+          "stem": "在子查询结果非空且不含 NULL 时，下面的条件等价于？",
+          "code": "Sage < ANY (SELECT Sage FROM S WHERE Sdept = '计算机')",
+          "options": ["Sage 小于计算机系学生年龄的最小值", "Sage 大于计算机系学生年龄的最大值", "Sage 等于计算机系学生年龄的平均值", "Sage 小于计算机系学生年龄的最大值"],
+          "answer": 3,
+          "explain": "< ANY 表示只要小于子查询结果中的某一个值即可，也就是小于其中的最大值；< ALL 才要求小于所有的值，即小于最小值。SOME 与 ANY 同义。"
+        },
+        {
+          "id": "04735-u04-l6-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "联合查询 UNION",
+          "stem": "用 UNION 合并多个查询结果时，若要保留结果中的重复行，应写成 UNION ____。",
+          "answers": ["ALL"],
+          "explain": "UNION 相当于 UNION DISTINCT，会去掉重复行；UNION ALL 不去重。"
+        },
+        {
+          "id": "04735-u04-l6-q7",
+          "type": "fill",
+          "level": "识记",
+          "kp": "交叉连接",
+          "stem": "交叉连接（CROSS JOIN）不带连接条件，返回的是两个表的____。",
+          "answers": ["笛卡儿积", "笛卡尔积", "广义笛卡儿积", "广义笛卡尔积"],
+          "explain": "交叉连接把左表的每一行与右表的每一行组合，结果行数是两表行数之积；FROM S, SC 不加连接条件时效果相同。"
+        },
+        {
+          "id": "04735-u04-l6-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "自连接、外连接、EXISTS 与 UNION",
+          "stem": "设有学生选课数据库：\n学生 S(Sno, Sname, Ssex, Sage, Sdept)\n课程 C(Cno, Cname, Credit)\n选课 SC(Sno, Cno, Grade)\n用 SQL 语句完成：\n(1) 用自连接查询与“刘晨”在同一个系的其他学生的学号和姓名；\n(2) 查询每门课程的课程号、课程名和选课人数，没有学生选修的课程人数显示为 0；\n(3) 用 EXISTS 查询选修了 C2 课程的学生的姓名；\n(4) 用 UNION 查询选修了 C1 或 C2 课程的学生的学号。",
+          "points": [
+            "(1) S 取别名 s1、s2 按 Sdept 连接，s1 是刘晨，s2 排除刘晨本人（1 分）",
+            "(2) C LEFT JOIN SC，按课程分组，用 COUNT(SC.Sno) 计数（1 分）",
+            "(3) EXISTS 子查询中用 SC.Sno = S.Sno 关联，并限定 Cno = 'C2'（1 分）",
+            "(4) 两个 SELECT Sno FROM SC … 用 UNION 连接（1 分）"
+          ],
+          "answer": "SELECT s2.Sno, s2.Sname\n  FROM S AS s1 JOIN S AS s2 ON s1.Sdept = s2.Sdept\n  WHERE s1.Sname = '刘晨' AND s2.Sname <> '刘晨';\nSELECT C.Cno, Cname, COUNT(SC.Sno) AS 人数\n  FROM C LEFT JOIN SC ON C.Cno = SC.Cno\n  GROUP BY C.Cno, Cname;\nSELECT Sname FROM S\n  WHERE EXISTS (SELECT * FROM SC\n                WHERE SC.Sno = S.Sno AND Cno = 'C2');\nSELECT Sno FROM SC WHERE Cno = 'C1'\nUNION\nSELECT Sno FROM SC WHERE Cno = 'C2';",
+          "explain": "(2) 必须用外连接才能保留没人选的课程，而且要用 COUNT(SC.Sno)：没人选的课程连接后只有一行且 SC 的列为 NULL，COUNT(*) 会得到 1。(4) UNION 会自动去掉同时选了 C1 和 C2 的重复学号。"
+        },
+        {
+          "id": "04735-u04-l6-q9",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "IN 子查询、比较子查询与 NOT EXISTS",
+          "stem": "设有部门表 dept(dno, dname, city) 和职工表 emp(eno, ename, salary, dno)，emp 的 dno 是参照 dept 的外码。用 SQL 语句完成：\n(1) 查询工资高于全体职工平均工资的职工的姓名和工资；\n(2) 用 IN 子查询查询在“南京”的部门工作的职工的工号和姓名；\n(3) 查询每个部门中工资最高的职工的姓名、工资和部门号；\n(4) 用 NOT EXISTS 查询还没有任何职工的部门的名称。",
+          "points": [
+            "(1) WHERE salary > (SELECT AVG(salary) FROM emp)（1 分）",
+            "(2) WHERE dno IN (SELECT dno FROM dept WHERE city = '南京')（1 分）",
+            "(3) 子查询按 e2.dno = e1.dno 求本部门的最高工资（1 分）",
+            "(4) NOT EXISTS 子查询中用 emp.dno = dept.dno 关联（1 分）"
+          ],
+          "answer": "SELECT ename, salary FROM emp\n  WHERE salary > (SELECT AVG(salary) FROM emp);\nSELECT eno, ename FROM emp\n  WHERE dno IN (SELECT dno FROM dept WHERE city = '南京');\nSELECT ename, salary, dno FROM emp AS e1\n  WHERE salary = (SELECT MAX(salary) FROM emp AS e2\n                  WHERE e2.dno = e1.dno);\nSELECT dname FROM dept\n  WHERE NOT EXISTS (SELECT * FROM emp\n                    WHERE emp.dno = dept.dno);",
+          "explain": "聚合函数不能直接写在 WHERE 中，(1) 要先用子查询求出平均工资；(3) 的子查询引用了外层的 e1.dno，对外层的每一行都要重新求值（相关子查询）。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u04-l7",
+      "title": "表的修改、删除与视图的维护",
+      "questions": [
+        {
+          "id": "04735-u04-l7-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "修改表结构：MODIFY",
+          "stem": "执行下面语句的作用是？",
+          "code": "ALTER TABLE student\n  MODIFY COLUMN sname VARCHAR(30) FIRST;",
+          "options": ["在表的最前面新增一个 sname 列", "把 sname 列改名为 FIRST", "把 sname 列改为 VARCHAR(30)，并移到表的第一列", "只修改 sname 的类型，FIRST 表示只改第一行"],
+          "answer": 2,
+          "explain": "MODIFY 修改列的定义（不能改列名），后面可以加 FIRST 或“AFTER 列名”调整列的位置；新增列用 ADD，改列名要用 CHANGE。"
+        },
+        {
+          "id": "04735-u04-l7-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "查看表：SHOW TABLES 与 DESC",
+          "stem": "在 MySQL 中，语句 SHOW TABLES; 和 DESC student; 的作用分别是？",
+          "options": ["显示所有表的结构；按降序显示 student 的数据", "列出当前数据库中的所有表；显示 student 表的结构", "列出所有数据库；删除 student 表", "列出当前数据库中的所有表；按降序显示 student 的全部记录"],
+          "answer": 1,
+          "explain": "DESC 是 DESCRIBE 的简写，显示表中各列的名称、类型、是否允许为空、键和默认值等；只有在 ORDER BY 子句中，DESC 才表示降序。"
+        },
+        {
+          "id": "04735-u04-l7-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "视图定义的限制",
+          "stem": "关于在 MySQL 中创建视图，下列说法正确的是？",
+          "options": ["可以在视图上创建索引以加快查询", "视图名可以与同一数据库中的基本表同名", "定义视图时引用的表可以暂时不存在", "不能把触发器与视图相关联"],
+          "answer": 3,
+          "explain": "视图与基本表共用同一个命名空间，不能同名；视图上不能建立索引，也不能关联触发器；定义中引用的表或视图在创建视图时必须已经存在。",
+          "verify": "核对教材 4.6 节创建视图的注意事项（视图不能与表同名、不能与触发器相关联、不能在视图上建索引等）。"
+        },
+        {
+          "id": "04735-u04-l7-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "可更新视图",
+          "stem": "学生表 S(Sno, Sname, Ssex, Sage, Sdept) 中，视图里没有的列都允许为空。在 S 上定义了下面 4 个视图，其中可更新（能通过它插入、修改和删除 S 的数据）的是？",
+          "code": "CREATE VIEW v1 AS\n  SELECT DISTINCT Sdept FROM S;\nCREATE VIEW v2 AS\n  SELECT Sdept, COUNT(*) AS n\n  FROM S GROUP BY Sdept;\nCREATE VIEW v3 AS\n  SELECT Sno, Sname, Sdept\n  FROM S WHERE Sage > 18;\nCREATE VIEW v4 AS\n  SELECT Sno FROM S WHERE Sage > 20\n  UNION SELECT Sno FROM S WHERE Sdept = '数学';",
+          "options": ["v1", "v2", "v3", "v4"],
+          "answer": 2,
+          "explain": "v1 含 DISTINCT，v2 含聚合函数和 GROUP BY，v4 含 UNION，视图的行与 S 的行不再一一对应，都不可更新；v3 只是从单表中选取部分行和列，可以更新。"
+        },
+        {
+          "id": "04735-u04-l7-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "WITH CHECK OPTION",
+          "stem": "学号为 2024001 的学生在计算机系。执行下面的语句，UPDATE 的结果是？",
+          "code": "CREATE VIEW v_cs AS\n  SELECT Sno, Sname, Sdept FROM S\n  WHERE Sdept = '计算机'\n  WITH CHECK OPTION;\nUPDATE v_cs SET Sdept = '数学'\n  WHERE Sno = '2024001';",
+          "options": ["执行失败，修改后的行不满足视图定义中的条件", "执行成功，该学生随后从视图中消失", "执行成功，但只改了视图，基本表 S 不变", "执行失败，因为视图一律不允许执行 UPDATE"],
+          "answer": 0,
+          "explain": "带 WITH CHECK OPTION 时，通过视图插入或修改的行必须满足视图的 WHERE 条件，改成数学系后不再满足，操作被拒绝；若没有该子句，修改会成功，这名学生随即从视图中“消失”。"
+        },
+        {
+          "id": "04735-u04-l7-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "重命名表",
+          "stem": "下面语句把表 book 改名为 tb_book，①处应填____。",
+          "code": "① TABLE book TO tb_book;",
+          "answers": ["RENAME"],
+          "explain": "也可以写成 ALTER TABLE book RENAME TO tb_book;。RENAME TABLE 一次可以给多个表改名，各项之间用逗号隔开。"
+        },
+        {
+          "id": "04735-u04-l7-q7",
+          "type": "fill",
+          "level": "识记",
+          "kp": "修改视图",
+          "stem": "修改已有视图的定义，除了使用 ALTER VIEW 语句，还可以使用 CREATE ____ VIEW 语句。",
+          "answers": ["OR REPLACE"],
+          "explain": "CREATE OR REPLACE VIEW 在视图不存在时创建，已存在时用新定义替换；ALTER VIEW 只能修改已经存在的视图。"
+        },
+        {
+          "id": "04735-u04-l7-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "修改与删除表",
+          "stem": "已有图书表 book(bno, bname, price, press)。用 SQL 语句完成：\n(1) 增加一列 isbn CHAR(13)，作为表的第一列；\n(2) 将 price 列的类型改为 DECIMAL(8,2)，且不允许为空；\n(3) 将表 book 改名为 tb_book；\n(4) 删除表 book_old（若该表存在）。",
+          "points": [
+            "(1) ALTER TABLE book ADD COLUMN isbn CHAR(13) FIRST（1 分）",
+            "(2) MODIFY COLUMN price DECIMAL(8,2) NOT NULL（1 分）",
+            "(3) RENAME TABLE book TO tb_book（1 分）",
+            "(4) DROP TABLE IF EXISTS book_old（1 分）"
+          ],
+          "answer": "ALTER TABLE book ADD COLUMN isbn CHAR(13) FIRST;\nALTER TABLE book MODIFY COLUMN price DECIMAL(8,2) NOT NULL;\nRENAME TABLE book TO tb_book;\nDROP TABLE IF EXISTS book_old;",
+          "explain": "只改类型或约束用 MODIFY，连列名一起改才用 CHANGE；(3) 也可写 ALTER TABLE book RENAME TO tb_book。DROP TABLE 把表结构和数据一起删除，IF EXISTS 避免表不存在时报错。"
+        },
+        {
+          "id": "04735-u04-l7-q9",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "修改视图与通过视图更新数据",
+          "stem": "学生表 S(Sno, Sname, Ssex, Sage, Sdept) 上已有视图 v_stu。用 SQL 语句完成：\n(1) 用 ALTER VIEW 修改 v_stu，使其包含计算机系学生的学号、姓名、性别和所在系，并保证通过视图插入、修改的数据都属于计算机系；\n(2) 通过 v_stu 插入一名学生：学号 2024010，姓名赵亮，男，计算机系；\n(3) 通过 v_stu 删除学号为 2024003 的学生。",
+          "points": [
+            "(1) ALTER VIEW v_stu AS SELECT Sno, Sname, Ssex, Sdept FROM S（1 分）",
+            "(1) WHERE Sdept = '计算机' WITH CHECK OPTION（1 分）",
+            "(2) INSERT INTO v_stu VALUES (…, '男', '计算机')（1 分）",
+            "(3) DELETE FROM v_stu WHERE Sno = '2024003'（1 分）"
+          ],
+          "answer": "ALTER VIEW v_stu AS\n  SELECT Sno, Sname, Ssex, Sdept FROM S\n  WHERE Sdept = '计算机'\n  WITH CHECK OPTION;\nINSERT INTO v_stu\n  VALUES ('2024010', '赵亮', '男', '计算机');\nDELETE FROM v_stu WHERE Sno = '2024003';",
+          "explain": "通过可更新视图插入、删除，实际作用在基本表 S 上，视图中没有的列 Sage 取 NULL 或默认值。(3) 只能删除视图中看得到的行：若 2024003 不是计算机系学生，则删除 0 行。"
+        }
+      ]
     }
   ]
 }

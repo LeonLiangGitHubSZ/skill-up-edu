@@ -146,6 +146,49 @@
           "answer": "<%-- check.jsp --%>\n<%@ page contentType=\"text/html;charset=UTF-8\" %>\n<%\n  request.setCharacterEncoding(\"UTF-8\");\n  String user = request.getParameter(\"username\");\n  String pwd = request.getParameter(\"password\");\n  if (\"admin\".equals(user) && \"123456\".equals(pwd)) {\n%>\n  <jsp:forward page=\"success.jsp\">\n    <jsp:param name=\"user\" value=\"<%= user %>\" />\n  </jsp:forward>\n<% } else { %>\n  <jsp:forward page=\"login.jsp\" />\n<% } %>\n\n<%-- success.jsp --%>\n<%@ page contentType=\"text/html;charset=UTF-8\" %>\n<html><body>\n  欢迎你，<%= request.getParameter(\"user\") %>！登录成功。\n</body></html>",
           "explain": "<jsp:forward>可以写在if/else的脚本片段之间，满足条件才转发；转发后地址栏仍是check.jsp，用户名通过<jsp:param>以请求参数的形式传给success.jsp。" }
       ]
+    },
+    {
+      "id": "00898-u03-l4",
+      "title": "脚本元素的代码阅读与Java注释",
+      "questions": [
+        { "id": "00898-u03-l4-q1", "type": "single", "level": "领会", "kp": "声明局部变量和全局变量（注意两者的不同）",
+          "stem": "访问下面的JSP页面，输出的是？",
+          "code": "<%! int n = 10; %>\n<%\n  int n = 1;\n  n++;\n%>\n<%= n %>，<%= this.n %>",
+          "options": ["2，2", "2，10", "11，10", "编译出错，变量n重复定义"], "answer": 1,
+          "explain": "<%! %>中的n是Servlet的成员变量，<% %>中的n是_jspService()方法的局部变量，同名时局部变量遮蔽成员变量，所以<%= n %>输出2；this.n明确指成员变量，仍为10。两者作用域不同，不算重复定义。" },
+        { "id": "00898-u03-l4-q2", "type": "single", "level": "领会", "kp": "声明的语法、功能；脚本代码的注意点",
+          "stem": "下面两个页面都是先使用变量msg、后定义它，访问的结果分别是？",
+          "code": "<%-- 页面① --%>\n<%= msg %>\n<%! String msg = \"Hello\"; %>\n\n<%-- 页面② --%>\n<%= msg %>\n<% String msg = \"Hello\"; %>",
+          "options": ["①输出Hello，②编译出错", "①编译出错，②输出Hello", "两个页面都输出Hello", "两个页面都编译出错"], "answer": 0,
+          "explain": "声明<%! %>中的变量是类的成员变量，方法中使用它与书写位置无关，所以①正常输出；②中的msg是_jspService()中的局部变量，Java要求局部变量先定义后使用，所以编译出错。" },
+        { "id": "00898-u03-l4-q3", "type": "single", "level": "领会", "kp": "使用表达式的注意点",
+          "stem": "下列JSP表达式中，能正常编译并输出内容的是？",
+          "options": ["<%= out.println(\"ok\") %>", "<%= int x = 5 %>", "<%= session.setAttribute(\"x\", 1) %>", "<%= request.getRemoteAddr() %>"], "answer": 3,
+          "explain": "表达式被翻译成out.print(表达式)，所以<%= %>中必须是一个有值的表达式：out.println()和setAttribute()的返回类型是void，int x = 5是声明语句，都会编译出错；getRemoteAddr()返回字符串，可以输出。" },
+        { "id": "00898-u03-l4-q4", "type": "single", "level": "应用", "kp": "隐藏注释、HTML注释与常用的Java注释的比较",
+          "stem": "访问下面的页面后，在浏览器中“查看源代码”，能看到的内容是？",
+          "code": "<!-- A：<%= 1 + 2 %> -->\n<%-- B：<%= 3 + 4 %> --%>\n<%\n  // C：out.print(5 + 6);\n  out.print(7 + 8);\n%>",
+          "options": ["<!-- A：<%= 1 + 2 %> -->和15", "<!-- A：3 -->、B：7和15", "<!-- A：3 -->和15", "<!-- A：3 -->、11和15"], "answer": 2,
+          "explain": "HTML注释会发送到客户端，其中的表达式先在服务器端算成3；隐藏注释<%-- --%>在翻译时就被丢弃；//是Java单行注释，被注释的语句不执行，所以只有out.print(7 + 8)输出15。" },
+        { "id": "00898-u03-l4-q5", "type": "single", "level": "应用", "kp": "方法或变量的声明；撰写JSP页面",
+          "stem": "要求每次访问页面都输出1+2+…+10的和55，下面四种写法中正确的是？",
+          "code": "① <%! int s = 0; %><% for (int i = 1; i <= 10; i++) s += i; %><%= s %>\n② <% int s = 0; for (int i = 1; i <= 10; i++) s += i; %><%= s %>\n③ <% int s = 0; for (int i = 1; i <= 10; i++) s += i; %><%= s; %>\n④ <% int s; for (int i = 1; i <= 10; i++) s += i; %><%= s %>",
+          "options": ["写法①", "写法②", "写法③", "写法④"], "answer": 1,
+          "explain": "①中s是成员变量，第一次输出55，以后每次访问都在原值上继续累加（110、165…）；③的表达式末尾多了分号，④的局部变量s没有赋初值，都会编译出错。只有②每次请求都从0开始累加。" },
+        { "id": "00898-u03-l4-q6", "type": "judge", "level": "领会", "kp": "方法或变量的声明（声明的方法与内置对象）",
+          "stem": "在<%! %>中声明的方法里，可以像在<% %>中一样直接使用out、request等内置对象。",
+          "answer": false, "fix": "“可以像在<% %>中一样直接使用”改为“不能直接使用，需要作为参数传入”",
+          "explain": "内置对象是_jspService()方法的参数或局部变量，声明的方法是类的另一个成员方法，看不到它们；可以把out作为参数传进去，或让方法返回字符串，再用表达式输出。" },
+        { "id": "00898-u03-l4-q7", "type": "judge", "level": "识记", "kp": "隐藏注释（目的、语法、处理）",
+          "stem": "用<%-- --%>把一段<% %>脚本代码括起来后，这段代码在翻译时就被忽略，既不会执行，也不会发送到客户端。",
+          "answer": true,
+          "explain": "隐藏注释中的一切（包括JSP代码）在翻译成Servlet时都被丢弃，所以常用它临时“屏蔽”一段代码；如果改用<!-- -->，其中的JSP代码仍会在服务器端执行。" },
+        { "id": "00898-u03-l4-q8", "type": "short", "form": "综合应用", "level": "应用", "kp": "撰写JSP页面（脚本代码与HTML交替书写）",
+          "stem": "编写JSP页面table99.jsp，在HTML表格中输出九九乘法表：第i行（i=1～9）有i个单元格，依次为“1×i=…”到“i×i=…”。要求用<% %>写循环、用<%= %>输出数值。",
+          "points": ["用page指令设置contentType和字符编码", "外层for循环i从1到9控制行，每次输出一对<tr></tr>", "内层for循环j从1到i控制单元格，每次输出一个<td>", "单元格中用<%= j %>、<%= i %>、<%= i * j %>输出乘式和乘积", "循环的“{”和“}”写在不同的<% %>中，HTML标签写在它们之间"],
+          "answer": "<%@ page contentType=\"text/html;charset=UTF-8\" %>\n<html><body>\n<table border=\"1\">\n<% for (int i = 1; i <= 9; i++) { %>\n  <tr>\n  <% for (int j = 1; j <= i; j++) { %>\n    <td><%= j %>×<%= i %>=<%= i * j %></td>\n  <% } %>\n  </tr>\n<% } %>\n</table>\n</body></html>",
+          "explain": "所有脚本片段按顺序合并进_jspService()，<% for(…){ %>和<% } %>之间的HTML被转换成out.write()语句放进循环体，所以会被重复输出。" }
+      ]
     }
   ]
 }

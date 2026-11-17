@@ -385,6 +385,221 @@
           "explain": "OPTIONALLY 表示只给字符串类型的字段加双引号。实际运行时还受服务器 secure_file_priv 参数的限制，文件路径必须在允许的目录中。"
         }
       ]
+    },
+    {
+      "id": "04735-u06-l5",
+      "title": "完整性约束的分类、命名与更新",
+      "questions": [
+        {
+          "id": "04735-u06-l5-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "完整性约束条件的作用对象",
+          "stem": "活动表 activity(aid, aname, start_date, end_date) 要求每个活动的开始日期必须早于结束日期。按作用对象划分，这一约束属于？",
+          "options": ["元组约束", "列级约束", "表级约束", "参照完整性约束"],
+          "answer": 0,
+          "explain": "它约束的是同一个元组中 start_date 与 end_date 两个字段之间的关系，属于元组约束；只涉及单个列的类型、取值范围等的是列级约束。",
+          "verify": "核对教材 6.1 节完整性约束条件作用对象的分类（列级约束、元组约束、表级约束）及示例。"
+        },
+        {
+          "id": "04735-u06-l5-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "完整性约束条件的作用对象",
+          "stem": "下列约束中，属于列级约束的是？",
+          "options": ["活动的开始日期必须早于结束日期", "成绩的取值范围为 0～100", "选课表中的学号必须在学生表中存在", "任意两个学生的学号不能相同"],
+          "answer": 1,
+          "explain": "列级约束是对列的类型、取值范围、精度、格式和空值等的约束；开始日期早于结束日期是元组约束；学号不能重复、选课表学号受学生表约束，涉及若干元组之间或关系之间，是表级约束。"
+        },
+        {
+          "id": "04735-u06-l5-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "删除完整性约束",
+          "stem": "要删除选课表 SC 上名为 fk_sc_s 的外键约束，正确的语句是？",
+          "options": ["ALTER TABLE SC DELETE FOREIGN KEY fk_sc_s;", "DROP FOREIGN KEY fk_sc_s ON SC;", "ALTER TABLE SC DROP CONSTRAINT FOREIGN fk_sc_s;", "ALTER TABLE SC DROP FOREIGN KEY fk_sc_s;"],
+          "answer": 3,
+          "explain": "删除外键约束的格式是 ALTER TABLE 表名 DROP FOREIGN KEY 外键约束名；所以定义外键时最好用 CONSTRAINT 子句起一个名字，否则要先查出系统自动生成的名字。"
+        },
+        {
+          "id": "04735-u06-l5-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "删除完整性约束",
+          "stem": "用 ALTER TABLE 表名 DROP PRIMARY KEY 删除主键约束时，不需要指定约束名，原因是？",
+          "options": ["主键约束没有名字", "一个表只能有一个主键约束", "主键会随表中数据一起自动删除", "主键约束只能定义为列级约束"],
+          "answer": 1,
+          "explain": "每个表最多只有一个主键，DROP PRIMARY KEY 删除的对象是确定的；而外键、候选键可以有多个，删除时必须写出约束名（或索引名）。"
+        },
+        {
+          "id": "04735-u06-l5-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "更新完整性约束",
+          "stem": "关于 MySQL 中完整性约束的更新，下列说法正确的是？",
+          "options": ["要修改某个约束，需先删除它，再增加一个同名的新约束", "可以用 ALTER TABLE … MODIFY CONSTRAINT 直接修改约束的定义", "用 ALTER TABLE 删除表上的约束时，会把表一起删除", "用 DROP TABLE 删除表后，表上的约束仍保留在数据库中"],
+          "answer": 0,
+          "explain": "完整性约束不能直接修改，只能先删除再添加同名的新约束；ALTER TABLE 可以单独删除约束而不影响表本身；DROP TABLE 删除表时，表上所有的完整性约束也自动被删除。"
+        },
+        {
+          "id": "04735-u06-l5-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "命名完整性约束",
+          "stem": "定义完整性约束时，可以用____子句为约束指定一个名字，便于以后删除或修改该约束。",
+          "answers": ["CONSTRAINT"],
+          "explain": "格式为 CONSTRAINT 约束名 约束定义，如 CONSTRAINT fk_sc_s FOREIGN KEY (Sno) REFERENCES S(Sno)；不命名时 MySQL 会自动生成一个名字。"
+        },
+        {
+          "id": "04735-u06-l5-q7",
+          "type": "fill",
+          "level": "识记",
+          "kp": "删除完整性约束",
+          "stem": "删除候选键（UNIQUE）约束的语句格式为：ALTER TABLE 表名 DROP ____ 约束名。",
+          "answers": ["INDEX", "KEY"],
+          "explain": "MySQL 用唯一性索引实现候选键约束，所以要按索引来删除。三种删除语句：DROP PRIMARY KEY、DROP FOREIGN KEY 约束名、DROP INDEX 约束名。"
+        },
+        {
+          "id": "04735-u06-l5-q8",
+          "type": "short",
+          "form": "简答",
+          "level": "领会",
+          "kp": "完整性约束条件的作用对象",
+          "stem": "完整性约束条件按作用对象可分为哪几类？各举一例。",
+          "points": [
+            "列级约束：对列的类型、取值范围、精度、格式、空值等的约束",
+            "例：成绩取值在 0～100 之间，姓名不能为空",
+            "元组约束：元组中各个字段之间的相互约束",
+            "例：活动的开始日期必须早于结束日期",
+            "表级约束：若干元组之间、关系之间的联系的约束",
+            "例：学号不能重复；选课表中的学号必须在学生表中存在"
+          ],
+          "explain": "按“单个列—同一行的多个列—多行或多个表”的范围由小到大来记。",
+          "verify": "核对教材 6.1 节完整性约束条件作用对象的分类名称与示例。"
+        },
+        {
+          "id": "04735-u06-l5-q9",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "添加、删除与修改完整性约束",
+          "stem": "已有学生表 S(Sno, Sname, Sage, Sdept) 和选课表 SC(Sno, Cno, Grade)，两表都没有定义任何约束。用 ALTER TABLE 语句完成：\n(1) 为 S 表添加主键约束（Sno）；\n(2) 为 S 表的 Sname 列添加候选键约束，约束名为 uk_sname；\n(3) 为 SC 表添加外键约束 fk_sc_s：Sno 参照 S 表的 Sno；\n(4) 把 fk_sc_s 修改为：删除学生时级联删除其选课记录。",
+          "points": [
+            "(1) ALTER TABLE S ADD PRIMARY KEY (Sno)（1 分）",
+            "(2) ADD CONSTRAINT uk_sname UNIQUE (Sname)（1 分）",
+            "(3) ADD CONSTRAINT fk_sc_s FOREIGN KEY (Sno) REFERENCES S(Sno)（1 分）",
+            "(4) 先 DROP FOREIGN KEY fk_sc_s，再添加同名外键并加 ON DELETE CASCADE（1 分）"
+          ],
+          "answer": "ALTER TABLE S ADD PRIMARY KEY (Sno);\nALTER TABLE S ADD CONSTRAINT uk_sname UNIQUE (Sname);\nALTER TABLE SC ADD CONSTRAINT fk_sc_s\n  FOREIGN KEY (Sno) REFERENCES S(Sno);\nALTER TABLE SC DROP FOREIGN KEY fk_sc_s;\nALTER TABLE SC ADD CONSTRAINT fk_sc_s\n  FOREIGN KEY (Sno) REFERENCES S(Sno)\n  ON DELETE CASCADE;",
+          "explain": "完整性约束不能直接修改，只能先删除再添加同名的新约束。外键要求被参照列上有主键或唯一索引，所以 (1) 要先做；两表都应使用 InnoDB 存储引擎。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u06-l6",
+      "title": "封锁粒度、可串行化与日志恢复",
+      "questions": [
+        {
+          "id": "04735-u06-l6-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "封锁粒度",
+          "stem": "关于封锁粒度，下列说法正确的是？",
+          "options": ["封锁粒度越小，并发度越高，系统开销也越大", "封锁粒度越大，并发度越高，系统开销也越大", "封锁粒度越小，并发度越低，系统开销越小", "封锁粒度的大小与并发度无关"],
+          "answer": 0,
+          "explain": "封锁粒度指被封锁的数据单元的大小，可以是属性值、元组、关系乃至整个数据库。粒度越小，能同时执行的事务越多，但要管理的锁也越多，开销越大；粒度越大则相反。",
+          "verify": "核对教材 6.4 节是否讲封锁粒度及其与并发度、系统开销的关系。"
+        },
+        {
+          "id": "04735-u06-l6-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "封锁粒度",
+          "stem": "某事务要修改一个大表中的绝大部分元组。为了减少封锁开销，较合适的封锁粒度是？",
+          "options": ["单个属性值", "单个元组", "索引项", "整个关系（表）"],
+          "answer": 3,
+          "explain": "处理大量元组的事务以关系为封锁单位，只需加一把锁，开销小；只处理少量元组的事务才适合以元组为封锁单位，以提高并发度。"
+        },
+        {
+          "id": "04735-u06-l6-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "可串行化调度",
+          "stem": "A 的初值为 100，事务 T1 执行 A＝A−10，T2 执行 A＝A×2。按下面的调度并发执行后 A＝200。关于该调度，下列说法正确的是？",
+          "code": "t1  T1：读 A，得 100\nt2  T2：读 A，得 100\nt3  T1：A＝A−10，写回 A（90）\nt4  T2：A＝A×2，写回 A（200）",
+          "options": ["可串行化，结果与先 T1 后 T2 串行执行相同", "不可串行化，结果与任何一种串行执行都不同", "可串行化，结果与先 T2 后 T1 串行执行相同", "无法判断，因为调度中没有使用封锁"],
+          "answer": 1,
+          "explain": "先 T1 后 T2 得 A＝(100−10)×2＝180，先 T2 后 T1 得 A＝100×2−10＝190；并发结果 200 与两者都不同，所以不可串行化，T1 的修改被 T2 覆盖，发生了丢失更新。"
+        },
+        {
+          "id": "04735-u06-l6-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "二进制日志",
+          "stem": "关于 MySQL 的二进制日志，下列说法正确的是？",
+          "options": ["记录了所有更改数据的操作，SELECT 等只读查询不记录", "记录所有 SELECT 查询语句及其查询结果", "保存了数据库中所有表的一份完整数据副本", "可以直接用 LOAD DATA INFILE 语句导入表中"],
+          "answer": 0,
+          "explain": "二进制日志以“事件”的形式记录 CREATE、ALTER、INSERT、UPDATE、DELETE 等更改数据库的操作，不记录 SELECT、SHOW 等不修改数据的语句；它要用 mysqlbinlog 工具处理，不能用 LOAD DATA 导入。",
+          "verify": "核对教材 6.5 节是否介绍二进制日志文件及用 mysqlbinlog 恢复数据（若未涉及，本课第 4、5、8 题作为了解）。"
+        },
+        {
+          "id": "04735-u06-l6-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "使用二进制日志恢复数据",
+          "stem": "某数据库每天 0 点用 mysqldump 做一次完全备份，并启用了二进制日志。周三 15:00 数据文件损坏（二进制日志完好），要恢复到故障前的状态，正确的做法是？",
+          "options": ["只用周三 0 点的完全备份恢复即可", "先重做二进制日志，再加载周三 0 点的完全备份", "直接用 LOAD DATA INFILE 导入二进制日志文件", "先用周三 0 点的完全备份恢复，再用 mysqlbinlog 重做 0 点以后的日志"],
+          "answer": 3,
+          "explain": "完全备份只能恢复到 0 点的状态；0 点到 15:00 之间的更新记录在二进制日志中，要在加载备份之后，用 mysqlbinlog 把这段日志重新执行一遍，顺序不能颠倒。"
+        },
+        {
+          "id": "04735-u06-l6-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "使用 SQL 语句备份和恢复表数据",
+          "stem": "学生表 S 中有一行：Sno 为 '2024001'（CHAR 型），Sname 为 '王芳'（VARCHAR 型），Sage 为 19（INT 型）。执行下面的语句后，这一行在文件中的内容是？",
+          "code": "SELECT Sno, Sname, Sage FROM S\n  INTO OUTFILE 'D:/bak/s.txt'\n  FIELDS TERMINATED BY ','\n         OPTIONALLY ENCLOSED BY '\"'\n  LINES TERMINATED BY '?';",
+          "options": ["2024001,王芳,19?", "\"2024001\",\"王芳\",19?", "\"2024001\",\"王芳\",\"19\"?", "\"2024001\"?\"王芳\"?19,"],
+          "answer": 1,
+          "explain": "FIELDS TERMINATED BY 指定字段之间用逗号分隔；OPTIONALLY ENCLOSED BY 只给字符串类型的字段加双引号，数值 19 不加；LINES TERMINATED BY '?' 指定每一行以问号结束。"
+        },
+        {
+          "id": "04735-u06-l6-q7",
+          "type": "fill",
+          "level": "领会",
+          "kp": "使用 SQL 语句备份和恢复表数据",
+          "stem": "用 LOAD DATA INFILE 导入数据时，若希望文件中与表中已有行主键值相同的输入行替换原有行，应在 INTO TABLE 之前加上关键字____。",
+          "answers": ["REPLACE"],
+          "explain": "加 IGNORE 则跳过这些重复的输入行；两者都不指定时，遇到重复的主键值通常会报错并停止导入。",
+          "verify": "核对教材 LOAD DATA INFILE 语法说明中 REPLACE / IGNORE 选项的含义。"
+        },
+        {
+          "id": "04735-u06-l6-q8",
+          "type": "fill",
+          "level": "识记",
+          "kp": "使用二进制日志恢复数据",
+          "stem": "MySQL 中用来查看和处理二进制日志文件、把其中记录的事件转换成 SQL 语句的实用工具是____。",
+          "answers": ["mysqlbinlog"],
+          "explain": "例如 mysqlbinlog binlog.000001 | mysql -u root -p 可以把日志中记录的操作重新执行一遍，用于恢复数据。"
+        },
+        {
+          "id": "04735-u06-l6-q9",
+          "type": "short",
+          "form": "简答",
+          "level": "应用",
+          "kp": "可串行化调度",
+          "stem": "设数据项 A、B 的初值均为 2。事务 T1：读 B；A＝B＋1；写回 A。事务 T2：读 A；B＝A＋1；写回 B。\n(1) 写出两种串行调度执行后 A、B 的值；\n(2) 按下面的并发调度执行后 A、B 的值是多少？该调度是否可串行化？为什么？",
+          "code": "t1  T1：读 B\nt2  T2：读 A\nt3  T1：A＝B＋1，写回 A\nt4  T2：B＝A＋1，写回 B",
+          "points": [
+            "(1) 先 T1 后 T2：A＝3，B＝4（1 分）",
+            "(1) 先 T2 后 T1：A＝4，B＝3（1 分）",
+            "(2) 并发调度的结果：A＝3，B＝3（1 分）",
+            "(2) 不可串行化：结果与任何一种串行调度的结果都不同（2 分）"
+          ],
+          "answer": "(1) T1→T2：T1 读 B＝2，写 A＝3；T2 读 A＝3，写 B＝4。\n    结果 A＝3，B＝4。\n    T2→T1：T2 读 A＝2，写 B＝3；T1 读 B＝3，写 A＝4。\n    结果 A＝4，B＝3。\n(2) T1 读到 B＝2，T2 读到 A＝2，T1 写 A＝3，T2 写 B＝3，\n    结果 A＝3，B＝3。\n    与两种串行调度的结果都不相同，所以不是可串行化调度，\n    是不正确的调度。",
+          "explain": "判断方法：先算出各种串行顺序的结果，并发调度的结果与其中任意一个相同就是可串行化的，否则不是。若两个事务都遵守两段封锁协议，就能保证调度是可串行化的。"
+        }
+      ]
     }
   ]
 }

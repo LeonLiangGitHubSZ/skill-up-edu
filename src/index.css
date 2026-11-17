@@ -146,7 +146,7 @@ h1, h2 { margin: 0; }
 .btn { display: block; width: 100%; border: none; border-radius: 14px; padding: 14px; font-size: 16px; font-weight: 800; color: #fff; background: var(--pri); box-shadow: 0 4px 0 var(--pri-d); letter-spacing: 1px; }
 .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--pri-d); }
 .btn:disabled { background: #cbd5e1; box-shadow: 0 4px 0 #94a3b8; }
-.btn.inline { width: auto; padding: 10px 18px; }
+.btn.inline { width: auto; flex: none; white-space: nowrap; padding: 10px 18px; }
 .btn.ok, .foot.ok .btn { background: var(--ok); box-shadow: 0 4px 0 var(--ok-d); }
 .btn.bad, .foot.bad .btn { background: var(--bad); box-shadow: 0 4px 0 var(--bad-d); }
 .btn.warn { background: var(--warn); box-shadow: 0 4px 0 var(--warn-d); }
@@ -225,3 +225,19 @@ h1, h2 { margin: 0; }
 .toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 15px; font-weight: 600; }
 .toggle small { display: block; font-size: 12px; font-weight: 400; color: var(--sub); }
 .toggle input { width: 22px; height: 22px; accent-color: var(--pri); }
+
+/* 模拟考试 */
+.mock-head { flex: 1; font-size: 14px; font-weight: 800; color: var(--pri); text-align: left; }
+.mock-timer { font-size: 14px; font-weight: 800; color: var(--sub); white-space: nowrap; }
+.mock-timer.hot { color: var(--bad); }
+.prog.thin { flex: none; height: 6px; margin: 0 16px 6px; }
+.mock-score { font-size: 56px; font-weight: 800; color: var(--pri); line-height: 1.1; margin-top: 6px; }
+.mock-score small { font-size: 18px; color: var(--sub); }
+.mock-table { margin: 12px 0 10px; border-collapse: collapse; font-size: 14px; min-width: 240px; }
+.mock-table td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+.mock-table td + td { text-align: right; font-weight: 700; }
+.answer-card { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.answer-card button { border: 1.5px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 0; font-size: 13px; }
+.answer-card button.done { background: var(--pri-l); border-color: #c7d2fe; color: var(--pri-d); font-weight: 700; }
+.answer-card button.short { border-style: dashed; color: var(--sub); }
+.answer-card button.cur { outline: 2px solid var(--pri); outline-offset: 1px; }

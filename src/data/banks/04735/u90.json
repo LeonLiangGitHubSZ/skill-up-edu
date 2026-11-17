@@ -1,0 +1,266 @@
+{
+  "course": "04735",
+  "unit": 90,
+  "title": "专项：SQL 设计题",
+  "lessons": [
+    {
+      "id": "04735-u90-l1",
+      "title": "建表、数据更新与权限管理",
+      "questions": [
+        {
+          "id": "04735-u90-l1-q1",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "带完整性约束的建表",
+          "stem": "设有图书借阅数据库：\n读者 reader(rno CHAR(8), rname VARCHAR(20), dept VARCHAR(30))，主码 rno；\n图书 book(bno CHAR(10), bname VARCHAR(50), price DECIMAL(6,2), stock INT)，主码 bno。\n创建借阅表 borrow(rno, bno, bdate, rdate)，要求：\n(1) rno、bno 的类型与被参照列一致，bdate、rdate 为 DATE 型，bdate 不允许为空；\n(2) 主码为 (rno, bno, bdate)；\n(3) rno 参照 reader 表，删除读者时级联删除其借阅记录；bno 参照 book 表，有借阅记录的图书不允许删除；\n(4) 还书日期 rdate 不能早于借书日期 bdate。",
+          "points": [
+            "(1) 各列类型正确，bdate DATE NOT NULL（1 分）",
+            "(2) PRIMARY KEY (rno, bno, bdate) 写成表级约束（1 分）",
+            "(3) rno 外键 ON DELETE CASCADE；bno 外键 ON DELETE RESTRICT 或省略（1 分）",
+            "(4) CHECK (rdate >= bdate)，涉及两列，写在列定义之后（1 分）"
+          ],
+          "answer": "CREATE TABLE borrow (\n  rno   CHAR(8)  NOT NULL,\n  bno   CHAR(10) NOT NULL,\n  bdate DATE     NOT NULL,\n  rdate DATE,\n  PRIMARY KEY (rno, bno, bdate),\n  CONSTRAINT fk_br_reader FOREIGN KEY (rno)\n    REFERENCES reader(rno) ON DELETE CASCADE,\n  CONSTRAINT fk_br_book FOREIGN KEY (bno)\n    REFERENCES book(bno) ON DELETE RESTRICT,\n  CHECK (rdate >= bdate)\n) ENGINE = InnoDB;",
+          "explain": "联合主码只能用表级约束定义；“有借阅记录的图书不允许删除”就是 RESTRICT（不写参照动作时默认也是拒绝）。未还书时 rdate 为 NULL，CHECK 条件的结果为未知，不算违反约束；MySQL 8.0.16 起才真正执行 CHECK 约束。"
+        },
+        {
+          "id": "04735-u90-l1-q2",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "插入、修改与删除数据",
+          "stem": "设有商品表 goods(gno, gname, category, price, stock) 和订单表 orders(ono, gno, qty, odate)，orders 的 gno 参照 goods。用 SQL 语句完成：\n(1) 插入一种新商品：编号 G101，名称“蓝牙耳机”，类别“数码”，单价 199，库存 50；\n(2) 将“数码”类商品的单价下调 10%；\n(3) 删除 2023 年 1 月 1 日以前的全部订单；\n(4) 删除从来没有被订购过的商品。",
+          "points": [
+            "(1) INSERT INTO goods … VALUES ('G101', '蓝牙耳机', '数码', 199, 50)（1 分）",
+            "(2) UPDATE goods SET price = price * 0.9 WHERE category = '数码'（1 分）",
+            "(3) DELETE FROM orders WHERE odate < '2023-01-01'（1 分）",
+            "(4) DELETE FROM goods WHERE gno NOT IN (SELECT gno FROM orders)（1 分）"
+          ],
+          "answer": "INSERT INTO goods(gno, gname, category, price, stock)\n  VALUES ('G101', '蓝牙耳机', '数码', 199, 50);\nUPDATE goods SET price = price * 0.9\n  WHERE category = '数码';\nDELETE FROM orders WHERE odate < '2023-01-01';\nDELETE FROM goods\n  WHERE gno NOT IN (SELECT gno FROM orders);",
+          "explain": "“下调 10%”是乘以 0.9，不是减 10；(4) 的条件涉及另一张表，用 NOT IN 或 NOT EXISTS 子查询。日期常量写成 'YYYY-MM-DD' 形式的字符串。"
+        },
+        {
+          "id": "04735-u90-l1-q3",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "插入子查询结果与带子查询的更新",
+          "stem": "设有部门表 dept(dno CHAR(4), dname VARCHAR(20)) 和职工表 emp(eno CHAR(6), ename VARCHAR(20), salary DECIMAL(8,2), dno CHAR(4))。用 SQL 语句完成：\n(1) 创建表 emp_high(eno, ename, salary)，各列类型与 emp 中的相同，eno 为主键；\n(2) 把工资超过 10000 元的职工的工号、姓名和工资插入 emp_high；\n(3) 将“研发部”全体职工的工资提高 500 元；\n(4) 删除“后勤部”的全部职工记录。",
+          "points": [
+            "(1) CREATE TABLE emp_high，eno CHAR(6) PRIMARY KEY（1 分）",
+            "(2) INSERT INTO emp_high(…) SELECT … FROM emp WHERE salary > 10000（1 分）",
+            "(3) UPDATE emp SET salary = salary + 500 WHERE dno IN (子查询)（1 分）",
+            "(4) DELETE FROM emp WHERE dno IN (SELECT dno FROM dept WHERE dname = '后勤部')（1 分）"
+          ],
+          "answer": "CREATE TABLE emp_high (\n  eno    CHAR(6) PRIMARY KEY,\n  ename  VARCHAR(20),\n  salary DECIMAL(8,2)\n);\nINSERT INTO emp_high(eno, ename, salary)\n  SELECT eno, ename, salary FROM emp\n  WHERE salary > 10000;\nUPDATE emp SET salary = salary + 500\n  WHERE dno IN (SELECT dno FROM dept WHERE dname = '研发部');\nDELETE FROM emp\n  WHERE dno IN (SELECT dno FROM dept WHERE dname = '后勤部');",
+          "explain": "INSERT … SELECT 不写 VALUES，一次插入查询结果的全部行；“研发部”“后勤部”是部门名，存放在 dept 表中，所以 (3)(4) 要用子查询先找出部门号（部门名不重复时 IN 也可写成 =）。"
+        },
+        {
+          "id": "04735-u90-l1-q4",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "用户与权限管理",
+          "stem": "数据库 db_shop 中有商品表 goods(gno, gname, price, stock) 和订单表 orders，用户 'sales'@'localhost' 已存在。用 SQL 语句完成：\n(1) 创建用户 mgr，可以从任意主机登录，密码为 mg456；\n(2) 授予 mgr 在 db_shop 中创建表、修改表结构和删除表的权限；\n(3) 授予 sales 对 goods 表的查询权限，以及修改 goods 表 stock 列的权限；\n(4) 收回 mgr 在 db_shop 上的全部权限，然后删除用户 mgr。",
+          "points": [
+            "(1) CREATE USER 'mgr'@'%' IDENTIFIED BY 'mg456'（1 分）",
+            "(2) GRANT CREATE, ALTER, DROP ON db_shop.* TO 'mgr'@'%'（1 分）",
+            "(3) GRANT SELECT, UPDATE(stock) ON db_shop.goods TO 'sales'@'localhost'（1 分）",
+            "(4) REVOKE ALL PRIVILEGES ON db_shop.* FROM 'mgr'@'%'; DROP USER 'mgr'@'%'（1 分）"
+          ],
+          "answer": "CREATE USER 'mgr'@'%' IDENTIFIED BY 'mg456';\nGRANT CREATE, ALTER, DROP ON db_shop.* TO 'mgr'@'%';\nGRANT SELECT, UPDATE(stock) ON db_shop.goods\n  TO 'sales'@'localhost';\nREVOKE ALL PRIVILEGES ON db_shop.* FROM 'mgr'@'%';\nDROP USER 'mgr'@'%';",
+          "explain": "'%' 表示任意主机；db_shop.* 是数据库级权限，db_shop.goods 是表级权限，UPDATE(stock) 是列级权限。DROP USER 删除用户时会一并删除其权限，(4) 先 REVOKE 是为了体现收回权限的写法。"
+        },
+        {
+          "id": "04735-u90-l1-q5",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "建表与数据更新综合",
+          "stem": "设有工程供应数据库：\n供应商 S(SNO, SNAME, CITY)\n零件 P(PNO, PNAME, COLOR, WEIGHT)\n工程 J(JNO, JNAME, CITY)\n供应 SPJ(SNO, PNO, JNO, QTY)，QTY 为供应数量\n用 SQL 语句完成：\n(1) 创建零件表 P：PNO CHAR(4) 为主键，PNAME VARCHAR(20) 不能为空，COLOR 只能取“红”“绿”“蓝”之一，WEIGHT 为整数且大于 0；\n(2) 把全部红色零件的颜色改为蓝色；\n(3) 把供应商 S5 供给工程 J4 的零件 P6 改为由供应商 S3 供应；\n(4) 删除供应商 S2 的全部供应记录，再删除供应商 S2。",
+          "points": [
+            "(1) PNO 主键，PNAME NOT NULL，COLOR、WEIGHT 用 CHECK 约束（1 分）",
+            "(2) UPDATE P SET COLOR = '蓝' WHERE COLOR = '红'（1 分）",
+            "(3) UPDATE SPJ SET SNO = 'S3' WHERE SNO = 'S5' AND JNO = 'J4' AND PNO = 'P6'（1 分）",
+            "(4) 先 DELETE FROM SPJ WHERE SNO = 'S2'，再 DELETE FROM S WHERE SNO = 'S2'（1 分）"
+          ],
+          "answer": "CREATE TABLE P (\n  PNO    CHAR(4) PRIMARY KEY,\n  PNAME  VARCHAR(20) NOT NULL,\n  COLOR  CHAR(2) CHECK (COLOR IN ('红', '绿', '蓝')),\n  WEIGHT INT CHECK (WEIGHT > 0)\n);\nUPDATE P SET COLOR = '蓝' WHERE COLOR = '红';\nUPDATE SPJ SET SNO = 'S3'\n  WHERE SNO = 'S5' AND JNO = 'J4' AND PNO = 'P6';\nDELETE FROM SPJ WHERE SNO = 'S2';\nDELETE FROM S WHERE SNO = 'S2';",
+          "explain": "(4) 要先删参照表 SPJ 中的记录，再删被参照表 S 中的记录，否则违反参照完整性（若外键定义了 ON DELETE CASCADE，只删 S 即可）。CHECK 中的 IN 列出允许的取值。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u90-l2",
+      "title": "数据查询：单表、连接、子查询与分组",
+      "questions": [
+        {
+          "id": "04735-u90-l2-q1",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "单表查询与分组统计",
+          "stem": "设有职工表 emp(eno, ename, sex, age, salary, dno)，dno 为所在部门号，尚未分配部门的职工 dno 为空。用 SQL 语句完成：\n(1) 查询工资在 5000～8000 元之间（含两端）的女职工的工号和姓名，按工资降序排列；\n(2) 查询姓名中含有“明”字的职工的全部信息；\n(3) 统计每个部门的职工人数和平均工资，只显示平均工资高于 6000 元的部门；\n(4) 查询尚未分配部门的职工的姓名。",
+          "points": [
+            "(1) WHERE sex = '女' AND salary BETWEEN 5000 AND 8000 ORDER BY salary DESC（1 分）",
+            "(2) WHERE ename LIKE '%明%'（1 分）",
+            "(3) GROUP BY dno HAVING AVG(salary) > 6000（1 分）",
+            "(4) WHERE dno IS NULL（1 分）"
+          ],
+          "answer": "SELECT eno, ename FROM emp\n  WHERE sex = '女' AND salary BETWEEN 5000 AND 8000\n  ORDER BY salary DESC;\nSELECT * FROM emp WHERE ename LIKE '%明%';\nSELECT dno, COUNT(*) AS 人数, AVG(salary) AS 平均工资\n  FROM emp GROUP BY dno\n  HAVING AVG(salary) > 6000;\nSELECT ename FROM emp WHERE dno IS NULL;",
+          "explain": "判断空值必须用 IS NULL，写成 dno = NULL 永远查不到结果；“含有”某字用 '%明%'，“以某字开头”才用 '明%'；对分组结果的筛选写在 HAVING 中。"
+        },
+        {
+          "id": "04735-u90-l2-q2",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "连接查询",
+          "stem": "设有工程供应数据库：\n供应商 S(SNO, SNAME, CITY)\n零件 P(PNO, PNAME, COLOR, WEIGHT)\n工程 J(JNO, JNAME, CITY)\n供应 SPJ(SNO, PNO, JNO, QTY)\n用 SQL 语句完成：\n(1) 查询使用了红色零件的工程的工程号和工程名（去掉重复行）；\n(2) 查询与供应商 S1 在同一城市的其他供应商的号码和名称；\n(3) 查询供应商“东方红”所供应的零件的名称和供应数量；\n(4) 查询供应商与工程在同一城市的供应记录（SNO, PNO, JNO）。",
+          "points": [
+            "(1) J、SPJ、P 三表连接，COLOR = '红'，SELECT DISTINCT（1 分）",
+            "(2) S 自连接：s1.CITY = s2.CITY，s1.SNO = 'S1'，排除 S1 本身（1 分）",
+            "(3) S、SPJ、P 三表连接，SNAME = '东方红'（1 分）",
+            "(4) SPJ 连接 S 和 J，条件 S.CITY = J.CITY（1 分）"
+          ],
+          "answer": "SELECT DISTINCT J.JNO, JNAME\n  FROM J JOIN SPJ ON J.JNO = SPJ.JNO\n         JOIN P ON SPJ.PNO = P.PNO\n  WHERE COLOR = '红';\nSELECT s2.SNO, s2.SNAME\n  FROM S AS s1 JOIN S AS s2 ON s1.CITY = s2.CITY\n  WHERE s1.SNO = 'S1' AND s2.SNO <> 'S1';\nSELECT PNAME, QTY\n  FROM S JOIN SPJ ON S.SNO = SPJ.SNO\n         JOIN P ON SPJ.PNO = P.PNO\n  WHERE SNAME = '东方红';\nSELECT SPJ.SNO, PNO, SPJ.JNO\n  FROM SPJ JOIN S ON SPJ.SNO = S.SNO\n           JOIN J ON SPJ.JNO = J.JNO\n  WHERE S.CITY = J.CITY;",
+          "explain": "多个表中同名的列（JNO、SNO、CITY 等）必须加表名前缀；(1) 一个工程可能多次使用红色零件，要用 DISTINCT 去重。连接也可以写成 FROM 表1, 表2 WHERE 连接条件 的形式。"
+        },
+        {
+          "id": "04735-u90-l2-q3",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "嵌套子查询",
+          "stem": "设有图书借阅数据库：\n读者 reader(rno, rname, dept)\n图书 book(bno, bname, author, price)\n借阅 borrow(rno, bno, bdate, rdate)\n用子查询完成：\n(1) 查询借阅过书名为“数据库系统原理”的图书的读者姓名；\n(2) 查询价格高于全部图书平均价格的图书的书名和价格；\n(3) 用 NOT EXISTS 查询从未借过书的读者的编号和姓名；\n(4) 查询借阅过所有图书的读者姓名。",
+          "points": [
+            "(1) rno IN (SELECT rno FROM borrow WHERE bno IN (SELECT bno FROM book …))（1 分）",
+            "(2) price > (SELECT AVG(price) FROM book)（1 分）",
+            "(3) NOT EXISTS (SELECT * FROM borrow WHERE borrow.rno = reader.rno)（1 分）",
+            "(4) 双重 NOT EXISTS：不存在一本该读者没借过的书（1 分）"
+          ],
+          "answer": "SELECT rname FROM reader\n  WHERE rno IN (SELECT rno FROM borrow\n    WHERE bno IN (SELECT bno FROM book\n                  WHERE bname = '数据库系统原理'));\nSELECT bname, price FROM book\n  WHERE price > (SELECT AVG(price) FROM book);\nSELECT rno, rname FROM reader\n  WHERE NOT EXISTS (SELECT * FROM borrow\n                    WHERE borrow.rno = reader.rno);\nSELECT rname FROM reader\n  WHERE NOT EXISTS (SELECT * FROM book\n    WHERE NOT EXISTS (SELECT * FROM borrow\n      WHERE borrow.rno = reader.rno\n        AND borrow.bno = book.bno));",
+          "explain": "(4) 把“借阅过所有图书”转换为“不存在一本书，该读者没有借过”，所以用两层 NOT EXISTS；也可以写成 GROUP BY rno HAVING COUNT(DISTINCT bno) = (SELECT COUNT(*) FROM book) 再取姓名。"
+        },
+        {
+          "id": "04735-u90-l2-q4",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "分组与 HAVING",
+          "stem": "设有学生选课数据库：\n学生 S(Sno, Sname, Ssex, Sdept)\n课程 C(Cno, Cname, Credit, Teacher)\n选课 SC(Sno, Cno, Grade)\n用 SQL 语句完成：\n(1) 查询选修课程超过 3 门的学生的学号和选课门数；\n(2) 查询每门课程的课程名和平均成绩，按平均成绩降序排列；\n(3) 查询“张老师”讲授的课程中，选课人数达到 30 人的课程号和选课人数；\n(4) 查询每个学生已获得的总学分（成绩及格才能获得该课程的学分），显示学号、姓名和总学分。",
+          "points": [
+            "(1) GROUP BY Sno HAVING COUNT(*) > 3（1 分）",
+            "(2) C、SC 连接，GROUP BY 课程，ORDER BY 平均成绩 DESC（1 分）",
+            "(3) WHERE Teacher = '张老师' … GROUP BY C.Cno HAVING COUNT(*) >= 30（1 分）",
+            "(4) 三表连接，WHERE Grade >= 60，SUM(Credit)，按学号、姓名分组（1 分）"
+          ],
+          "answer": "SELECT Sno, COUNT(*) AS 门数 FROM SC\n  GROUP BY Sno HAVING COUNT(*) > 3;\nSELECT Cname, AVG(Grade) AS 平均成绩\n  FROM C JOIN SC ON C.Cno = SC.Cno\n  GROUP BY C.Cno, Cname\n  ORDER BY 平均成绩 DESC;\nSELECT C.Cno, COUNT(*) AS 人数\n  FROM C JOIN SC ON C.Cno = SC.Cno\n  WHERE Teacher = '张老师'\n  GROUP BY C.Cno\n  HAVING COUNT(*) >= 30;\nSELECT S.Sno, Sname, SUM(Credit) AS 总学分\n  FROM S JOIN SC ON S.Sno = SC.Sno\n         JOIN C ON SC.Cno = C.Cno\n  WHERE Grade >= 60\n  GROUP BY S.Sno, Sname;",
+          "explain": "WHERE 在分组前筛选行（如 Grade >= 60、Teacher = '张老师'），HAVING 在分组后筛选组；子句顺序为 WHERE → GROUP BY → HAVING → ORDER BY。(4) 中没有任何及格课程的学生不会出现在结果里。"
+        },
+        {
+          "id": "04735-u90-l2-q5",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "SQL 查询与关系代数",
+          "stem": "设有学生 S(Sno, Sname, Sage, Sdept)、课程 C(Cno, Cname, Teacher)、选课 SC(Sno, Cno, Grade)。\n(1) 用 SQL 查询“李明”老师讲授的课程的课程号和课程名；\n(2) 用 SQL 查询同时选修了课程 C1 和 C3 的学生的学号；\n(3) 用关系代数表达式完成第 (1) 小题；\n(4) 用关系代数表达式查询选修了“数据库”课程的学生的姓名。",
+          "points": [
+            "(1) SELECT Cno, Cname FROM C WHERE Teacher = '李明'（1 分）",
+            "(2) WHERE Cno = 'C1' AND Sno IN (SELECT Sno FROM SC WHERE Cno = 'C3')（1 分）",
+            "(3) π_{Cno,Cname}(σ_{Teacher='李明'}(C))（1 分）",
+            "(4) π_{Sname}(σ_{Cname='数据库'}(C) ⋈ SC ⋈ S)（1 分）"
+          ],
+          "answer": "(1) SELECT Cno, Cname FROM C WHERE Teacher = '李明';\n(2) SELECT Sno FROM SC\n      WHERE Cno = 'C1'\n        AND Sno IN (SELECT Sno FROM SC WHERE Cno = 'C3');\n(3) π_{Cno,Cname}(σ_{Teacher='李明'}(C))\n(4) π_{Sname}(σ_{Cname='数据库'}(C) ⋈ SC ⋈ S)",
+          "explain": "(2) 不能写成 WHERE Cno = 'C1' AND Cno = 'C3'，同一行的 Cno 不可能同时等于两个值，要用子查询（或 SC 自连接）。关系代数一般先选择、再连接、最后投影；_{ } 表示下标。"
+        }
+      ]
+    },
+    {
+      "id": "04735-u90-l3",
+      "title": "视图、存储过程、存储函数与触发器",
+      "questions": [
+        {
+          "id": "04735-u90-l3-q1",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "视图的定义与使用",
+          "stem": "设有商品表 goods(gno, gname, category, price, stock) 和订单表 orders(ono, gno, qty, odate)。用 SQL 语句完成：\n(1) 创建视图 v_digital，包含“数码”类商品的编号、名称、类别、单价和库存，并保证通过该视图插入、修改的商品都属于数码类；\n(2) 创建视图 v_sales，统计每种商品的编号、名称和销售总数量（列名依次为 gno、gname、total_qty）；\n(3) 通过 v_sales 查询销售总数量超过 100 的商品名称；\n(4) 通过 v_digital 把商品 G101 的库存改为 80。",
+          "points": [
+            "(1) CREATE VIEW v_digital AS SELECT … WHERE category = '数码' WITH CHECK OPTION（1 分）",
+            "(2) CREATE VIEW v_sales(gno, gname, total_qty) AS SELECT … SUM(qty) … GROUP BY（1 分）",
+            "(3) SELECT gname FROM v_sales WHERE total_qty > 100（1 分）",
+            "(4) UPDATE v_digital SET stock = 80 WHERE gno = 'G101'（1 分）"
+          ],
+          "answer": "CREATE VIEW v_digital AS\n  SELECT gno, gname, category, price, stock FROM goods\n  WHERE category = '数码'\n  WITH CHECK OPTION;\nCREATE VIEW v_sales(gno, gname, total_qty) AS\n  SELECT goods.gno, gname, SUM(qty)\n  FROM goods JOIN orders ON goods.gno = orders.gno\n  GROUP BY goods.gno, gname;\nSELECT gname FROM v_sales WHERE total_qty > 100;\nUPDATE v_digital SET stock = 80 WHERE gno = 'G101';",
+          "explain": "v_sales 含聚合函数和 GROUP BY，只能查询不能更新；v_digital 是单表的行列子集视图，可以更新，若 G101 不是数码类商品，(4) 修改 0 行。没有订单的商品不会出现在 v_sales 中。"
+        },
+        {
+          "id": "04735-u90-l3-q2",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "存储过程的创建与调用",
+          "stem": "设有图书表 book(bno CHAR(10), bname VARCHAR(50), stock INT) 和借阅表 borrow(rno CHAR(8), bno CHAR(10), bdate DATE, rdate DATE)。\n(1) 创建存储过程 sp_borrow：输入读者编号和书号，若该书库存大于 0，则插入一条借阅记录（借书日期为当天，还书日期为空）、把库存减 1，并通过输出参数返回“借阅成功”；否则返回“不能借阅”；\n(2) 调用该过程办理读者 R001 借阅图书 B001，并显示返回的信息。",
+          "points": [
+            "(1) 两个 IN 参数（读者编号、书号）和一个 OUT 参数（1 分）",
+            "(1) SELECT stock INTO 局部变量，IF n > 0 THEN … ELSE … END IF（1 分）",
+            "(1) INSERT 借阅记录（bdate 取 CURDATE()），UPDATE book 库存减 1（1 分）",
+            "(2) CALL sp_borrow('R001', 'B001', @m); SELECT @m;（1 分）"
+          ],
+          "answer": "DELIMITER $$\nCREATE PROCEDURE sp_borrow(IN p_rno CHAR(8),\n  IN p_bno CHAR(10), OUT msg VARCHAR(20))\nBEGIN\n  DECLARE n INT DEFAULT 0;\n  SELECT stock INTO n FROM book WHERE bno = p_bno;\n  IF n > 0 THEN\n    INSERT INTO borrow(rno, bno, bdate)\n      VALUES (p_rno, p_bno, CURDATE());\n    UPDATE book SET stock = stock - 1 WHERE bno = p_bno;\n    SET msg = '借阅成功';\n  ELSE\n    SET msg = '不能借阅';\n  END IF;\nEND $$\nDELIMITER ;\nCALL sp_borrow('R001', 'B001', @m);\nSELECT @m;",
+          "explain": "书号不存在时 SELECT … INTO 查不到行，n 保持默认值 0，同样返回“不能借阅”。CURDATE() 返回当前日期；插入借阅记录和扣减库存最好放在同一个事务中，保证两者同时成功或同时失败。"
+        },
+        {
+          "id": "04735-u90-l3-q3",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "存储函数的创建与调用",
+          "stem": "设有商品表 goods(gno CHAR(6), gname VARCHAR(30), price DECIMAL(8,2), stock INT) 和订单表 orders(ono, gno, qty, odate)。\n(1) 创建存储函数 fn_total：输入商品编号，返回该商品的销售总金额（单价×订购数量之和），没有订单时返回 0；\n(2) 用该函数查询所有商品的编号、名称和销售总金额；\n(3) 删除该函数。",
+          "points": [
+            "(1) CREATE FUNCTION fn_total(p_gno CHAR(6)) RETURNS DECIMAL(10,2)（1 分）",
+            "(1) SELECT SUM(price * qty) INTO 局部变量，为 NULL 时置 0，再 RETURN（1 分）",
+            "(2) SELECT gno, gname, fn_total(gno) FROM goods（1 分）",
+            "(3) DROP FUNCTION fn_total（1 分）"
+          ],
+          "answer": "DELIMITER $$\nCREATE FUNCTION fn_total(p_gno CHAR(6))\n  RETURNS DECIMAL(10,2)\nBEGIN\n  DECLARE t DECIMAL(10,2);\n  SELECT SUM(g.price * o.qty) INTO t\n    FROM goods AS g JOIN orders AS o ON g.gno = o.gno\n    WHERE g.gno = p_gno;\n  IF t IS NULL THEN\n    SET t = 0;\n  END IF;\n  RETURN t;\nEND $$\nDELIMITER ;\nSELECT gno, gname, fn_total(gno) AS 销售总额 FROM goods;\nDROP FUNCTION fn_total;",
+          "explain": "没有订单时 SUM 的结果是 NULL，所以要转换成 0。存储函数直接在 SELECT 中调用，对 goods 的每一行各计算一次。在开启了二进制日志的 MySQL 8.0 上实际运行时，需在 RETURNS 子句后加 READS SQL DATA。",
+          "verify": "核对教材存储函数示例的写法（是否带 READS SQL DATA、DETERMINISTIC 等特征子句），答题以教材格式为准。"
+        },
+        {
+          "id": "04735-u90-l3-q4",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "触发器：NEW 与 OLD",
+          "stem": "设有商品表 goods(gno, gname, price, stock) 和订单表 orders(ono, gno, qty, odate)。\n(1) 创建触发器 tr_order_ins：每向 orders 插入一条订单后，自动把相应商品的库存减去订购数量；\n(2) 创建触发器 tr_order_del：每删除一条订单后，把相应商品的库存加回订购数量；\n(3) 删除触发器 tr_order_del。",
+          "points": [
+            "(1) CREATE TRIGGER tr_order_ins AFTER INSERT ON orders FOR EACH ROW（1 分）",
+            "(1) UPDATE goods SET stock = stock - NEW.qty WHERE gno = NEW.gno（1 分）",
+            "(2) AFTER DELETE ON orders，用 OLD.qty、OLD.gno 把库存加回（1 分）",
+            "(3) DROP TRIGGER tr_order_del（1 分）"
+          ],
+          "answer": "CREATE TRIGGER tr_order_ins AFTER INSERT ON orders\nFOR EACH ROW\n  UPDATE goods SET stock = stock - NEW.qty\n  WHERE gno = NEW.gno;\nCREATE TRIGGER tr_order_del AFTER DELETE ON orders\nFOR EACH ROW\n  UPDATE goods SET stock = stock + OLD.qty\n  WHERE gno = OLD.gno;\nDROP TRIGGER tr_order_del;",
+          "explain": "INSERT 触发器中用 NEW 引用新插入的行，DELETE 触发器中用 OLD 引用被删除的行；触发动作只有一条语句时可以不写 BEGIN … END，也不必修改结束符。触发动作中不能再修改激活它的表 orders，但可以修改其他表。"
+        },
+        {
+          "id": "04735-u90-l3-q5",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "触发器的创建与激活",
+          "stem": "设有职工表 emp(eno CHAR(6), ename VARCHAR(20), salary DECIMAL(8,2))。\n(1) 创建工资变动日志表 salary_log(eno, old_sal, new_sal, change_time)，列类型自定；\n(2) 创建触发器 tr_sal_upd：emp 中职工的工资被修改（新旧值不同）时，自动把工号、修改前后的工资和修改时间记入 salary_log；\n(3) 写出一条会使该触发器向 salary_log 写入记录的 SQL 语句。",
+          "points": [
+            "(1) CREATE TABLE salary_log，含 eno、old_sal、new_sal、change_time（1 分）",
+            "(2) AFTER UPDATE ON emp FOR EACH ROW，BEGIN … END 中用 IF 判断（1 分）",
+            "(2) INSERT INTO salary_log VALUES (OLD.eno, OLD.salary, NEW.salary, NOW())（1 分）",
+            "(3) 任意一条修改 emp 表 salary 的 UPDATE 语句（1 分）"
+          ],
+          "answer": "CREATE TABLE salary_log (\n  eno         CHAR(6),\n  old_sal     DECIMAL(8,2),\n  new_sal     DECIMAL(8,2),\n  change_time DATETIME\n);\nDELIMITER $$\nCREATE TRIGGER tr_sal_upd AFTER UPDATE ON emp\nFOR EACH ROW\nBEGIN\n  IF NEW.salary <> OLD.salary THEN\n    INSERT INTO salary_log\n      VALUES (OLD.eno, OLD.salary, NEW.salary, NOW());\n  END IF;\nEND $$\nDELIMITER ;\nUPDATE emp SET salary = salary + 300 WHERE eno = 'E001';",
+          "explain": "UPDATE 触发器中 OLD 表示修改前的行，NEW 表示修改后的行；NOW() 返回当前日期和时间。触发体有多条语句（含 IF 结构）时要放在 BEGIN … END 中，并用 DELIMITER 修改结束符。(3) 中的 E001 须是 emp 中已有的职工。"
+        }
+      ]
+    }
+  ]
+}

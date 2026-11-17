@@ -100,6 +100,49 @@
           "answer": "package com.demo;\nimport java.io.*;\nimport java.util.Date;\nimport javax.servlet.*;\nimport javax.servlet.annotation.WebListener;\nimport javax.servlet.http.HttpServletRequest;\n@WebListener\npublic class UrlLogListener implements ServletRequestListener {\n  public void requestInitialized(ServletRequestEvent sre) {\n    HttpServletRequest req = (HttpServletRequest) sre.getServletRequest();\n    String line = new Date() + \" \" + req.getRemoteAddr() + \" \" + req.getRequestURL();\n    File f = new File(sre.getServletContext().getRealPath(\"/\"), \"access.log\");\n    synchronized (this) {\n      try {\n        PrintWriter pw = new PrintWriter(new FileWriter(f, true));\n        pw.println(line);\n        pw.close();\n      } catch (IOException e) {\n        sre.getServletContext().log(\"写日志失败\", e);\n      }\n    }\n  }\n  public void requestDestroyed(ServletRequestEvent sre) { }\n}",
           "explain": "每个请求开始时容器都会调用requestInitialized()，在这里登记URL即可；监听器只有一个实例被多个线程调用，所以写文件时加synchronized。" }
       ]
+    },
+    {
+      "id": "00898-u11-l3",
+      "title": "过滤器、监听器的代码阅读",
+      "questions": [
+        { "id": "00898-u11-l3-q1", "type": "single", "level": "领会", "kp": "过滤器的工作过程",
+          "stem": "某过滤器映射到/*，它的doFilter()方法体如下。这个过滤器的作用是？",
+          "code": "long start = System.currentTimeMillis();\nchain.doFilter(req, resp);\nlong time = System.currentTimeMillis() - start;\nString uri = ((HttpServletRequest) req).getRequestURI();\nSystem.out.println(uri + \" 用时\" + time + \"毫秒\");",
+          "options": ["统计并记录每个请求的处理用时", "限制每个请求的最长处理时间", "定时刷新客户端页面", "拦截处理时间过长的请求"], "answer": 0,
+          "explain": "chain.doFilter()之前的代码在请求到达目标资源前执行，之后的代码要等目标资源处理完毕、返回到过滤器时才执行，两次取得的时间之差就是处理这个请求所用的时间。" },
+        { "id": "00898-u11-l3-q2", "type": "single", "level": "领会", "kp": "Filter接口及其方法、相关注意点（参数类型转换）",
+          "stem": "用过滤器（映射到/admin/*）检查用户是否已登录，代码如下。关于这段代码，说法正确的是？",
+          "code": "public void doFilter(ServletRequest req, ServletResponse resp,\n    FilterChain chain) throws IOException, ServletException {\n  HttpServletRequest request = (HttpServletRequest) req;\n  HttpSession session = request.getSession(false);\n  if (session == null || session.getAttribute(\"user\") == null) {\n    ((HttpServletResponse) resp).sendRedirect(request.getContextPath() + \"/login.jsp\");\n  } else {\n    chain.doFilter(req, resp);\n  }\n}",
+          "options": ["getSession(false)在没有会话时会创建新会话", "未登录时重定向后，请求仍会到达目标资源", "已登录时不调用chain.doFilter()也能访问目标资源", "req须强转为HttpServletRequest才能调用getSession()"], "answer": 3,
+          "explain": "doFilter()的参数是与协议无关的ServletRequest、ServletResponse，getSession()、sendRedirect()是HttpServletRequest、HttpServletResponse才有的方法，所以要先强制转换；getSession(false)没有会话时返回null；只有调用了chain.doFilter()，请求才会到达目标资源。" },
+        { "id": "00898-u11-l3-q3", "type": "single", "level": "识记", "kp": "主要接口的作用（FilterConfig读取初始化参数）",
+          "stem": "web.xml中为过滤器配置了下面的初始化参数。在过滤器中读取该参数，正确的做法是？",
+          "code": "<filter>\n  <filter-name>enc</filter-name>\n  <filter-class>com.demo.EncodingFilter</filter-class>\n  <init-param>\n    <param-name>charset</param-name>\n    <param-value>UTF-8</param-value>\n  </init-param>\n</filter>",
+          "options": ["doFilter()中用request.getParameter(\"charset\")", "init()中用config.getInitParameter(\"charset\")", "init()中用config.getAttribute(\"charset\")", "doFilter()中用chain.getInitParameter(\"charset\")"], "answer": 1,
+          "explain": "容器创建过滤器后调用init(FilterConfig config)，用FilterConfig的getInitParameter()读取<init-param>，通常保存到成员变量中供doFilter()使用；request.getParameter()读的是请求参数，FilterChain只负责把请求往后传。" },
+        { "id": "00898-u11-l3-q4", "type": "single", "level": "应用", "kp": "HttpSessionBindingListener的作用和相关方法",
+          "stem": "用户登录成功后执行session.setAttribute(\"online\", new OnlineUser())。服务器启动后有3个用户先后登录，随后1人点击“退出”（调用session.invalidate()），另1人的会话超时。此时OnlineUser.getCount()的值是？",
+          "code": "public class OnlineUser implements HttpSessionBindingListener {\n  private static int count = 0;\n  public void valueBound(HttpSessionBindingEvent e) { count++; }\n  public void valueUnbound(HttpSessionBindingEvent e) { count--; }\n  public static int getCount() { return count; }\n}",
+          "options": ["3", "2", "1", "0"], "answer": 2,
+          "explain": "对象被setAttribute()放入session时调用valueBound()，3人登录后count为3；会话被invalidate()或超时失效时，其中的属性被解除绑定，调用valueUnbound()，减去2后为1。这个接口由放入session的对象自己实现，不需要注册。" },
+        { "id": "00898-u11-l3-q5", "type": "single", "level": "领会", "kp": "ServletContextListener的作用和相关方法",
+          "stem": "Web应用中有下面的监听器和count.jsp，Tomcat启动后第一次访问count.jsp，页面显示的是？",
+          "code": "@WebListener\npublic class AppListener implements ServletContextListener {\n  public void contextInitialized(ServletContextEvent e) {\n    e.getServletContext().setAttribute(\"count\", 100);\n  }\n  public void contextDestroyed(ServletContextEvent e) { }\n}\n\n<%-- count.jsp --%>\n<%\n  Integer c = (Integer) application.getAttribute(\"count\");\n  application.setAttribute(\"count\", c + 1);\n%>\n<%= application.getAttribute(\"count\") %>",
+          "options": ["100", "1", "抛出NullPointerException", "101"], "answer": 3,
+          "explain": "Web应用启动时，容器自动调用contextInitialized()，把count初始化为100；JSP中的application就是这个ServletContext，所以读到100，加1后显示101。" },
+        { "id": "00898-u11-l3-q6", "type": "judge", "level": "识记", "kp": "Filter接口及其方法、相关注意点（init()的调用时机）",
+          "stem": "过滤器的init()方法在Web应用启动时就被调用，而不是等到第一次拦截请求时才调用。",
+          "answer": true,
+          "explain": "容器在Web应用启动时创建过滤器实例并调用init()（只调用一次）；这一点与默认在第一次请求时才初始化的Servlet不同。" },
+        { "id": "00898-u11-l3-q7", "type": "judge", "level": "识记", "kp": "监听器的定义和作用",
+          "stem": "监听器中的contextInitialized()、requestInitialized()等方法，需要程序员在JSP或Servlet中显式调用。",
+          "answer": false, "fix": "“需要程序员在JSP或Servlet中显式调用”改为“在相应事件发生时由容器自动调用”",
+          "explain": "监听器注册（@WebListener或web.xml中的<listener>）后，容器在对象创建、销毁或属性变化时自动调用对应的方法，程序员只需实现这些方法。" },
+        { "id": "00898-u11-l3-q8", "type": "short", "form": "简答", "level": "领会", "kp": "过滤器的工作过程",
+          "stem": "简述过滤器（Filter）的工作过程。",
+          "points": ["配置：用<filter>、<filter-mapping>（或@WebFilter）指定过滤器类及要拦截的URL", "Web应用启动时，容器创建过滤器实例并调用init()初始化，只调用一次", "请求与映射匹配时，容器调用doFilter()，在请求到达目标资源之前进行预处理", "调用chain.doFilter()把请求交给下一个过滤器或目标资源，不调用则请求被拦截", "目标资源处理完后返回，执行chain.doFilter()之后的代码，对响应进行后处理", "多个过滤器按映射顺序组成过滤器链，响应时按相反顺序返回；应用停止时调用destroy()"],
+          "explain": "按“配置→初始化→拦截预处理→放行→后处理→销毁”的顺序作答；关键是chain.doFilter()前后的代码分别处理请求和响应。" }
+      ]
     }
   ]
 }

@@ -197,6 +197,115 @@
           "verify": "核对教材存储函数示例的写法（是否带 DETERMINISTIC、READS SQL DATA 等特征子句），答题时以教材格式为准。"
         }
       ]
+    },
+    {
+      "id": "04735-u05-l3",
+      "title": "流程控制、变量与参数类型",
+      "questions": [
+        {
+          "id": "04735-u05-l3-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "CASE 语句",
+          "stem": "执行下面的语句后，用户变量 @r 的值是？",
+          "code": "DELIMITER $$\nCREATE PROCEDURE sp_rank(IN score INT, OUT r VARCHAR(10))\nBEGIN\n  CASE\n    WHEN score >= 60 THEN SET r = '及格';\n    WHEN score >= 90 THEN SET r = '优秀';\n    ELSE SET r = '不及格';\n  END CASE;\nEND $$\nDELIMITER ;\nCALL sp_rank(95, @r);\nSELECT @r;",
+          "options": ["优秀", "及格", "不及格", "NULL"],
+          "answer": 1,
+          "explain": "CASE 语句从上到下依次判断 WHEN 条件，执行第一个为真的分支后就结束。95 先满足 score >= 60，所以结果是“及格”；要得到“优秀”，应把 score >= 90 的分支写在前面。"
+        },
+        {
+          "id": "04735-u05-l3-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "存储过程的参数：IN、OUT、INOUT",
+          "stem": "执行下面的语句后，SELECT 显示的 @x、@y、@z 依次是？",
+          "code": "DELIMITER $$\nCREATE PROCEDURE sp_p(IN a INT, OUT b INT, INOUT c INT)\nBEGIN\n  SET a = a + 1;\n  SET b = a * 10;\n  SET c = c + a;\nEND $$\nDELIMITER ;\nSET @x = 1, @y = 2, @z = 3;\nCALL sp_p(@x, @y, @z);\nSELECT @x, @y, @z;",
+          "options": ["1, 20, 5", "2, 20, 5", "1, 2, 5", "2, 20, 3"],
+          "answer": 0,
+          "explain": "IN 参数在过程内被修改不影响调用者，@x 仍为 1；OUT 参数把 b＝2×10＝20 带回给 @y（@y 原来的 2 不会传进过程，b 的初值是 NULL）；INOUT 参数传入 3，加上 a＝2 后把 5 带回 @z。"
+        },
+        {
+          "id": "04735-u05-l3-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "用户变量与局部变量",
+          "stem": "关于 MySQL 的用户变量，下列说法正确的是？",
+          "options": ["用户变量必须先用 DECLARE 声明才能使用", "用户变量只在定义它的 BEGIN…END 块内有效", "用户变量以 @ 开头，不必事先声明，在当前会话中一直有效", "一个客户端定义的用户变量，其他客户端也可以访问"],
+          "answer": 2,
+          "explain": "用户变量直接用 SET @x = 值（或 SELECT … INTO @x）赋值即可使用，只属于当前连接（会话），连接断开后自动释放；用 DECLARE 声明的是局部变量，只在 BEGIN…END 块内有效。"
+        },
+        {
+          "id": "04735-u05-l3-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "修改与删除存储过程",
+          "stem": "在 MySQL 中，要修改已有存储过程的过程体（例如改动其中的 SQL 语句），通常的做法是？",
+          "options": ["用 ALTER PROCEDURE 语句直接改写过程体", "用 UPDATE 语句修改存放存储过程的系统表", "用 MODIFY PROCEDURE 语句修改过程体", "先用 DROP PROCEDURE 删除，再用 CREATE PROCEDURE 重新创建"],
+          "answer": 3,
+          "explain": "ALTER PROCEDURE 只能修改存储过程的特征（如 COMMENT、SQL SECURITY），不能修改参数和过程体；要改过程体，就先 DROP PROCEDURE，再重新 CREATE PROCEDURE。",
+          "verify": "核对教材 5.1 节对修改存储过程的表述（ALTER PROCEDURE 能修改哪些内容，以及“先删除再重建”的做法）。"
+        },
+        {
+          "id": "04735-u05-l3-q5",
+          "type": "single",
+          "level": "识记",
+          "kp": "IF 语句",
+          "stem": "下列存储过程中的 IF 语句，写法正确的是？",
+          "options": ["IF (n > 0) { SET s = '正'; } ELSE { SET s = '非正'; }", "IF n > 0 SET s = '正'; ELSE SET s = '非正'; END;", "IF n > 0 THEN SET s = '正'; ELSE SET s = '非正'; END IF;", "IF n > 0 THEN SET s = '正'; ELSE IF SET s = '非正'; ENDIF;"],
+          "answer": 2,
+          "explain": "MySQL 的 IF 语句格式为 IF 条件 THEN 语句 [ELSEIF 条件 THEN 语句] [ELSE 语句] END IF;，条件后必须有 THEN，结尾是 END IF（两个词），多分支用 ELSEIF（一个词）。"
+        },
+        {
+          "id": "04735-u05-l3-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "CASE 语句",
+          "stem": "在存储过程中使用 CASE 语句时，整个语句以____结束。",
+          "answers": ["END CASE"],
+          "explain": "存储过程中的 IF 语句以 END IF 结束，CASE 语句以 END CASE 结束；而 SELECT 中的 CASE 表达式只写 END。"
+        },
+        {
+          "id": "04735-u05-l3-q7",
+          "type": "fill",
+          "level": "识记",
+          "kp": "局部变量",
+          "stem": "用 DECLARE 声明局部变量时，可以用____子句为它指定初值；不指定时初值为 NULL。",
+          "answers": ["DEFAULT"],
+          "explain": "例如 DECLARE n INT DEFAULT 0;。局部变量声明后也可以用 SET 或 SELECT … INTO 赋值。"
+        },
+        {
+          "id": "04735-u05-l3-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "CASE 语句与存储过程",
+          "stem": "选课表 SC(Sno, Cno, Grade)。\n(1) 创建存储过程 sp_grade_level：输入学号和课程号，用 CASE 语句按成绩输出等级（90 分及以上为“优秀”，75～89 分为“良好”，60～74 分为“及格”，其余为“不及格”）；\n(2) 调用该过程查询学号 2024001 的 C01 课程的等级并显示结果；\n(3) 删除该存储过程（若存在）。",
+          "points": [
+            "(1) 参数 IN 学号、IN 课程号、OUT 等级；SELECT Grade INTO 局部变量（1 分）",
+            "(1) CASE WHEN … THEN … ELSE … END CASE，条件从高分到低分排列（1 分）",
+            "(2) CALL sp_grade_level('2024001', 'C01', @lv); SELECT @lv;（1 分）",
+            "(3) DROP PROCEDURE IF EXISTS sp_grade_level;（1 分）"
+          ],
+          "answer": "DELIMITER $$\nCREATE PROCEDURE sp_grade_level(IN sid CHAR(10),\n  IN cid CHAR(6), OUT lv VARCHAR(10))\nBEGIN\n  DECLARE g INT;\n  SELECT Grade INTO g FROM SC\n    WHERE Sno = sid AND Cno = cid;\n  CASE\n    WHEN g >= 90 THEN SET lv = '优秀';\n    WHEN g >= 75 THEN SET lv = '良好';\n    WHEN g >= 60 THEN SET lv = '及格';\n    ELSE SET lv = '不及格';\n  END CASE;\nEND $$\nDELIMITER ;\nCALL sp_grade_level('2024001', 'C01', @lv);\nSELECT @lv;\nDROP PROCEDURE IF EXISTS sp_grade_level;",
+          "explain": "CASE 只执行第一个为真的分支，所以条件要从高分往低分写；也可以用 IF … ELSEIF … ELSE … END IF 实现。参数名不要与列名相同（例如不要把参数命名为 Grade）。"
+        },
+        {
+          "id": "04735-u05-l3-q9",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "INOUT 参数与用户变量",
+          "stem": "课程表 C(Cno, Cname, Credit)。\n(1) 创建存储过程 sp_add_credit(INOUT total INT, IN cid CHAR(6))：把课程号为 cid 的课程的学分累加到 total 上，课程不存在时 total 不变；\n(2) 用用户变量 @t（初值为 0）连续调用该过程两次，累加 C01 和 C02 两门课的学分，并显示结果。",
+          "points": [
+            "(1) DECLARE c INT DEFAULT 0; SELECT Credit INTO c …（1 分）",
+            "(1) SET total = total + c;（1 分）",
+            "(2) SET @t = 0; 再两次 CALL sp_add_credit(@t, …)（1 分）",
+            "(2) SELECT @t; 显示累加结果（1 分）"
+          ],
+          "answer": "DELIMITER $$\nCREATE PROCEDURE sp_add_credit(INOUT total INT, IN cid CHAR(6))\nBEGIN\n  DECLARE c INT DEFAULT 0;\n  SELECT Credit INTO c FROM C WHERE Cno = cid;\n  SET total = total + c;\nEND $$\nDELIMITER ;\nSET @t = 0;\nCALL sp_add_credit(@t, 'C01');\nCALL sp_add_credit(@t, 'C02');\nSELECT @t;",
+          "explain": "INOUT 参数既把 @t 的当前值传进过程，又把累加后的值带回 @t，所以可以连续累加。课程不存在时 SELECT … INTO 查不到行，c 保持默认值 0。若 @t 没有赋初值（为 NULL），结果也会是 NULL。"
+        }
+      ]
     }
   ]
 }

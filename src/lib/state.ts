@@ -42,7 +42,17 @@ export interface AppState {
   courses: Record<string, { status: CourseStatus; score?: number }>;
   /** 考期 id -> 已确认报名 */
   registered: Record<string, boolean>;
+  /** 模拟考试记录 */
+  mocks: MockRecord[];
   settings: { active: string; sound: boolean; hearts: boolean };
+}
+
+export interface MockRecord {
+  course: string;
+  at: string;
+  score: number;
+  max: number;
+  seconds: number;
 }
 
 export function createState(now = new Date()): AppState {
@@ -64,6 +74,7 @@ export function createState(now = new Date()): AppState {
     flags: {},
     courses: Object.fromEntries(STUDY_PLAN.map((p) => [p.code, { status: "studying" as CourseStatus }])),
     registered: {},
+    mocks: [],
     settings: { active: STUDY_PLAN[0].code, sound: true, hearts: true },
   };
 }
@@ -179,6 +190,19 @@ export function finishReview(s: AppState, r: { answered: number; xp: number }, n
   s.xp += r.xp;
   markActive(s, today);
   return { streakUp: before !== today };
+}
+
+/** 交卷：每道题按结果进复习队列，记录成绩，计入当天学习 */
+export function finishMock(
+  s: AppState,
+  r: { course: string; score: number; max: number; seconds: number; results: Record<string, Result> },
+  now = new Date(),
+): { xp: number; streakUp: boolean } {
+  for (const [id, result] of Object.entries(r.results)) gradeQuestion(s, id, result, now);
+  s.mocks.push({ course: r.course, at: now.toISOString(), score: r.score, max: r.max, seconds: r.seconds });
+  const xp = 20 + Math.round((r.score / Math.max(1, r.max)) * 30);
+  const { streakUp } = finishReview(s, { answered: Object.keys(r.results).length, xp }, now);
+  return { xp, streakUp };
 }
 
 /** 到期需要复习的题（可按课程筛选），最早到期的在前 */

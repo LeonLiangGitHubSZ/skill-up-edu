@@ -99,6 +99,49 @@
           "points": ["隐藏表单域：用<input type=\"hidden\">保存信息，简单；但只能在表单提交时传递，源代码中可见", "URL重写：把会话信息（如session ID）附加在URL后，Cookie被禁用时仍可用；但每个链接都要重写，信息暴露", "Cookie：把信息保存在客户端，可长期保存；但可能被禁用，大小受限，安全性差", "session：数据保存在服务器端，安全、可存对象；但占用服务器资源，session ID仍要靠Cookie或URL重写传递"],
           "explain": "4种方式：隐藏表单域、URL重写、Cookie、session。每种按“怎么做＋优点＋缺点”写一行即可。" }
       ]
+    },
+    {
+      "id": "00898-u05-l3",
+      "title": "Cookie与会话追踪的代码阅读",
+      "questions": [
+        { "id": "00898-u05-l3-q1", "type": "single", "level": "领会", "kp": "JSP写Cookie到客户端；JSP读取Cookie",
+          "stem": "浏览器从未访问过该网站。用户第一次访问下面的页面，然后刷新一次，页面依次输出？",
+          "code": "<%\n  response.addCookie(new Cookie(\"user\", \"Tom\"));\n  String v = \"无\";\n  Cookie[] cs = request.getCookies();\n  if (cs != null) {\n    for (Cookie c : cs) {\n      if (c.getName().equals(\"user\")) v = c.getValue();\n    }\n  }\n  out.print(v);\n%>",
+          "options": ["先输出“无”，刷新后输出“Tom”", "两次都输出“Tom”", "两次都输出“无”", "先输出“Tom”，刷新后输出“无”"], "answer": 0,
+          "explain": "addCookie()只是把Cookie放进本次响应，浏览器收到响应后才保存它；本次请求中还没有这个Cookie，所以第一次输出“无”。刷新时浏览器把user=Tom随请求发回，request.getCookies()才能读到。" },
+        { "id": "00898-u05-l3-q2", "type": "single", "level": "应用", "kp": "Cookie的有效周期及其设置（特殊周期、默认周期）",
+          "stem": "某页面执行了下面的代码。用户关闭浏览器，10分钟后重新打开浏览器访问该网站，浏览器发送给网站的Cookie是？",
+          "code": "Cookie a = new Cookie(\"a\", \"1\");\na.setMaxAge(60 * 60);\nCookie b = new Cookie(\"b\", \"2\");\nCookie c = new Cookie(\"c\", \"3\");\nc.setMaxAge(0);\nresponse.addCookie(a);\nresponse.addCookie(b);\nresponse.addCookie(c);",
+          "options": ["a和b", "a、b和c", "一个都没有", "只有a"], "answer": 3,
+          "explain": "a的有效期为3600秒（1小时），保存在客户端硬盘上，10分钟后仍有效；b没有设置有效期（默认为-1），是临时Cookie，关闭浏览器就消失；c的有效期为0，浏览器收到后立即删除。" },
+        { "id": "00898-u05-l3-q3", "type": "single", "level": "领会", "kp": "操作Cookie的常用方法（修改Cookie）",
+          "stem": "浏览器中已保存持久Cookie theme=red。执行下面的代码后，浏览器中theme的值是？",
+          "code": "<%\n  Cookie[] cs = request.getCookies();\n  if (cs != null) {\n    for (Cookie c : cs) {\n      if (c.getName().equals(\"theme\")) {\n        c.setValue(\"blue\");\n      }\n    }\n  }\n%>",
+          "options": ["变为blue，setValue()直接修改了客户端Cookie", "仍为red，因为没有调用response.addCookie()", "theme被删除，因为没有设置有效期", "变为blue，但关闭浏览器后恢复为red"], "answer": 1,
+          "explain": "request.getCookies()得到的只是浏览器发来的Cookie的副本，修改它不会影响客户端；要修改必须用response.addCookie()发回同名Cookie。浏览器发来的Cookie不带有效期信息，写回时还要重新setMaxAge()，否则会变成临时Cookie。" },
+        { "id": "00898-u05-l3-q4", "type": "single", "level": "领会", "kp": "会话追踪4种方式的工作及优缺点（URL重写）",
+          "stem": "浏览器禁用了Cookie，JSP页面中有下面的超链接代码，生成的链接地址形如？",
+          "code": "<a href=\"<%= response.encodeURL(\"cart.jsp\") %>\">购物车</a>",
+          "options": ["cart.jsp?cookie=false", "cart.jsp#会话ID", "cart.jsp;jsessionid=会话ID", "cart.jsp（保持不变）"], "answer": 2,
+          "explain": "encodeURL()在需要时把session ID以“;jsessionid=…”的形式附加到URL后面，这就是URL重写；用户点击链接时服务器从URL中取出session ID，仍能识别出同一会话。浏览器支持Cookie时，它通常原样返回URL。" },
+        { "id": "00898-u05-l3-q5", "type": "single", "level": "应用", "kp": "会话追踪4种方式的工作及优缺点（隐藏表单域）",
+          "stem": "用户在step1.jsp中输入姓名Tom提交给step2.jsp，又在step2.jsp中输入邮箱tom@example.com提交给step3.jsp。step3.jsp输出的是？",
+          "code": "<%-- step2.jsp --%>\n<form action=\"step3.jsp\" method=\"post\">\n  <input type=\"hidden\" name=\"name\" value=\"<%= request.getParameter(\"name\") %>\">\n  邮箱：<input type=\"text\" name=\"email\">\n  <input type=\"submit\" value=\"下一步\">\n</form>\n\n<%-- step3.jsp --%>\n<%= request.getParameter(\"name\") %>，<%= request.getParameter(\"email\") %>",
+          "options": ["null，tom@example.com", "Tom，null", "null，null", "Tom，tom@example.com"], "answer": 3,
+          "explain": "step2.jsp把上一步收到的name写进隐藏表单域，提交时它和email一起发给step3.jsp，从而在两次请求之间传递了信息；没有这个隐藏域，step3.jsp读取name会得到null。" },
+        { "id": "00898-u05-l3-q6", "type": "judge", "level": "识记", "kp": "Cookie的实质；Cookie的类名",
+          "stem": "一个Cookie对象保存一个名/值对，名称和值都是字符串，所以保存数字时要先把它转换成字符串。",
+          "answer": true,
+          "explain": "Cookie的构造方法是Cookie(String name, String value)，读取时getValue()返回的也是字符串，数字要用Integer.parseInt()等方法转换回来。" },
+        { "id": "00898-u05-l3-q7", "type": "judge", "level": "领会", "kp": "Cookie与浏览器的关系",
+          "stem": "浏览器每次发出请求时，会把本机保存的所有网站的Cookie一起发送给当前访问的网站。",
+          "answer": false, "fix": "“所有网站的Cookie”改为“属于当前网站（域名、路径匹配）的Cookie”",
+          "explain": "浏览器按域名和路径分别管理Cookie，只把属于该网站的Cookie发回，一个网站读不到其他网站写入的Cookie。" },
+        { "id": "00898-u05-l3-q8", "type": "short", "form": "简答", "level": "识记", "kp": "Cookie的创建和语法、传送给客户端的方法；读写Cookie",
+          "stem": "简述在JSP中写入Cookie和读取Cookie的步骤，并写出各步骤用到的主要方法。",
+          "points": ["创建：用new Cookie(名称, 值)创建Cookie对象，名称和值都是字符串", "设置有效期：setMaxAge(秒数)，不设置则为临时Cookie；需要时用setPath()设置路径", "发送：用response.addCookie(cookie)把Cookie随响应发送给浏览器保存", "读取：用request.getCookies()得到Cookie数组，没有Cookie时返回null，要先判断", "遍历数组，用getName()找到需要的Cookie，再用getValue()取出它的值"],
+          "explain": "写入靠response，读取靠request，这是最容易混淆的地方；修改或删除Cookie都是写入一个同名的新Cookie（删除时setMaxAge(0)）。" }
+      ]
     }
   ]
 }

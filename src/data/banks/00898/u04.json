@@ -181,6 +181,50 @@
           "points": ["page：只在当前页面内有效，页面执行完毕即失效（由pageContext保存）", "request：在一次请求内有效，forward或include到的页面也能访问", "session：在同一用户的一次会话内有效，直到会话超时或被invalidate()", "application：在整个Web应用内对所有用户有效，直到应用停止或服务器关闭", "四种范围都用setAttribute()/getAttribute()存取数据"],
           "explain": "范围从小到大依次是page < request < session < application。第6章JavaBean的scope属性也是这四种取值。" }
       ]
+    },
+    {
+      "id": "00898-u04-l5",
+      "title": "内置对象综合代码阅读",
+      "questions": [
+        { "id": "00898-u04-l5-q1", "type": "single", "level": "领会", "kp": "通过getParameter等方法获得参数",
+          "stem": "在浏览器地址栏中输入show.jsp?name=（name后面没有值）访问下面的页面，输出的是？",
+          "code": "<%\n  String name = request.getParameter(\"name\");\n  String age = request.getParameter(\"age\");\n  out.print(\"[\" + name + \"][\" + age + \"]\");\n%>",
+          "options": ["[null][null]", "[][]", "[][null]", "[null][]"], "answer": 2,
+          "explain": "参数出现在请求中但没有值时，getParameter()返回空字符串\"\"；请求中根本没有该参数时返回null。所以处理表单时既要判断null，也要判断空串（如文本框没有填写）。" },
+        { "id": "00898-u04-l5-q2", "type": "single", "level": "应用", "kp": "通过setCharacterEncoding设置编码",
+          "stem": "表单页面使用UTF-8编码，以POST方式提交中文姓名“张三”，服务器没有做其他编码配置。处理页面的代码如下，a和b的值分别是？",
+          "code": "<%\n  String a = request.getParameter(\"name\");\n  request.setCharacterEncoding(\"UTF-8\");\n  String b = request.getParameter(\"name\");\n%>",
+          "options": ["a是乱码，b是“张三”", "a、b都是乱码", "a、b都是“张三”", "a是“张三”，b是乱码"], "answer": 1,
+          "explain": "第一次调用getParameter()时，服务器就按默认编码（ISO-8859-1）解析了全部请求参数，之后再调用setCharacterEncoding()已不起作用，所以a、b都是乱码。必须在读取任何参数之前设置编码。" },
+        { "id": "00898-u04-l5-q3", "type": "single", "level": "应用", "kp": "clear、clearBuffer、flush方法的区别",
+          "stem": "页面中只有下面的脚本代码（缓冲区为默认的8KB），浏览器中最终显示的是？",
+          "code": "<%\n  out.print(\"A\");\n  out.clearBuffer();\n  out.print(\"B\");\n  out.flush();\n  out.print(\"C\");\n  out.clearBuffer();\n  out.print(\"D\");\n%>",
+          "options": ["BD", "ABCD", "BCD", "D"], "answer": 0,
+          "explain": "A还在缓冲区时就被clearBuffer()清除；flush()把B发送到客户端；C写入缓冲区后又被clearBuffer()清除（flush过以后clearBuffer()不会抛异常，换成clear()则会抛出IOException）；页面结束时缓冲区中的D被输出，所以显示BD。" },
+        { "id": "00898-u04-l5-q4", "type": "single", "level": "应用", "kp": "application对象的应用；与session对象的不同",
+          "stem": "Tomcat启动后，用户甲访问下面的页面2次，接着用户乙在另一台计算机上访问3次。乙第3次访问时看到的是？",
+          "code": "<%\n  Integer a = (Integer) application.getAttribute(\"a\");\n  a = (a == null) ? 1 : a + 1;\n  application.setAttribute(\"a\", a);\n  Integer s = (Integer) session.getAttribute(\"s\");\n  s = (s == null) ? 1 : s + 1;\n  session.setAttribute(\"s\", s);\n%>\na=<%= a %>，s=<%= s %>",
+          "options": ["a=3，s=3", "a=5，s=5", "a=3，s=5", "a=5，s=3"], "answer": 3,
+          "explain": "application被所有用户共享，甲的2次和乙的3次累加在同一个a上，得到5；session每个用户各有一个，乙的s只统计他自己的3次访问。" },
+        { "id": "00898-u04-l5-q5", "type": "single", "level": "领会", "kp": "request对象的类型转换",
+          "stem": "访问calc.jsp?a=3&b=4时，下面代码的输出是？",
+          "code": "<%\n  String a = request.getParameter(\"a\");\n  String b = request.getParameter(\"b\");\n  out.print(a + b);\n  out.print(\",\");\n  out.print(Integer.parseInt(a) + Integer.parseInt(b));\n%>",
+          "options": ["7,7", "34,34", "34,7", "7,34"], "answer": 2,
+          "explain": "getParameter()返回的总是String，a + b是字符串连接，得到\"34\"；用Integer.parseInt()转换成int之后相加才得到7。" },
+        { "id": "00898-u04-l5-q6", "type": "judge", "level": "领会", "kp": "out对象的缓冲区；response对象设置重定向",
+          "stem": "调用out.flush()之后，响应已经提交给客户端，此时再调用response.sendRedirect()会抛出IllegalStateException。",
+          "answer": true,
+          "explain": "flush()后响应头和部分内容已经发给浏览器，不能再改成重定向；所以重定向、<jsp:forward>都要在缓冲区内容发出之前执行，这也是out使用缓冲区的好处之一。" },
+        { "id": "00898-u04-l5-q7", "type": "judge", "level": "领会", "kp": "application存取数据的方式",
+          "stem": "application.getAttribute(\"count\")在count属性不存在时会抛出异常，因此计数器代码必须用try-catch捕获该异常。",
+          "answer": false, "fix": "“会抛出异常，因此计数器代码必须用try-catch捕获该异常”改为“返回null，因此计数器代码要先判断是否为null”",
+          "explain": "request、session、application的getAttribute()在属性不存在时都返回null；如果不判断就直接对它做算术运算（自动拆箱），会抛出NullPointerException。" },
+        { "id": "00898-u04-l5-q8", "type": "short", "form": "简答", "level": "领会", "kp": "通过setCharacterEncoding设置编码；get和post传参方法的不同",
+          "stem": "JSP页面用request.getParameter()读取表单提交的中文时，常常出现乱码。简述产生乱码的原因，并分别说明POST方式和GET方式的解决方法。",
+          "points": ["原因：浏览器按页面编码（如UTF-8）编码中文，服务器按另一种编码（默认ISO-8859-1）解码", "POST方式：在读取任何参数之前调用request.setCharacterEncoding(\"UTF-8\")", "GET方式：setCharacterEncoding()无效，可在server.xml中设置URIEncoding=\"UTF-8\"", "GET方式也可以手工转码：new String(s.getBytes(\"ISO-8859-1\"), \"UTF-8\")", "各页面的contentType编码要统一；也可以用过滤器统一设置请求编码"],
+          "explain": "按“原因→POST→GET”三块作答；GET参数在URL中，所以setCharacterEncoding()管不到它，URIEncoding是server.xml中<Connector>元素的属性。Tomcat 8以后GET参数默认按UTF-8解码，页面统一使用UTF-8时GET方式一般不再乱码，但传统的解决方法仍要掌握。",
+          "verify": "核对教材对GET方式中文乱码的处理方法（手工转码还是修改server.xml的URIEncoding），以及教材使用的Tomcat版本。" }
+      ]
     }
   ]
 }

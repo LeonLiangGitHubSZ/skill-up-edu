@@ -30,7 +30,7 @@ export function Home({ onLesson, onReview }: { onLesson: (course: string, lesson
       <div className="scroll">
         <Urgency pace={pace} name={course?.name ?? code} />
         <RegistrationNotice />
-        {pace.sprint && <div className="notice hot">⏰ 考前冲刺周：新课先停一停，专心复习到期题和错题。</div>}
+        {pace.sprint && <div className="notice hot">⏰ 考前冲刺周：新课先停一停，专心复习到期题和错题，到「复习」页做几套模拟卷。</div>}
 
         <div className="goal">
           <span>今日目标</span>
@@ -63,7 +63,7 @@ export function Home({ onLesson, onReview }: { onLesson: (course: string, lesson
             return (
               <section key={u.unit}>
                 <div className="unit">
-                  <b>第 {u.unit} 章 · {u.title}</b>
+                  <b>{u.unit >= 90 ? u.title : `第 ${u.unit} 章 · ${u.title}`}</b>
                   <span>{doneCount}/{u.lessons.length} 课</span>
                 </div>
                 <div className="nodes">

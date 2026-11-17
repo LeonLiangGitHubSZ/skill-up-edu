@@ -3,6 +3,7 @@ import { TopBar } from "../components/TopBar";
 import { findQuestion, getBank } from "../data/banks";
 import { courseByCode, STUDY_PLAN } from "../data/program";
 import type { Question } from "../data/types";
+import { PAPERS, paperAvailability } from "../lib/mock";
 import { dueQuestions, HEART_MAX, nextHeartAt, wrongQuestions } from "../lib/state";
 import { useStore } from "../store";
 
@@ -11,7 +12,7 @@ const LETTERS = "ABCD";
 
 const toQuestions = (ids: string[]) => ids.map(findQuestion).filter((q): q is Question => !!q);
 
-export function Review({ onStart }: { onStart: (title: string, questions: Question[]) => void }) {
+export function Review({ onStart, onMock }: { onStart: (title: string, questions: Question[]) => void; onMock: (course: string) => void }) {
   const { state, update } = useStore();
   const [detail, setDetail] = useState<Question | null>(null);
   const [copied, setCopied] = useState(false);
@@ -76,6 +77,28 @@ export function Review({ onStart }: { onStart: (title: string, questions: Questi
             {heartAt && `；${heartAt.getHours()}:${String(heartAt.getMinutes()).padStart(2, "0")} 自动恢复 1 点`}
           </div>
         )}
+
+        <h2 className="section-title">模拟考试 <span className="muted small">按真实题型组卷，整套做完再看答案</span></h2>
+        {STUDY_PLAN.map(({ code }) => {
+          const spec = PAPERS[code];
+          if (!spec || !getBank(code)) return null;
+          const last = state.mocks.filter((m) => m.course === code).at(-1);
+          const short = paperAvailability(code).filter((a) => a.have < a.need);
+          return (
+            <div key={code} className="card">
+              <div className="card-row">
+                <div>
+                  <b>{courseByCode(code)?.name}</b>
+                  <div className="muted small">{spec.minutes} 分钟 · {spec.sections.map((x) => `${x.label.replace("题", "")} ${x.count}`).join(" · ")}</div>
+                  {last && <div className="small">上次 {Math.round(last.score)}/{last.max} 分 · {last.at.slice(5, 10).replace("-", "/")}</div>}
+                </div>
+                <button className="btn inline" onClick={() => onMock(code)}>开始</button>
+              </div>
+              {short.length > 0 && <div className="muted small">题库里{short.map((x) => `${x.label}只有 ${x.have} 道`).join("、")}，这部分会少抽几题。</div>}
+              <div className="muted small">{spec.note}</div>
+            </div>
+          );
+        })}
 
         <h2 className="section-title">
           错题本 <span className="muted small">{wrong.length} 道</span>

@@ -142,6 +142,50 @@
           "answer": "package com.demo;\nimport java.io.*;\nimport javax.servlet.*;\nimport javax.servlet.http.*;\n\npublic class CounterServlet extends HttpServlet {\n  protected void doGet(HttpServletRequest request, HttpServletResponse response)\n      throws ServletException, IOException {\n    ServletContext ctx = getServletContext();\n    int count;\n    synchronized (ctx) {\n      Integer n = (Integer) ctx.getAttribute(\"count\");\n      count = (n == null) ? 1 : n + 1;\n      ctx.setAttribute(\"count\", count);\n    }\n    response.setContentType(\"text/html;charset=UTF-8\");\n    PrintWriter out = response.getWriter();\n    out.println(\"本页已被访问\" + count + \"次\");\n  }\n}",
           "explain": "ServletContext被所有用户共享，适合做全站计数；如果改用HttpSession，统计的就只是当前用户的访问次数。部署时同样要在web.xml中配置映射。" }
       ]
+    },
+    {
+      "id": "00898-u10-l4",
+      "title": "Servlet生命周期与代码阅读",
+      "questions": [
+        { "id": "00898-u10-l4-q1", "type": "single", "level": "领会", "kp": "Servlet的生命周期/基本阶段（启动时加载）",
+          "stem": "LoadServlet的init()方法向控制台输出“init”，doGet()方法输出“doGet”。web.xml中的配置如下，Tomcat启动完成、还没有任何请求时，控制台已经输出的是？",
+          "code": "<servlet>\n  <servlet-name>load</servlet-name>\n  <servlet-class>com.demo.LoadServlet</servlet-class>\n  <load-on-startup>1</load-on-startup>\n</servlet>",
+          "options": ["没有任何输出", "init doGet", "doGet", "init"], "answer": 3,
+          "explain": "<load-on-startup>为正整数时，容器启动时就加载、实例化该Servlet并调用init()，所以还没有请求就输出了init；不配置时要等第一次请求才初始化。doGet()只在收到GET请求时执行。" },
+        { "id": "00898-u10-l4-q2", "type": "single", "level": "应用", "kp": "Servlet容器的工作；服务器的处理（单实例多线程）",
+          "stem": "Tomcat启动后，用户甲访问下面的Servlet 2次，接着用户乙访问1次，乙看到的是？",
+          "code": "public class CountServlet extends HttpServlet {\n  private int count = 0;\n  protected void doGet(HttpServletRequest req, HttpServletResponse resp)\n      throws ServletException, IOException {\n    int local = 0;\n    count++;\n    local++;\n    resp.getWriter().print(count + \",\" + local);\n  }\n}",
+          "options": ["3,1", "1,1", "3,3", "1,3"], "answer": 0,
+          "explain": "一个Servlet只有一个实例，所有用户的请求共用它的成员变量count，累计为3；local是doGet()中的局部变量，每次调用都重新从0开始。成员变量被多个线程共享，要注意线程安全。" },
+        { "id": "00898-u10-l4-q3", "type": "single", "level": "领会", "kp": "Servlet进行请求处理的主要类和方法（service()的分派）",
+          "stem": "用GET方式请求下面的Servlet，控制台输出的是？",
+          "code": "public class S extends HttpServlet {\n  protected void service(HttpServletRequest req, HttpServletResponse resp)\n      throws ServletException, IOException {\n    System.out.print(\"service \");\n  }\n  protected void doGet(HttpServletRequest req, HttpServletResponse resp)\n      throws ServletException, IOException {\n    System.out.print(\"doGet \");\n  }\n}",
+          "options": ["service doGet", "doGet", "service", "doGet service"], "answer": 2,
+          "explain": "doGet()是由HttpServlet的service()方法按请求方式调用的；这里重写了service()又没有调用super.service(req, resp)，请求不再分派，doGet()不会执行。所以通常只重写doGet()、doPost()，不重写service()。" },
+        { "id": "00898-u10-l4-q4", "type": "single", "level": "应用", "kp": "使用Servlet的基本流程（表单提交方式与doGet()、doPost()）",
+          "stem": "RegServlet只重写了doPost()方法，并已正确映射到/reg。用户在下面的表单中点击“提交”后，结果是？",
+          "code": "<form action=\"reg\">\n  用户名：<input type=\"text\" name=\"user\">\n  <input type=\"submit\" value=\"提交\">\n</form>",
+          "options": ["doPost()正常处理表单数据", "返回405错误，因为表单默认以GET方式提交", "返回404错误，因为找不到该Servlet", "doPost()执行，但取不到user参数"], "answer": 1,
+          "explain": "<form>没有写method属性时默认使用GET，请求交给doGet()处理；RegServlet没有重写doGet()，HttpServlet默认的doGet()返回405（不支持该请求方法）。应给表单加上method=\"post\"，或让Servlet同时处理GET请求。" },
+        { "id": "00898-u10-l4-q5", "type": "single", "level": "应用", "kp": "获取响应的类及主要方法（setContentType()与getWriter()）",
+          "stem": "某Servlet的doGet()方法中有下面的代码，浏览器中看到的结果是？",
+          "code": "PrintWriter out = response.getWriter();\nresponse.setContentType(\"text/html;charset=UTF-8\");\nout.println(\"你好\");",
+          "options": ["正常显示“你好”", "编译出错", "显示乱码（如“??”）", "抛出NullPointerException"], "answer": 2,
+          "explain": "必须先调用setContentType()设置字符编码，再调用getWriter()；getWriter()之后再设置编码不起作用，PrintWriter仍按默认的ISO-8859-1编码输出，中文无法表示，显示为问号等乱码。" },
+        { "id": "00898-u10-l4-q6", "type": "judge", "level": "领会", "kp": "Servlet的生命周期/基本阶段（destroy()）",
+          "stem": "Servlet的destroy()方法在每次请求处理完毕后都会被调用，用来释放这次请求占用的资源。",
+          "answer": false, "fix": "“在每次请求处理完毕后都会被调用，用来释放这次请求占用的资源”改为“只在Servlet被销毁（服务器关闭或应用卸载）之前调用一次”",
+          "explain": "init()和destroy()在整个生命周期中各执行一次，只有service()（以及由它调用的doGet()、doPost()）在每次请求时都执行。" },
+        { "id": "00898-u10-l4-q7", "type": "judge", "level": "识记", "kp": "Servlet的生命周期/基本阶段（加载和实例化）",
+          "stem": "Servlet容器在调用init()方法之前，会先调用Servlet类的无参构造方法创建Servlet实例。",
+          "answer": true,
+          "explain": "生命周期顺序为：加载类→调用构造方法实例化→init()初始化→service()处理请求→destroy()销毁。所以Servlet类要有public的无参构造方法（不写任何构造方法时，编译器会自动提供）。" },
+        { "id": "00898-u10-l4-q8", "type": "short", "form": "综合应用", "level": "应用", "kp": "获取Servlet配置信息的例子；Servlet的生命周期",
+          "stem": "编写WelcomeServlet（包com.demo）：在init()中读取web.xml为它配置的初始化参数welcome（值为“欢迎光临”），在doGet()中把它输出到页面；并写出web.xml中的配置，要求配置该参数、使Servlet在Tomcat启动时就加载，并映射到/welcome。",
+          "points": ["类继承HttpServlet，用成员变量保存读取到的参数", "重写无参的init()，用getInitParameter(\"welcome\")读取参数（init只执行一次，适合读配置）", "doGet()中先setContentType(\"text/html;charset=UTF-8\")，再用getWriter()输出", "web.xml的<servlet>中用<init-param>（<param-name>、<param-value>）配置参数", "用<load-on-startup>1</load-on-startup>使其启动时加载，用<servlet-mapping>映射到/welcome"],
+          "answer": "package com.demo;\nimport java.io.*;\nimport javax.servlet.*;\nimport javax.servlet.http.*;\npublic class WelcomeServlet extends HttpServlet {\n  private String welcome;\n  public void init() throws ServletException {\n    welcome = getInitParameter(\"welcome\");\n  }\n  protected void doGet(HttpServletRequest request, HttpServletResponse response)\n      throws ServletException, IOException {\n    response.setContentType(\"text/html;charset=UTF-8\");\n    response.getWriter().println(welcome);\n  }\n}\n<!-- web.xml -->\n<servlet>\n  <servlet-name>welcome</servlet-name>\n  <servlet-class>com.demo.WelcomeServlet</servlet-class>\n  <init-param><param-name>welcome</param-name><param-value>欢迎光临</param-value></init-param>\n  <load-on-startup>1</load-on-startup>\n</servlet>\n<servlet-mapping><servlet-name>welcome</servlet-name><url-pattern>/welcome</url-pattern></servlet-mapping>",
+          "explain": "GenericServlet的init(ServletConfig)会先保存ServletConfig，再调用无参的init()，所以在无参init()中可以直接调用getInitParameter()；如果重写带参数的init(ServletConfig config)，要先调用super.init(config)。" }
+      ]
     }
   ]
 }

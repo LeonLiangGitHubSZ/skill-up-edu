@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { registerSW } from "virtual:pwa-register";
 import { Home } from "./screens/Home";
 import { Me } from "./screens/Me";
+import { MockExam } from "./screens/MockExam";
 import { Quiz, type QuizSpec } from "./screens/Quiz";
 import { Review } from "./screens/Review";
 import { RoutePlan } from "./screens/RoutePlan";
+import { assemblePaper, type Paper } from "./lib/mock";
 import { dueQuestions } from "./lib/state";
 import { useStore } from "./store";
 
@@ -20,6 +22,7 @@ export default function App() {
   const { state } = useStore();
   const [tab, setTab] = useState<Tab>("learn");
   const [quiz, setQuiz] = useState<QuizSpec | null>(null);
+  const [mock, setMock] = useState<Paper | null>(null);
   const [updateReady, setUpdateReady] = useState<null | (() => void)>(null);
   const due = dueQuestions(state).length;
 
@@ -31,7 +34,14 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [tab, quiz]);
+  }, [tab, quiz, mock]);
+
+  if (mock)
+    return (
+      <div className="app">
+        <MockExam paper={mock} onExit={() => setMock(null)} />
+      </div>
+    );
 
   if (quiz)
     return (
@@ -56,7 +66,15 @@ export default function App() {
         />
       )}
       {tab === "route" && <RoutePlan />}
-      {tab === "review" && <Review onStart={(title, questions) => questions.length && setQuiz({ mode: "review", title, questions })} />}
+      {tab === "review" && (
+        <Review
+          onStart={(title, questions) => questions.length && setQuiz({ mode: "review", title, questions })}
+          onMock={(course) => {
+            const paper = assemblePaper(course, state.flags);
+            if (paper?.items.length) setMock(paper);
+          }}
+        />
+      )}
       {tab === "me" && <Me />}
       <nav className="tabs">
         {TABS.map((t) => (

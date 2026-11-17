@@ -100,6 +100,49 @@
           "answer": "<%@ page contentType=\"text/html;charset=UTF-8\" import=\"java.io.*\" %>\n<%\n  request.setCharacterEncoding(\"UTF-8\");\n  String msg = request.getParameter(\"msg\");\n  File f = new File(application.getRealPath(\"/\"), \"msg.txt\");\n  if (msg != null) {\n    BufferedWriter bw = new BufferedWriter(new FileWriter(f, true));\n    bw.write(msg);\n    bw.newLine();\n    bw.close();\n  }\n  if (f.exists()) {\n    BufferedReader br = new BufferedReader(new FileReader(f));\n    String line;\n    while ((line = br.readLine()) != null) {\n      out.print(line + \"<br>\");\n    }\n    br.close();\n  }\n%>",
           "explain": "写文件必须close()（或flush()），否则内容可能留在缓冲区；JSP的_jspService()方法声明了抛出IOException，所以这里可以不写try-catch，但实际开发中最好捕获异常。" }
       ]
+    },
+    {
+      "id": "00898-u07-l3",
+      "title": "文件读写的代码阅读与异常处理",
+      "questions": [
+        { "id": "00898-u07-l3-q1", "type": "single", "level": "应用", "kp": "读写文件（覆盖写入与追加写入）",
+          "stem": "执行下面的代码段后，path所指文件中的内容是？",
+          "code": "FileWriter fw = new FileWriter(path);\nfw.write(\"AB\");\nfw.close();\nfw = new FileWriter(path, true);\nfw.write(\"CD\");\nfw.close();\nfw = new FileWriter(path);\nfw.write(\"E\");\nfw.close();",
+          "options": ["ABCDE", "CDE", "E", "ABCD"], "answer": 2,
+          "explain": "第1次写入后文件内容为AB，第2次以追加方式写入得到ABCD；第3次没有指定追加，new FileWriter(path)打开文件时就清空了原内容，所以最后只剩E。" },
+        { "id": "00898-u07-l3-q2", "type": "single", "level": "应用", "kp": "BufferedReader读写方法",
+          "stem": "文本文件共有4行，内容依次为a、b、c、d。执行下面的代码段后，页面显示的是？",
+          "code": "BufferedReader br = new BufferedReader(new FileReader(path));\nwhile (br.readLine() != null) {\n  out.print(br.readLine() + \" \");\n}\nbr.close();",
+          "options": ["b d", "a b c d", "a c", "a b c"], "answer": 0,
+          "explain": "每轮循环调用了两次readLine()：判断条件时读走了a、c，循环体输出的是b、d。正确写法是用变量保存读到的行：while ((line = br.readLine()) != null)。" },
+        { "id": "00898-u07-l3-q3", "type": "single", "level": "应用", "kp": "访问文件时的异常情况",
+          "stem": "服务器上不存在d:/none.txt，访问下面的页面，输出的是？",
+          "code": "<%@ page import=\"java.io.*\" %>\n<%\n  try {\n    BufferedReader br = new BufferedReader(new FileReader(\"d:/none.txt\"));\n    out.print(\"A\");\n    br.close();\n  } catch (FileNotFoundException e) {\n    out.print(\"B\");\n  } catch (IOException e) {\n    out.print(\"C\");\n  } finally {\n    out.print(\"D\");\n  }\n%>",
+          "options": ["ABD", "CD", "B", "BD"], "answer": 3,
+          "explain": "new FileReader()打开不存在的文件时抛出FileNotFoundException，后面的out.print(\"A\")不再执行；异常只进入第一个匹配的catch，输出B；finally块无论是否发生异常都会执行，输出D。" },
+        { "id": "00898-u07-l3-q4", "type": "single", "level": "应用", "kp": "文件维护的相关方法",
+          "stem": "Web应用根目录下原来没有t.txt，执行下面的代码段后输出的是？",
+          "code": "File f = new File(application.getRealPath(\"/\"), \"t.txt\");\nout.print(f.exists() + \" \");\nout.print(f.createNewFile() + \" \");\nout.print(f.createNewFile() + \" \");\nout.print(f.exists());",
+          "options": ["false true true true", "false true false true", "false false false false", "true true false true"], "answer": 1,
+          "explain": "new File()只是创建了代表该文件的对象，并不会在磁盘上建文件，所以开始exists()为false；第一次createNewFile()创建成功返回true，第二次因文件已存在返回false；最后exists()为true。" },
+        { "id": "00898-u07-l3-q5", "type": "single", "level": "应用", "kp": "数据流的分类（字节流与字符流的选用）",
+          "stem": "要在JSP中把服务器上的一个图片文件复制一份，应选用的流类是？",
+          "options": ["FileInputStream和FileOutputStream", "FileReader和FileWriter", "BufferedReader和BufferedWriter", "InputStreamReader和PrintWriter"], "answer": 0,
+          "explain": "图片是二进制文件，要用以字节为单位的字节流复制；FileReader、FileWriter等字符流会按字符编码转换数据，用它们复制二进制文件会损坏内容。" },
+        { "id": "00898-u07-l3-q6", "type": "judge", "level": "领会", "kp": "访问文件时的异常情况（catch的顺序）",
+          "stem": "在try语句后先写catch (IOException e)，再写catch (FileNotFoundException e)，程序可以正常编译。",
+          "answer": false, "fix": "“可以正常编译”改为“会编译出错（捕获子类FileNotFoundException的catch应写在IOException之前）”",
+          "explain": "FileNotFoundException是IOException的子类，父类的catch写在前面时，后面子类的catch永远执行不到，Java编译器会报错。" },
+        { "id": "00898-u07-l3-q7", "type": "judge", "level": "识记", "kp": "输出流的工作方式",
+          "stem": "用new FileWriter(文件名)写文件时，如果该文件不存在（所在目录存在），会自动创建这个文件。",
+          "answer": true,
+          "explain": "输出流打开文件时，文件不存在就自动创建，已存在则清空原内容（追加方式除外）；但如果所在目录不存在，会抛出FileNotFoundException。" },
+        { "id": "00898-u07-l3-q8", "type": "short", "form": "综合应用", "level": "应用", "kp": "读写文件；访问文件时的异常情况",
+          "stem": "编写JSP页面notice.jsp：读取Web应用根目录下notice.txt的全部内容，在每行前面加上行号（如“1：……”）显示；文件不存在时显示“公告文件不存在”。要求用try-catch-finally处理异常，并在finally中关闭流。",
+          "points": ["导入java.io.*，用application.getRealPath(\"/\")和文件名构造File对象", "用new BufferedReader(new FileReader(f))打开文件，while循环readLine()直到返回null", "用计数变量记录行号，逐行输出“行号：内容<br>”", "先catch FileNotFoundException提示文件不存在，再catch IOException处理其他读错误", "br声明在try之外并初始化为null，在finally中判断不为null后close()"],
+          "answer": "<%@ page contentType=\"text/html;charset=UTF-8\" import=\"java.io.*\" %>\n<%\n  File f = new File(application.getRealPath(\"/\"), \"notice.txt\");\n  BufferedReader br = null;\n  try {\n    br = new BufferedReader(new FileReader(f));\n    String line;\n    int n = 0;\n    while ((line = br.readLine()) != null) {\n      n++;\n      out.print(n + \"：\" + line + \"<br>\");\n    }\n  } catch (FileNotFoundException e) {\n    out.print(\"公告文件不存在\");\n  } catch (IOException e) {\n    out.print(\"读取文件出错：\" + e.getMessage());\n  } finally {\n    if (br != null) {\n      try { br.close(); } catch (IOException e) { }\n    }\n  }\n%>",
+          "explain": "br要在try之外声明，finally中才能使用；close()本身也可能抛出IOException，所以要再用try-catch包起来。子类异常FileNotFoundException的catch必须写在IOException前面。" }
+      ]
     }
   ]
 }
