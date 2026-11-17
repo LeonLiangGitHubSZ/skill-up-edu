@@ -1,5 +1,6 @@
 import { get, set } from "idb-keyval";
 import { dayKey } from "./date";
+import { saveSummary } from "./reminder";
 import { migrate, type AppState } from "./state";
 
 const KEY = "skillup-state-v1";
@@ -14,6 +15,7 @@ export async function loadState(): Promise<AppState> {
 
 export async function saveState(s: AppState): Promise<void> {
   await set(KEY, s);
+  await saveSummary(s);
 }
 
 /** 请求持久化存储，降低被系统清理的概率（加到主屏幕后 iOS 不按 7 天规则清理） */

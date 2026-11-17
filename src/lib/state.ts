@@ -46,7 +46,7 @@ export interface AppState {
   mocks: MockRecord[];
   /** 看过的最新一条更新说明（data/changelog.ts 的 id） */
   seenRelease?: string;
-  settings: { active: string; sound: boolean; hearts: boolean };
+  settings: { active: string; sound: boolean; hearts: boolean; reminder?: { enabled: boolean; time: string } };
 }
 
 export interface MockRecord {

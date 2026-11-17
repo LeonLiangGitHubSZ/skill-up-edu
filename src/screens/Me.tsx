@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { ReminderCard } from "../components/ReminderCard";
 import { TopBar } from "../components/TopBar";
 import { getBank } from "../data/banks";
 import { STUDY_PLAN } from "../data/program";
@@ -90,6 +91,7 @@ export function Me() {
         </div>
 
         <h2 className="section-title">设置</h2>
+        <ReminderCard />
         <div className="card list">
           <label className="toggle">
             <span>音效</span>

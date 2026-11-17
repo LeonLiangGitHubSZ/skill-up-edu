@@ -253,3 +253,9 @@ h1, h2 { margin: 0; }
 .whatsnew-title { font-weight: 800; font-size: 16px; color: var(--ok-d); }
 .whatsnew-release { font-size: 14px; }
 .whatsnew-release ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
+
+/* 学习提醒 */
+.time-input { font-size: 17px; padding: 6px 8px; border: 2px solid var(--line); border-radius: 10px; background: #fff; color: var(--txt); }
+.small-input { font-size: 16px; padding: 10px 12px; }
+.help-list { margin: 0; padding-left: 18px; line-height: 1.7; color: var(--sub); }
+.reminder .link { align-self: flex-start; }

@@ -41,6 +41,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,webmanifest}"],
+        // 学习提醒的推送处理（public/push-sw.js）
+        importScripts: ["push-sw.js"],
       },
     }),
   ],

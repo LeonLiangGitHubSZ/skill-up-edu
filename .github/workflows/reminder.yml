@@ -1,0 +1,64 @@
+# 每日学习提醒：北京时间 6:00–24:00 每 15 分钟检查一次，到了 App 里设定的时间就发一条网页推送。
+# App 把设置写在仓库变量里：PUSH_SUBSCRIPTION（推送订阅）、REMINDER_TIME（如 20:30）、REMINDER_ENABLED（true/false）。
+# 推送私钥在仓库 Secret VAPID_PRIVATE_KEY。每天只发一次：发送后用缓存记下当天已发。
+name: Study reminder
+
+on:
+  schedule:
+    - cron: "7,22,37,52 0-15,22-23 * * *"
+  workflow_dispatch:
+    inputs:
+      test:
+        description: 立即发一条测试提醒
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: study-reminder
+  cancel-in-progress: false
+
+jobs:
+  remind:
+    if: vars.PUSH_SUBSCRIPTION != '' && (inputs.test || vars.REMINDER_ENABLED == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            src/data/push.ts
+          sparse-checkout-cone-mode: false
+
+      - id: due
+        run: node scripts/reminder.mjs due
+        env:
+          REMINDER_TIME: ${{ vars.REMINDER_TIME }}
+          TEST: ${{ inputs.test }}
+
+      - id: sent
+        if: steps.due.outputs.due == 'true' && steps.due.outputs.test != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: .reminder-sent
+          key: reminder-sent-${{ steps.due.outputs.day }}
+
+      - id: send
+        if: steps.due.outputs.due == 'true' && steps.sent.outputs.cache-hit != 'true'
+        run: |
+          npm install --prefix /tmp/webpush --no-audit --no-fund --silent web-push@3.6.7
+          node scripts/reminder.mjs send
+          mkdir -p .reminder-sent && date -u > .reminder-sent/at
+        env:
+          PUSH_SUBSCRIPTION: ${{ vars.PUSH_SUBSCRIPTION }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          TEST: ${{ steps.due.outputs.test }}
+
+      - if: steps.send.outcome == 'success' && steps.due.outputs.test != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .reminder-sent
+          key: reminder-sent-${{ steps.due.outputs.day }}
