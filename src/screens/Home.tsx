@@ -1,4 +1,5 @@
 import { TopBar } from "../components/TopBar";
+import { WhatsNew } from "../components/WhatsNew";
 import { getBank } from "../data/banks";
 import { courseByCode, sessionById, SLOT_LABEL, STUDY_PLAN } from "../data/program";
 import type { Lesson } from "../data/types";
@@ -28,6 +29,7 @@ export function Home({ onLesson, onReview }: { onLesson: (course: string, lesson
     <div className="screen">
       <TopBar />
       <div className="scroll">
+        <WhatsNew />
         <Urgency pace={pace} name={course?.name ?? code} />
         <RegistrationNotice />
         {pace.sprint && <div className="notice hot">⏰ 考前冲刺周：新课先停一停，专心复习到期题和错题，到「复习」页做几套模拟卷。</div>}

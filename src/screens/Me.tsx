@@ -1,5 +1,8 @@
 import { useRef, useState } from "react";
 import { TopBar } from "../components/TopBar";
+import { getBank } from "../data/banks";
+import { STUDY_PLAN } from "../data/program";
+import { checkForUpdate } from "../pwa";
 import { addDays, dayKey, parseDay } from "../lib/date";
 import { createState } from "../lib/state";
 import { exportBackup, readBackup } from "../lib/storage";
@@ -11,6 +14,16 @@ export function Me() {
   const { state, update, replace } = useStore();
   const fileInput = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState("");
+  const [updateMsg, setUpdateMsg] = useState("");
+  const totalQuestions = STUDY_PLAN.reduce((n, p) => n + (getBank(p.code)?.questions.size ?? 0), 0);
+
+  const onCheck = async () => {
+    setUpdateMsg("正在检查…");
+    const r = await checkForUpdate();
+    setUpdateMsg(
+      r === "update" ? "发现新版本，正在下载，稍后屏幕顶部会出现更新横幅" : r === "latest" ? "已经是最新版本 ✓" : "当前环境不支持离线更新（例如在电脑浏览器里预览时）",
+    );
+  };
 
   const cards = Object.values(state.cards);
   const answered = cards.reduce((n, c) => n + c.reps, 0);
@@ -38,6 +51,18 @@ export function Me() {
       <TopBar showCourse={false} />
       <div className="scroll pad">
         <h1 className="page-title">我的</h1>
+
+        <div className="card version-card">
+          <div className="card-row">
+            <div>
+              <div className="muted small">当前版本</div>
+              <b>{__APP_VERSION__}</b>
+              <div className="muted small">题库 {totalQuestions} 题</div>
+            </div>
+            <button className="btn inline ghost" onClick={() => void onCheck()}>检查更新</button>
+          </div>
+          {updateMsg && <div className="small">{updateMsg}</div>}
+        </div>
 
         <div className="stat-grid">
           <div className="stat"><div className="n acc">{state.streak}</div><div className="l">连胜天数</div></div>

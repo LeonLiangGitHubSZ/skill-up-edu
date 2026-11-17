@@ -241,3 +241,15 @@ h1, h2 { margin: 0; }
 .answer-card button.done { background: var(--pri-l); border-color: #c7d2fe; color: var(--pri-d); font-weight: 700; }
 .answer-card button.short { border-style: dashed; color: var(--sub); }
 .answer-card button.cur { outline: 2px solid var(--pri); outline-offset: 1px; }
+
+/* 更新横幅、已更新卡片 */
+.update-banner { position: absolute; top: 0; left: 0; right: 0; z-index: 40; background: linear-gradient(120deg, #4f46e5, #7c3aed); color: #fff; padding: calc(14px + var(--safe-t)) 16px 14px; border-radius: 0 0 18px 18px; box-shadow: 0 8px 24px rgba(79, 70, 229, .35); animation: drop .3s ease; }
+.update-banner b { display: block; font-size: 17px; margin-bottom: 2px; }
+.update-actions { display: flex; gap: 10px; margin-top: 10px; }
+.update-banner .btn { background: #fff; color: var(--pri); box-shadow: 0 4px 0 rgba(15, 23, 42, .18); }
+.update-banner .btn.later { flex: none; width: auto; padding: 12px 18px; background: transparent; color: #fff; border: 1.5px solid rgba(255, 255, 255, .7); box-shadow: none; }
+@keyframes drop { from { transform: translateY(-100%); } }
+.whatsnew { margin: 0 14px 12px; border: 2px solid #bbf7d0; background: var(--ok-l); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.whatsnew-title { font-weight: 800; font-size: 16px; color: var(--ok-d); }
+.whatsnew-release { font-size: 14px; }
+.whatsnew-release ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }

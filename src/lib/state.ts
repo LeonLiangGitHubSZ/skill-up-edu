@@ -44,6 +44,8 @@ export interface AppState {
   registered: Record<string, boolean>;
   /** 模拟考试记录 */
   mocks: MockRecord[];
+  /** 看过的最新一条更新说明（data/changelog.ts 的 id） */
+  seenRelease?: string;
   settings: { active: string; sound: boolean; hearts: boolean };
 }
 

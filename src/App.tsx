@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { registerSW } from "virtual:pwa-register";
+import { UpdateBanner } from "./components/UpdateBanner";
 import { Home } from "./screens/Home";
 import { Me } from "./screens/Me";
 import { MockExam } from "./screens/MockExam";
@@ -23,14 +23,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("learn");
   const [quiz, setQuiz] = useState<QuizSpec | null>(null);
   const [mock, setMock] = useState<Paper | null>(null);
-  const [updateReady, setUpdateReady] = useState<null | (() => void)>(null);
   const due = dueQuestions(state).length;
-
-  useEffect(() => {
-    const update = registerSW({
-      onNeedRefresh: () => setUpdateReady(() => () => void update(true)),
-    });
-  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -85,9 +78,7 @@ export default function App() {
           </button>
         ))}
       </nav>
-      {updateReady && (
-        <button className="update-toast" onClick={updateReady}>有新版本（可能有新题），点这里更新</button>
-      )}
+      <UpdateBanner />
     </div>
   );
 }
