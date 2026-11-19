@@ -1,0 +1,268 @@
+{
+  "course": "04748",
+  "unit": 3,
+  "title": "数组、Vector 与字符串",
+  "lessons": [
+    {
+      "id": "04748-u03-l1",
+      "title": "一维数组、二维数组与 Arrays 类",
+      "questions": [
+        {
+          "id": "04748-u03-l1-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "一维数组的创建与初始化",
+          "stem": "执行下面用 new 创建数组的程序段，输出结果是？",
+          "code": "int[] a = new int[5];\na[1] = 3;\nSystem.out.println(a.length + \" \" + a[0]\n    + \" \" + a[1]);",
+          "options": [
+            "4 0 3",
+            "5 0 3",
+            "5 null 3",
+            "编译出错：a[0] 没有赋值"
+          ],
+          "answer": 1,
+          "explain": "用 new 创建数组后，元素自动取默认值：数值型为 0，boolean 为 false，引用类型为 null。length 是数组长度 5，下标从 0 到 4。没赋值的局部变量不能使用，但数组元素有默认值。"
+        },
+        {
+          "id": "04748-u03-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "一维数组的使用",
+          "stem": "下面的程序段对数组元素求和，编译、运行的结果是？",
+          "code": "int[] a = {1, 2, 3};\nint s = 0;\nfor (int i = 0; i <= a.length; i++)\n  s += a[i];\nSystem.out.println(s);",
+          "options": [
+            "输出 6",
+            "编译出错：数组下标越界",
+            "先输出 6，再抛出异常",
+            "运行时抛出 ArrayIndexOutOfBoundsException"
+          ],
+          "answer": 3,
+          "explain": "下标的合法范围是 0～a.length - 1。循环条件写成 i <= a.length，i 为 3 时访问 a[3] 越界；编译器不检查下标，运行时才抛出 ArrayIndexOutOfBoundsException，后面的输出语句不会执行。应改为 i < a.length。"
+        },
+        {
+          "id": "04748-u03-l1-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "java.util.Arrays 类",
+          "stem": "执行下面用 Arrays 类排序的程序段，输出结果是？",
+          "code": "int[] a = {5, 2, 9, 1};\nArrays.sort(a);\nSystem.out.println(Arrays.toString(a));",
+          "options": [
+            "[9, 5, 2, 1]",
+            "[1, 2, 5, 9]",
+            "1 2 5 9",
+            "[I@15db9742"
+          ],
+          "answer": 1,
+          "explain": "Arrays.sort() 把数组按升序排列，直接修改原数组；Arrays.toString() 把数组转换成“[元素, 元素]”形式的字符串。直接 System.out.println(a) 输出的是类似 [I@15db9742 的“类型@哈希码”。使用前要写 import java.util.Arrays;。",
+          "verify": "大纲写作“java.util.Array 类”，实际类名是 java.util.Arrays；核对教材是否介绍了 Arrays.toString()。"
+        },
+        {
+          "id": "04748-u03-l1-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "System.arraycopy() 方法",
+          "stem": "执行下面用 System.arraycopy() 复制数组的程序段，输出结果是____。",
+          "code": "int[] src = {1, 2, 3, 4, 5};\nint[] dst = new int[5];\nSystem.arraycopy(src, 1, dst, 0, 3);\nSystem.out.println(dst[0] + dst[2] + dst[4]);",
+          "answers": [
+            "6"
+          ],
+          "explain": "参数依次是：源数组、源数组起始下标、目标数组、目标数组起始下标、复制个数。从 src[1] 起复制 3 个元素到 dst[0]～dst[2]，dst 为 {2, 3, 4, 0, 0}，2 + 4 + 0 = 6。"
+        },
+        {
+          "id": "04748-u03-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "多维数组的使用",
+          "stem": "执行下面使用二维数组的程序段，输出结果是？",
+          "code": "int[][] m = {{1, 2, 3}, {4, 5}, {6}};\nSystem.out.println(m.length + \" \" + m[1].length\n    + \" \" + m[2][0]);",
+          "options": [
+            "3 3 6",
+            "6 2 6",
+            "3 2 4",
+            "3 2 6"
+          ],
+          "answer": 3,
+          "explain": "Java 的二维数组是“数组的数组”，每一行的长度可以不同：m.length 是行数 3，m[1].length 是第 2 行的元素个数 2，m[2][0] 是第 3 行的第 1 个元素 6。"
+        },
+        {
+          "id": "04748-u03-l1-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "数组的引用",
+          "stem": "执行下面把一个数组变量赋给另一个数组变量的程序段，输出结果是？",
+          "code": "int[] a = {1, 2, 3};\nint[] b = a;\nb[0] = 9;\nSystem.out.println(a[0] + \" \" + (a == b));",
+          "options": [
+            "9 true",
+            "1 true",
+            "1 false",
+            "9 false"
+          ],
+          "answer": 0,
+          "explain": "数组是引用类型，b = a 只是让 b 和 a 指向同一个数组，并没有复制元素，所以通过 b 修改后 a[0] 也是 9。要得到独立的副本，用 System.arraycopy() 或 Arrays.copyOf()。"
+        },
+        {
+          "id": "04748-u03-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "一维数组的使用",
+          "stem": "编写程序 BubbleSort：从键盘输入 n 和 n 个整数，用冒泡排序法按从小到大的顺序排序后输出，数之间用空格分隔（不能使用 Arrays.sort）。\n输入样例：\n6\n5 2 8 1 9 3\n输出样例：1 2 3 5 8 9",
+          "points": [
+            "读入 n，创建长度为 n 的数组，用循环读入各元素（2 分）",
+            "外层循环 n - 1 趟，内层循环比较相邻的 a[j] 和 a[j + 1]（2 分）",
+            "逆序时借助临时变量交换两个元素（2 分）",
+            "按格式输出排序结果（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\npublic class BubbleSort {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    int[] a = new int[n];\n    for (int i = 0; i < n; i++)\n      a[i] = sc.nextInt();\n    for (int i = 0; i < n - 1; i++)\n      for (int j = 0; j < n - 1 - i; j++)\n        if (a[j] > a[j + 1]) {\n          int t = a[j];\n          a[j] = a[j + 1];\n          a[j + 1] = t;\n        }\n    for (int i = 0; i < n; i++)\n      System.out.print(a[i] + \" \");\n    System.out.println();\n  }\n}",
+          "explain": "每一趟把未排序部分中最大的数“冒”到最后，所以第 i 趟只需比较到 n - 1 - i。交换两个变量必须借助临时变量 t，直接写 a[j] = a[j + 1]; a[j + 1] = a[j]; 会丢失原来的 a[j]。"
+        },
+        {
+          "id": "04748-u03-l1-q8",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "多维数组的创建；多维数组的使用",
+          "stem": "编写程序 Yanghui：从键盘输入 n（1～10），用二维数组输出杨辉三角形的前 n 行，同一行的数之间用一个空格分隔。\n输入样例：5\n输出样例：\n1\n1 1\n1 2 1\n1 3 3 1\n1 4 6 4 1",
+          "points": [
+            "创建二维数组，第 i 行的长度为 i + 1（2 分）",
+            "每行的第一个和最后一个元素为 1（2 分）",
+            "其余元素 a[i][j] = a[i - 1][j - 1] + a[i - 1][j]（2 分）",
+            "用二重循环按行输出，每行结束后换行（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\npublic class Yanghui {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    int[][] a = new int[n][];\n    for (int i = 0; i < n; i++) {\n      a[i] = new int[i + 1];\n      a[i][0] = a[i][i] = 1;\n      for (int j = 1; j < i; j++)\n        a[i][j] = a[i - 1][j - 1] + a[i - 1][j];\n    }\n    for (int i = 0; i < n; i++) {\n      for (int j = 0; j <= i; j++)\n        System.out.print(a[i][j] + \" \");\n      System.out.println();\n    }\n  }\n}",
+          "explain": "new int[n][] 先只创建 n 行，再用 a[i] = new int[i + 1] 为每一行分配不同的长度。也可以直接创建 new int[n][n]，只使用下三角部分。"
+        }
+      ]
+    },
+    {
+      "id": "04748-u03-l2",
+      "title": "String、StringBuffer 与 Vector",
+      "questions": [
+        {
+          "id": "04748-u03-l2-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "String 类（字符串的比较）",
+          "stem": "执行下面比较字符串的程序段，输出结果是？",
+          "code": "String s1 = \"java\";\nString s2 = new String(\"java\");\nString s3 = \"java\";\nSystem.out.println(s1 == s2);\nSystem.out.println(s1.equals(s2));\nSystem.out.println(s1 == s3);",
+          "options": [
+            "true true true",
+            "false true false",
+            "false true true",
+            "true false true"
+          ],
+          "answer": 2,
+          "explain": "== 比较两个引用是不是指向同一个对象，equals() 比较字符串的内容。s1 和 s3 是同一个字符串常量（只存一份），new String() 会创建新对象。判断用户输入的字符串，一定要用 equals()。"
+        },
+        {
+          "id": "04748-u03-l2-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "String 类（常用方法）",
+          "stem": "执行下面调用 String 类方法的程序段，输出结果是？",
+          "code": "String s = \"HelloJava\";\nSystem.out.println(s.length() + s.substring(5));\nSystem.out.println(s.indexOf('l') + \" \"\n    + s.charAt(1));",
+          "options": [
+            "9Java 3 e",
+            "9oJava 2 e",
+            "9Java 2 e",
+            "10Java 2 H"
+          ],
+          "answer": 2,
+          "explain": "length() 得 9；substring(5) 从下标 5 取到末尾，得 \"Java\"；indexOf('l') 返回第一次出现的位置 2；charAt(1) 是第 2 个字符 e。字符串的下标从 0 开始。"
+        },
+        {
+          "id": "04748-u03-l2-q3",
+          "type": "fill",
+          "level": "领会",
+          "kp": "String 类（字符串不可修改）",
+          "stem": "执行下面调用 toUpperCase() 和 concat() 的程序段，输出结果是____。",
+          "code": "String s = \"abc\";\ns.toUpperCase();\ns.concat(\"d\");\nSystem.out.println(s);",
+          "answers": [
+            "abc"
+          ],
+          "explain": "String 对象的内容不能修改，toUpperCase()、concat()、replace() 等方法都是返回一个新字符串，原字符串不变。要保留结果必须重新赋值，如 s = s.toUpperCase();。"
+        },
+        {
+          "id": "04748-u03-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "StringBuffer 类",
+          "stem": "执行下面使用 StringBuffer 的程序段，输出结果是？",
+          "code": "StringBuffer sb = new StringBuffer(\"abc\");\nsb.append(\"de\").insert(0, \"X\");\nsb.reverse();\nSystem.out.println(sb + \" \" + sb.length());",
+          "options": [
+            "edcbaX 6",
+            "Xedcba 6",
+            "abcdeX 6",
+            "edcbaX 5"
+          ],
+          "answer": 0,
+          "explain": "StringBuffer 的内容可以修改：append() 在末尾追加得 \"abcde\"，insert(0, \"X\") 在下标 0 处插入得 \"Xabcde\"，reverse() 反转得 \"edcbaX\"，长度为 6。这些方法直接修改 sb 本身并返回 sb，所以可以连着调用。"
+        },
+        {
+          "id": "04748-u03-l2-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "Vector 类",
+          "stem": "执行下面使用 Vector 的程序段，输出结果是？",
+          "code": "Vector<String> v = new Vector<String>();\nv.add(\"a\");\nv.add(\"b\");\nv.add(0, \"c\");\nv.remove(\"a\");\nSystem.out.println(v + \" \" + v.size());",
+          "options": [
+            "[b, c] 2",
+            "[c, a, b] 3",
+            "[a, b] 2",
+            "[c, b] 2"
+          ],
+          "answer": 3,
+          "explain": "add(元素) 加在末尾，add(下标, 元素) 插入到指定位置，得 [c, a, b]；remove(对象) 删除第一个相等的元素，得 [c, b]；size() 是元素个数。老写法 addElement()、insertElementAt()、removeElement() 的作用相同。",
+          "verify": "核对教材介绍的 Vector 方法是 add/get/remove 还是 addElement/elementAt/removeElement 这一组，以及是否使用泛型写法 Vector<String>。"
+        },
+        {
+          "id": "04748-u03-l2-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "Vector 类（编译提示）",
+          "stem": "编译一个使用 Vector v = new Vector(); 的程序时，javac 只显示“注: Test.java使用了未经检查或不安全的操作。”，下列说法正确的是？",
+          "options": [
+            "编译失败，必须改正后才能运行",
+            "这只是提示，已经生成 class 文件，可以正常运行",
+            "程序运行时一定会抛出异常",
+            "必须加 -Xlint 选项重新编译才会生成 class 文件"
+          ],
+          "answer": 1,
+          "explain": "以“注:”开头的是提示，不是错误。没有用泛型的老写法（如 new Vector()）就会出现这个提示，class 文件照常生成。写成 Vector<String> v = new Vector<String>(); 就不再提示。"
+        },
+        {
+          "id": "04748-u03-l2-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "String 类",
+          "stem": "编写程序 CountChars：从键盘输入一行字符串，分别统计其中英文字母、数字、空格和其他字符的个数。\n输入样例：Java 8, Hello 2026!\n输出样例：字母：9 数字：5 空格：3 其他：2",
+          "points": [
+            "用 nextLine() 读入整行（含空格）（2 分）",
+            "用 length() 和 charAt(i) 逐个取出字符（2 分）",
+            "用字符范围判断字母、数字、空格，其余算其他字符，分别计数（2 分）",
+            "按样例格式输出 4 个计数（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\npublic class CountChars {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    String s = sc.nextLine();\n    int letter = 0, digit = 0;\n    int space = 0, other = 0;\n    for (int i = 0; i < s.length(); i++) {\n      char c = s.charAt(i);\n      boolean low = c >= 'a' && c <= 'z';\n      boolean up = c >= 'A' && c <= 'Z';\n      if (low || up)\n        letter++;\n      else if (c >= '0' && c <= '9')\n        digit++;\n      else if (c == ' ')\n        space++;\n      else\n        other++;\n    }\n    System.out.println(\"字母：\" + letter\n        + \" 数字：\" + digit + \" 空格：\" + space\n        + \" 其他：\" + other);\n  }\n}",
+          "explain": "next() 遇到空格就停止，读整行要用 nextLine()。Character.isLetter() 对汉字也返回 true，题目要求统计英文字母时，用字符范围判断更准确。"
+        },
+        {
+          "id": "04748-u03-l2-q8",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "Vector 类",
+          "stem": "编写程序 Words：从键盘输入若干个单词（用空格分隔，以 end 结束），用 Vector 保存其中不重复的单词（区分大小写），按输入顺序输出，再输出不重复单词的个数。\n输入样例：red blue red green blue end\n输出样例：\nred blue green\n共 3 个",
+          "points": [
+            "创建 Vector<String> 对象（1 分）",
+            "循环读入单词，读到 end 时结束（2 分）",
+            "用 contains() 判断单词是否已经保存过，没有才用 add() 加入（2 分）",
+            "用 size() 和 get(i)（或 elementAt(i)）输出全部单词和个数（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\nimport java.util.Vector;\npublic class Words {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    Vector<String> v = new Vector<String>();\n    while (sc.hasNext()) {\n      String w = sc.next();\n      if (w.equals(\"end\")) break;\n      if (!v.contains(w)) v.add(w);\n    }\n    for (int i = 0; i < v.size(); i++)\n      System.out.print(v.get(i) + \" \");\n    System.out.println();\n    System.out.println(\"共 \" + v.size() + \" 个\");\n  }\n}",
+          "explain": "contains() 用 equals() 比较内容，所以能找出重复的字符串。判断 end 也要用 equals()，写成 w == \"end\" 比较的是引用，next() 返回的是新的字符串对象，结果为 false。"
+        }
+      ]
+    }
+  ]
+}

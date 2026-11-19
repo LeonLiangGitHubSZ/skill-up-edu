@@ -92,7 +92,7 @@ export function Quiz({ spec, onExit }: { spec: QuizSpec; onExit: (goReview?: boo
       const chosen = picked.map((i) => item.order[i]).sort((a, b) => a - b);
       r = chosen.length === q.answer.length && chosen.every((v, k) => v === q.answer[k]) ? "right" : "wrong";
     } else if (q.type === "judge" && typeof picked === "boolean") r = picked === q.answer ? "right" : "wrong";
-    else if (q.type === "fill") r = checkFill(text, q.answers) ? "right" : "wrong";
+    else if (q.type === "fill") r = checkFill(text, q.answers, q.code) ? "right" : "wrong";
     submit(r);
     setPhase("feedback");
   }

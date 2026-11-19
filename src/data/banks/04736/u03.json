@@ -1,0 +1,98 @@
+{
+  "course": "04736",
+  "unit": 3,
+  "title": "数据的插入、修改与删除",
+  "lessons": [
+    {
+      "id": "04736-u03-l1",
+      "title": "INSERT、UPDATE、DELETE 与常见错误",
+      "questions": [
+        {
+          "id": "04736-u03-l1-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "插入数据：列与值的对应",
+          "stem": "goods 表有 gno、gname、category、price、stock 共 5 列。执行下面的语句，结果是？",
+          "code": "INSERT INTO goods\nVALUES ('G06', '音箱', 150, 8);",
+          "options": ["报错 1136：列数与值的个数不一致", "插入成功，category 为 NULL", "插入成功，stock 为 NULL", "插入成功，各值按类型自动对应到列"],
+          "answer": 0,
+          "explain": "省略列名时，VALUES 中必须按表中列的顺序给出所有列的值。只给部分列时要写出列名，如 INSERT INTO goods(gno, gname, price, stock) VALUES (…)，没列出的列取默认值或 NULL。"
+        },
+        {
+          "id": "04736-u03-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "修改数据：SET 子句",
+          "stem": "goods 表中 G01 的 price 为 99.00、stock 为 10。执行下面的语句后，G01 的 price 和 stock 分别是？",
+          "code": "UPDATE goods SET price = 89 AND stock = 20\nWHERE gno = 'G01';",
+          "options": ["89.00 和 20", "0.00 和 10", "89.00 和 10", "1.00 和 20"],
+          "answer": 1,
+          "explain": "SET 中的多个赋值要用逗号分隔。这里 AND 被当成逻辑运算：price = (89 AND (stock = 20))，而 stock 是 10，条件为假，price 被改成 0，stock 不变。正确写法是 SET price = 89, stock = 20。"
+        },
+        {
+          "id": "04736-u03-l1-q3",
+          "type": "fill",
+          "level": "识记",
+          "kp": "清空表（TRUNCATE）",
+          "stem": "要删除表 t 中的全部数据、保留表结构，并让 AUTO_INCREMENT 列重新从 1 开始编号，执行 ____ TABLE t;",
+          "answers": ["TRUNCATE"],
+          "explain": "TRUNCATE TABLE 直接清空表并重置自增计数器；DELETE FROM t 逐行删除，计数器不变，新行接着原来的编号。被其他表的外键参照的表不能 TRUNCATE（报 1701）。"
+        },
+        {
+          "id": "04736-u03-l1-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "删除数据：子查询引用同一张表",
+          "stem": "要删除工资低于全体职工平均工资的职工，执行下面的语句却报错 ERROR 1093：You can't specify target table 'emp' for update in FROM clause。原因是？",
+          "code": "DELETE FROM emp\nWHERE salary < (SELECT AVG(salary) FROM emp);",
+          "options": ["DELETE 语句的 WHERE 子句中不能使用子查询", "AVG 等聚合函数不能用在子查询中", "MySQL 不允许在子查询中直接读取正在删除的同一张表", "emp 表上没有定义主键"],
+          "answer": 2,
+          "explain": "MySQL 的 UPDATE、DELETE 不能在子查询里直接引用正在修改的表。把子查询再包一层派生表即可：WHERE salary < (SELECT a FROM (SELECT AVG(salary) AS a FROM emp) AS t)；也可以先把平均值存进用户变量，再删除。"
+        },
+        {
+          "id": "04736-u03-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "REPLACE 语句",
+          "stem": "goods(gno, gname, price, stock) 的主键是 gno，表中已有一行：G01，键盘，99.00，库存 10。执行下面的语句后，G01 这一行变为？",
+          "code": "REPLACE INTO goods(gno, gname, price)\nVALUES ('G01', '机械键盘', 299);",
+          "options": ["机械键盘，299.00，库存仍为 10", "不变，语句报错 1062 主键重复", "不变，语句被忽略并给出警告", "机械键盘，299.00，库存为 NULL"],
+          "answer": 3,
+          "explain": "REPLACE 遇到主键（或唯一键）重复时，先删除旧行再插入新行，客户端显示 2 rows affected；新行中没给出的列取默认值，所以库存变成 NULL。只想修改其中几列，应该用 UPDATE。"
+        },
+        {
+          "id": "04736-u03-l1-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "插入子查询的结果",
+          "stem": "表 g_bak 已经存在，结构与 goods 相同。要把 goods 中的全部行一次复制到 g_bak 中，正确的语句是？",
+          "options": ["INSERT INTO g_bak SELECT * FROM goods;", "INSERT INTO g_bak VALUES (SELECT * FROM goods);", "SELECT * INTO g_bak FROM goods;", "CREATE TABLE g_bak AS SELECT * FROM goods;"],
+          "answer": 0,
+          "explain": "INSERT INTO 表 SELECT … 把查询结果的所有行一次插入，不写 VALUES，查询的列要与目标表的列一一对应。MySQL 中的 SELECT … INTO 用于给变量赋值或导出文件；g_bak 已存在时，CREATE TABLE g_bak AS SELECT … 会报 1050 表已存在。"
+        },
+        {
+          "id": "04736-u03-l1-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "插入、修改与删除数据",
+          "stem": "商品库 db_shop 中：goods(gno CHAR(4) 主键, gname VARCHAR(30), category VARCHAR(10), price DECIMAL(8,2), stock INT)；orders(ono INT 自增主键, gno CHAR(4) 非空, qty INT, odate DATE)，orders 的 gno 参照 goods。用 SQL 语句完成：\n(1) 一条语句插入两种商品：G101 蓝牙耳机，数码，199，库存 50；G102 保温杯，家居，59，库存 120；\n(2) 为 G101 插入一条订单：数量 2，日期 2026-11-01（订单号自动生成）；\n(3) 把“数码”类商品的价格下调 10%，库存都加 5；\n(4) 删除 2024 年以前的订单；\n(5) 删除从来没有被订购过的“家居”类商品。",
+          "points": ["(1) 一条 INSERT 带两个值列表（1 分）", "(2) INSERT INTO orders(gno, qty, odate)，不给 ono（1 分）", "(3) SET price = price * 0.9, stock = stock + 5（1 分）", "(4) DELETE … WHERE odate < '2024-01-01'（1 分）", "(5) category = '家居' AND gno NOT IN (子查询)（1 分）"],
+          "answer": "INSERT INTO goods VALUES\n  ('G101', '蓝牙耳机', '数码', 199, 50),\n  ('G102', '保温杯', '家居', 59, 120);\nINSERT INTO orders(gno, qty, odate)\n  VALUES ('G101', 2, '2026-11-01');\nUPDATE goods\n  SET price = price * 0.9, stock = stock + 5\n  WHERE category = '数码';\nDELETE FROM orders WHERE odate < '2024-01-01';\nDELETE FROM goods\n  WHERE category = '家居'\n    AND gno NOT IN (SELECT gno FROM orders);",
+          "explain": "“下调 10%”是乘以 0.9；SET 中的多个赋值用逗号分隔，不能用 AND。(5) 也可以写成 NOT EXISTS 子查询；orders.gno 不允许为空，所以这里用 NOT IN 不会受空值影响。"
+        },
+        {
+          "id": "04736-u03-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "插入子查询结果与带子查询的修改、删除",
+          "stem": "公司库 db_company 中：dept(dno CHAR(3) 主键, dname VARCHAR(20))；emp(eno CHAR(4) 主键, ename VARCHAR(20), salary DECIMAL(8,2), dno CHAR(3))。用 SQL 语句完成：\n(1) 创建表 emp_rd(eno, ename, salary)，各列类型与 emp 中的相同，eno 为主键；\n(2) 把“研发部”职工的工号、姓名、工资插入 emp_rd；\n(3) 把“研发部”职工的工资提高 8%；\n(4) 删除工资低于全体职工平均工资的“后勤部”职工。",
+          "points": ["(1) CREATE TABLE emp_rd，eno CHAR(4) PRIMARY KEY（1 分）", "(2) INSERT INTO emp_rd(…) SELECT … WHERE dno IN (…)（1 分）", "(3) SET salary = salary * 1.08 WHERE dno IN (…)（1 分）", "(4) 平均工资的子查询包成派生表，避免 1093（1 分）"],
+          "answer": "CREATE TABLE emp_rd (\n  eno    CHAR(4) PRIMARY KEY,\n  ename  VARCHAR(20),\n  salary DECIMAL(8,2)\n);\nINSERT INTO emp_rd(eno, ename, salary)\n  SELECT eno, ename, salary FROM emp\n  WHERE dno IN (SELECT dno FROM dept\n                WHERE dname = '研发部');\nUPDATE emp SET salary = salary * 1.08\n  WHERE dno IN (SELECT dno FROM dept\n                WHERE dname = '研发部');\nDELETE FROM emp\n  WHERE dno IN (SELECT dno FROM dept\n                WHERE dname = '后勤部')\n    AND salary < (SELECT a FROM\n      (SELECT AVG(salary) AS a FROM emp) AS t);",
+          "explain": "部门名在 dept 表中，要先用子查询查出部门号。(4) 若直接写 salary < (SELECT AVG(salary) FROM emp) 会报 1093，因为 MySQL 不允许在 DELETE 的子查询中直接读同一张表，包一层派生表（必须起别名）就可以了。"
+        }
+      ]
+    }
+  ]
+}

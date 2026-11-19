@@ -1,0 +1,93 @@
+{
+  "course": "04736",
+  "unit": 1,
+  "title": "MySQL 客户端的使用",
+  "lessons": [
+    {
+      "id": "04736-u01-l1",
+      "title": "连接服务器、常用命令与字符集",
+      "questions": [
+        {
+          "id": "04736-u01-l1-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "连接 MySQL 服务器",
+          "stem": "在 Windows 命令提示符中，以 root 用户连接本机的 MySQL 服务器，并在下一行按提示输入密码。正确的命令是？",
+          "options": ["mysql -u root -p", "mysql -u root -P", "mysql -h root -p", "mysqladmin -u root -p"],
+          "answer": 0,
+          "explain": "-u 指定用户名，-p 表示要输入密码（回车后出现 Enter password: 再输入）；-h 指定服务器主机（默认 localhost），大写的 -P 指定端口（默认 3306）。mysqladmin 是管理工具，不会进入 mysql> 交互界面。"
+        },
+        {
+          "id": "04736-u01-l1-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "连接 MySQL 服务器",
+          "stem": "执行命令 mysql -u root -p 123456（-p 和 123456 之间有一个空格）后，会发生什么？",
+          "options": ["直接用密码 123456 登录", "提示输入密码，并把 123456 当作要使用的数据库名", "用 123456 号端口连接服务器", "报错：-p 选项后面不能有参数"],
+          "answer": 1,
+          "explain": "-p 和密码之间不能有空格：写成 -p123456 才是在命令行直接给出密码（客户端会警告这样不安全）。有空格时 -p 后面没有密码，客户端提示输入密码，123456 被当成登录后要使用的数据库。"
+        },
+        {
+          "id": "04736-u01-l1-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "选择当前数据库（USE）",
+          "stem": "登录后直接执行 SHOW TABLES;，出现 ERROR 1046 (3D000): No database selected。正确的处理是？",
+          "options": ["先执行 CREATE TABLE 建一张表", "改用 SHOW DATABASES; 查看表", "先执行 USE 数据库名; 选择数据库", "退出后换成 root 用户重新登录"],
+          "answer": 2,
+          "explain": "1046 表示还没有选择当前数据库。先 USE db_school; 再 SHOW TABLES;，或者直接写 SHOW TABLES FROM db_school;。SHOW DATABASES 列出的是数据库，不是表。"
+        },
+        {
+          "id": "04736-u01-l1-q4",
+          "type": "fill",
+          "level": "识记",
+          "kp": "执行 SQL 脚本文件（SOURCE）",
+          "stem": "已经登录 mysql，要执行脚本文件 D:/sql/school.sql 中的全部语句，可以输入：____ D:/sql/school.sql",
+          "answers": ["SOURCE", "\\."],
+          "explain": "SOURCE（简写 \\.）是 mysql 客户端的命令，把文件里的语句逐条发给服务器执行，路径不加引号。也可以不进入 mysql，在命令提示符中执行 mysql -u root -p db_school < D:/sql/school.sql。"
+        },
+        {
+          "id": "04736-u01-l1-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "查看服务器版本",
+          "stem": "MySQL 5.7 和 8.0 有些语法不同，上机时可以先执行 SELECT ____; 查看服务器的版本号。",
+          "answers": ["VERSION()", "@@version"],
+          "explain": "VERSION() 返回如 8.0.45、5.7.44 这样的版本号；登录时的欢迎信息和 STATUS（简写 \\s）命令的输出里也有 Server version。"
+        },
+        {
+          "id": "04736-u01-l1-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "字符集：服务器默认字符集",
+          "stem": "考场电脑装的是 MySQL 5.7（默认配置）。执行 CREATE DATABASE db_test; 后在库中建表，插入中文姓名时报 ERROR 1366 Incorrect string value。最合理的解决办法是？",
+          "options": ["把姓名列的类型由 VARCHAR 改为 TEXT", "关闭严格模式后再插入", "插入前先执行 SET NAMES latin1;", "建库时指定 CHARACTER SET utf8mb4"],
+          "answer": 3,
+          "explain": "MySQL 5.7 服务器的默认字符集是 latin1，存不了中文（8.0 起默认是 utf8mb4）。建库时写 CHARACTER SET utf8mb4（或 utf8）即可；已建好的表用 ALTER TABLE 表名 CONVERT TO CHARACTER SET utf8mb4 转换。关闭严格模式只会把中文存成问号。",
+          "verify": "本机只有 8.0，5.7 默认 latin1 未实测；考场的 5.7 若由安装程序在配置文件里设过 character-set-server，默认字符集可能已是 utf8，以 SHOW VARIABLES LIKE 'character_set_server' 为准。"
+        },
+        {
+          "id": "04736-u01-l1-q7",
+          "type": "fill",
+          "level": "领会",
+          "kp": "字符集：SET NAMES",
+          "stem": "命令行里查询结果的中文显示为乱码。要同时设置 character_set_client、character_set_connection 和 character_set_results 三个变量，可执行 SET ____ gbk;",
+          "answers": ["NAMES"],
+          "explain": "SET NAMES 字符集; 一次设置这三个会话变量，应与客户端环境的编码一致（中文 Windows 命令提示符常用 gbk）。用 SHOW VARIABLES LIKE 'character%'; 可以查看当前的各项字符集。",
+          "verify": "未在 Windows 上实测：中文 Windows 命令提示符里用 SET NAMES gbk 解决乱码是常见做法，新版客户端可能已按控制台编码自动设置，以考场实际显示为准。"
+        },
+        {
+          "id": "04736-u01-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "客户端常用命令综合",
+          "stem": "MySQL 已装好，root 的密码为 123456。脚本文件 D:/sql/school.sql 中是建表和插入数据的语句（不含建库）。写出完成下列操作的命令：\n(1) 在命令提示符中以 root 登录本机 MySQL；\n(2) 查看服务器上已有的数据库；\n(3) 创建数据库 db_school，默认字符集为 utf8mb4；\n(4) 选择 db_school 为当前数据库，再执行脚本 D:/sql/school.sql；\n(5) 查看库中有哪些表，以及 student 表的结构。",
+          "points": ["(1) mysql -u root -p，回车后输入密码（1 分）", "(2) SHOW DATABASES;（1 分）", "(3) CREATE DATABASE … CHARACTER SET utf8mb4（1 分）", "(4) USE db_school; 后 SOURCE D:/sql/school.sql（1 分）", "(5) SHOW TABLES; 和 DESC student;（1 分）"],
+          "answer": "mysql -u root -p\nSHOW DATABASES;\nCREATE DATABASE db_school\n  DEFAULT CHARACTER SET utf8mb4;\nUSE db_school;\nSOURCE D:/sql/school.sql\nSHOW TABLES;\nDESC student;",
+          "explain": "第 (1) 步在操作系统的命令提示符里执行，其余在 mysql> 下执行。脚本里没有建库语句，所以必须先 USE 再 SOURCE，否则建表时报 1046 错误。DESC student 也可写成 DESCRIBE student 或 SHOW COLUMNS FROM student。"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "course": "00899",
+  "unit": 6,
+  "title": "JavaBean与表单处理",
+  "lessons": [
+    {
+      "id": "00899-u06-l1",
+      "title": "编写JavaBean与jsp:useBean",
+      "questions": [
+        { "id": "00899-u06-l1-q1", "type": "single", "level": "领会", "kp": "JavaBean的特征（必须满足的条件）",
+          "stem": "页面中有<jsp:useBean id=\"u\" class=\"com.bean.User\" />，而User类只定义了构造方法public User(String name)。访问该页面的结果是？",
+          "options": ["正常创建对象，name为null", "正常创建对象，name为空字符串", "HTTP状态500，提示useBean的class属性值无效", "页面正常显示，u为null"], "answer": 2,
+          "explain": "<jsp:useBean>要用public的无参构造方法创建对象，User类没有无参构造方法，Tomcat报错：The value for the useBean class attribute [com.bean.User] is invalid。JavaBean必须是public类，并提供public的无参构造方法。" },
+        { "id": "00899-u06-l1-q2", "type": "single", "level": "应用", "kp": "设置JavaBean属性（property=\"*\"的匹配规则）",
+          "stem": "用<jsp:setProperty name=\"stu\" property=\"*\" />把表单数据自动存入Student对象，对表单的要求是？",
+          "options": ["表单元素的id与Bean的属性名一致", "表单元素的value与Bean的属性名一致", "Bean的成员变量必须声明为public", "表单元素的name与Bean的属性名一致"], "answer": 3,
+          "explain": "property=\"*\"按请求参数名找同名属性，调用对应的setXxx()方法赋值（如参数name对应setName()）；成员变量照样是private的，与表单元素的id无关。" },
+        { "id": "00899-u06-l1-q3", "type": "fill", "level": "识记", "kp": "设置JavaBean属性（param属性）",
+          "stem": "表单输入框的name是nl，而Bean的属性名是age，要把这个参数的值赋给age，可以写<jsp:setProperty name=\"stu\" property=\"age\" ____=\"nl\" />。",
+          "answers": ["param"],
+          "explain": "param指定取哪个请求参数的值，value则直接给定一个值，两者不能同时使用；参数名与属性名相同时param可以省略。" },
+        { "id": "00899-u06-l1-q4", "type": "single", "level": "应用", "kp": "类型自动转换的规则",
+          "stem": "Student的age属性是int型（初值为0）。表单的age文本框没有填就提交了，执行<jsp:setProperty name=\"stu\" property=\"*\" />后，age的值是？",
+          "options": ["仍然是0（值为空串的参数不赋值）", "抛出NumberFormatException", "-1", "null"], "answer": 0,
+          "explain": "property=\"*\"时，值为空字符串的参数会被跳过，对应属性保持原值；但如果填的是abc这类不能转换成数字的内容，就会出错（HTTP状态500）。" },
+        { "id": "00899-u06-l1-q5", "type": "single", "level": "领会", "kp": "JavaBean的4种生命周期的区别和不同（scope）",
+          "stem": "Counter的count属性初值为0。同一个用户连续访问下面的页面3次，第3次显示的是？若把scope改为page，第3次显示的又是？",
+          "code": "<jsp:useBean id=\"c\" class=\"com.bean.Counter\"\n    scope=\"session\" />\n<% c.setCount(c.getCount() + 1); %>\n<jsp:getProperty name=\"c\" property=\"count\" />",
+          "options": ["1；1", "3；1", "3；3", "1；3"], "answer": 1,
+          "explain": "scope=\"session\"时，useBean先到session中找名为c的对象，找到就直接使用，所以计数累加；scope=\"page\"时每次请求都新建对象，总是1。" },
+        { "id": "00899-u06-l1-q6", "type": "single", "level": "应用", "kp": "JavaBean在JSP页面间传递的注意点（不能采用sendRedirect）",
+          "stem": "a.jsp中用<jsp:useBean id=\"stu\" class=\"com.bean.Student\" scope=\"request\" />创建并设置了stu，然后跳转到b.jsp，b.jsp用同样的<jsp:useBean>取stu。要让b.jsp拿到a.jsp中的这个对象，跳转应使用？",
+          "options": ["response.sendRedirect(\"b.jsp\")", "<a href=\"b.jsp\">超链接</a>", "<jsp:forward page=\"b.jsp\" />", "response.setHeader(\"refresh\", \"0;URL=b.jsp\")"], "answer": 2,
+          "explain": "request范围的JavaBean只在同一次请求中有效，转发时b.jsp与a.jsp共用同一个request；重定向、超链接、refresh都会让浏览器发出新的请求，b.jsp中的useBean只能新建一个空对象。" },
+        { "id": "00899-u06-l1-q7", "type": "short", "form": "综合应用", "level": "应用", "kp": "使用JavaBean处理表单数据；访问JavaBean属性",
+          "stem": "编写JavaBean类com.bean.Bmi：属性height（身高，单位cm，double型）、weight（体重，单位kg，double型），只读属性bmi（体重÷身高²，身高换算成米，保留1位小数）和level（bmi<18.5为“偏瘦”，<24为“正常”，<28为“超重”，否则为“肥胖”）。再编写bmi.jsp，用<jsp:useBean>、<jsp:setProperty>、<jsp:getProperty>处理表单提交的height和weight并显示结果，例如身高170、体重65时显示BMI为22.5、结论为正常。",
+          "points": ["Bmi类是public类，有public无参构造方法，属性为private", "height、weight提供getXxx()/setXxx()，类型为double", "只读属性bmi、level只提供getBmi()、getLevel()，在方法中计算", "bmi.jsp用<jsp:useBean>创建对象，<jsp:setProperty property=\"*\">自动赋值并完成类型转换", "用<jsp:getProperty>输出身高、体重、bmi和level"],
+          "answer": "// Bmi.java\npackage com.bean;\npublic class Bmi {\n  private double height;\n  private double weight;\n  public Bmi() { }\n  public double getHeight() { return height; }\n  public void setHeight(double h) { height = h; }\n  public double getWeight() { return weight; }\n  public void setWeight(double w) { weight = w; }\n  public double getBmi() {\n    double m = height / 100;\n    double v = weight / (m * m);\n    return Math.round(v * 10) / 10.0;\n  }\n  public String getLevel() {\n    double b = getBmi();\n    if (b < 18.5) return \"偏瘦\";\n    else if (b < 24) return \"正常\";\n    else if (b < 28) return \"超重\";\n    else return \"肥胖\";\n  }\n}\n<%-- bmi.jsp --%>\n<%@ page contentType=\"text/html;charset=UTF-8\" %>\n<jsp:useBean id=\"b\" class=\"com.bean.Bmi\" />\n<jsp:setProperty name=\"b\" property=\"*\" />\n身高：<jsp:getProperty name=\"b\"\n    property=\"height\" />cm<br>\n体重：<jsp:getProperty name=\"b\"\n    property=\"weight\" />kg<br>\nBMI：<jsp:getProperty name=\"b\" property=\"bmi\" /><br>\n结论：<jsp:getProperty name=\"b\" property=\"level\" />",
+          "explain": "<jsp:getProperty property=\"bmi\">调用的是getBmi()，不需要bmi成员变量；计算放在JavaBean中，JSP只负责显示，这就是JSP+JavaBean模式的分工。Math.round(v * 10) / 10.0保留1位小数，要除以10.0而不是10。" }
+      ]
+    }
+  ]
+}

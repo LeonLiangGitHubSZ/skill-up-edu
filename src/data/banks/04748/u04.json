@@ -1,0 +1,361 @@
+{
+  "course": "04748",
+  "unit": 4,
+  "title": "类与对象、继承与接口",
+  "lessons": [
+    {
+      "id": "04748-u04-l1",
+      "title": "类的定义、构造方法与对象的使用",
+      "questions": [
+        {
+          "id": "04748-u04-l1-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "构造方法",
+          "stem": "下面的 Point 类只定义了带参数的构造方法。程序编译、运行的结果是？",
+          "code": "class Point {\n  int x, y;\n  Point(int x, int y) {\n    this.x = x;\n    this.y = y;\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Point p = new Point();\n    System.out.println(p.x);\n  }\n}",
+          "options": [
+            "输出 0",
+            "输出 null",
+            "运行时抛出 NullPointerException",
+            "编译出错：Point 类没有无参数的构造方法"
+          ],
+          "answer": 3,
+          "explain": "类中一个构造方法都没写时，系统才自动提供无参数的默认构造方法；自己定义了构造方法以后，默认构造方法就没有了，javac 报“无法将类 Point中的构造器 Point应用到给定类型”。可以改成 new Point(0, 0)，或者再定义一个无参数的构造方法。"
+        },
+        {
+          "id": "04748-u04-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "static 修饰符",
+          "stem": "执行下面用静态变量给对象编号的程序，输出结果是？",
+          "code": "class Counter {\n  static int total = 0;\n  int id;\n  Counter() {\n    total++;\n    id = total;\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Counter a = new Counter();\n    Counter b = new Counter();\n    System.out.print(a.id + \" \" + b.id);\n    System.out.println(\" \" + Counter.total);\n  }\n}",
+          "options": [
+            "1 1 2",
+            "1 2 2",
+            "2 2 2",
+            "1 2 1"
+          ],
+          "answer": 1,
+          "explain": "static 变量属于类，所有对象共用一份；实例变量 id 每个对象各有一份。创建 a 时 total 变为 1，a.id = 1；创建 b 时 total 变为 2，b.id = 2。静态变量通常用“类名.变量名”访问。"
+        },
+        {
+          "id": "04748-u04-l1-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "main 方法；static 修饰符",
+          "stem": "在 Test 类的 main 方法中直接调用本类的实例方法 show()，编译时报“无法从静态上下文中引用非静态 方法 show()”。正确的改法是？",
+          "options": [
+            "去掉 main 方法的 static",
+            "在调用前加 this：this.show();",
+            "先创建对象再调用：new Test().show();",
+            "把调用语句改为 super.show();"
+          ],
+          "answer": 2,
+          "explain": "静态方法不依赖对象，里面没有 this，不能直接使用本类的实例变量和实例方法。可以先创建本类的对象再调用，也可以把 show() 也声明为 static。去掉 main 的 static 能编译，但 java 命令就无法启动程序了。"
+        },
+        {
+          "id": "04748-u04-l1-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "this 的使用",
+          "stem": "下面 Student 类的构造方法中少写了 this，程序的输出结果是____。",
+          "code": "class Student {\n  String name;\n  Student(String name) {\n    name = name;\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Student s = new Student(\"Tom\");\n    System.out.println(s.name);\n  }\n}",
+          "answers": [
+            "null"
+          ],
+          "explain": "参数 name 和成员变量同名时，方法里的 name 指的是参数，name = name 只是把参数赋给参数自己，成员变量仍是默认值 null。应写成 this.name = name;。"
+        },
+        {
+          "id": "04748-u04-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "方法的重载",
+          "stem": "执行下面调用重载方法 f 的程序，输出结果是？",
+          "code": "public class Test {\n  static String f(int x) { return \"int\"; }\n  static String f(double x) { return \"double\"; }\n  static String f(String x) { return \"String\"; }\n  public static void main(String[] args) {\n    System.out.println(f(5 / 2) + \" \" + f(5 / 2.0)\n        + \" \" + f('A'));\n  }\n}",
+          "options": [
+            "int double int",
+            "int double String",
+            "double double int",
+            "int int String"
+          ],
+          "answer": 0,
+          "explain": "重载方法按实参的类型选择：5 / 2 是 int，5 / 2.0 是 double；'A' 是 char，没有 f(char) 时自动转换成最接近的 int，调用 f(int)。char 不会自动转换成 String。"
+        },
+        {
+          "id": "04748-u04-l1-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "对象的使用（toString 方法）",
+          "stem": "Book 类只有成员变量 String title = \"Java\";，没有定义 toString() 方法。执行 System.out.println(new Book()); 输出的是？",
+          "options": [
+            "类似 Book@1b6d3586 的“类名@哈希码”",
+            "Java",
+            "null",
+            "编译出错：对象不能直接输出"
+          ],
+          "answer": 0,
+          "explain": "println(对象) 会自动调用对象的 toString()；类中没有覆盖时，用 Object 类的版本，输出“类名@哈希码”。要输出成员变量的值，应在 Book 类中覆盖 public String toString() { return title; }。"
+        },
+        {
+          "id": "04748-u04-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "类的声明；构造方法；对象的创建与使用",
+          "stem": "编写程序：定义矩形类 Rectangle，包含私有成员变量 width、height（double 型），带两个参数的构造方法，求面积的 getArea()、求周长的 getPerimeter()，以及返回“矩形[宽=…, 高=…]”的 toString() 方法。在主类 TestRect 的 main 方法中创建一个宽 3、高 4.5 的矩形，输出它的信息、面积和周长。\n输出样例：\n矩形[宽=3.0, 高=4.5]\n面积：13.5\n周长：15.0",
+          "points": [
+            "成员变量用 private 修饰，方法用 public 修饰（1 分）",
+            "构造方法用 this.width = width 等语句给成员变量赋值（2 分）",
+            "getArea()、getPerimeter() 计算正确（2 分）",
+            "覆盖 toString()，main 中创建对象并按样例格式输出（3 分）"
+          ],
+          "answer": "class Rectangle {\n  private double width, height;\n  public Rectangle(double width, double height) {\n    this.width = width;\n    this.height = height;\n  }\n  public double getArea() {\n    return width * height;\n  }\n  public double getPerimeter() {\n    return 2 * (width + height);\n  }\n  public String toString() {\n    return \"矩形[宽=\" + width\n        + \", 高=\" + height + \"]\";\n  }\n}\npublic class TestRect {\n  public static void main(String[] args) {\n    Rectangle r = new Rectangle(3, 4.5);\n    System.out.println(r);\n    System.out.println(\"面积：\" + r.getArea());\n    System.out.println(\"周长：\" + r.getPerimeter());\n  }\n}",
+          "explain": "一个源文件中只能有一个 public 类，文件名要与它同名（TestRect.java）。new Rectangle(3, 4.5) 中的 3 会自动转换为 double 型，所以输出 3.0。toString() 必须写成 public，否则不能覆盖 Object 类的方法。"
+        },
+        {
+          "id": "04748-u04-l1-q8",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "构造方法；访问控制符",
+          "stem": "程序改错：下面的程序有 3 处错误，请指出错误所在的行号并改正，使程序输出 x+y=7。",
+          "code": "1  class Point {\n2    private int x, y;\n3    public void Point(int x, int y) {\n4      this.x = x;\n5      this.y = y;\n6    }\n7    public int getX() { return x; }\n8    public int getY() { return y; }\n9  }\n10 public class TestPoint {\n11   public static void main(String[] args) {\n12     Point p = Point(3, 4);\n13     int sum = p.getX() + p.y;\n14     System.out.println(\"x+y=\" + sum);\n15   }\n16 }",
+          "points": [
+            "第 3 行：构造方法不能写返回类型，去掉 void，改为 public Point(int x, int y) {（2 分）",
+            "第 12 行：创建对象要用 new，改为 Point p = new Point(3, 4);（2 分）",
+            "第 13 行：y 是 Point 的私有成员，类外不能直接访问，改为 int sum = p.getX() + p.getY();（2 分）"
+          ],
+          "answer": "class Point {\n  private int x, y;\n  public Point(int x, int y) {\n    this.x = x;\n    this.y = y;\n  }\n  public int getX() { return x; }\n  public int getY() { return y; }\n}\npublic class TestPoint {\n  public static void main(String[] args) {\n    Point p = new Point(3, 4);\n    int sum = p.getX() + p.getY();\n    System.out.println(\"x+y=\" + sum);\n  }\n}",
+          "explain": "写了 void 的 Point 只是一个与类同名的普通方法，类里就没有带两个参数的构造方法了：第一次编译只报第 12、13 行，第 12 行加上 new 以后，还会报“无法将类 Point中的构造器 Point应用到给定类型”，根源在第 3 行。private 成员只能在本类中访问，类外要通过 getY() 这样的公有方法取得。"
+        }
+      ]
+    },
+    {
+      "id": "04748-u04-l2",
+      "title": "继承、super 与方法覆盖",
+      "questions": [
+        {
+          "id": "04748-u04-l2-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "子类对象的创建（构造方法的调用顺序）",
+          "stem": "执行下面创建子类对象的程序，输出结果是？",
+          "code": "class Animal {\n  Animal() { System.out.print(\"动物 \"); }\n}\nclass Dog extends Animal {\n  Dog() { System.out.print(\"狗 \"); }\n}\nclass Puppy extends Dog {\n  Puppy() {\n    super();\n    System.out.print(\"小狗\");\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    new Puppy();\n  }\n}",
+          "options": [
+            "小狗 狗 动物",
+            "小狗",
+            "动物 狗 小狗",
+            "狗 小狗"
+          ],
+          "answer": 2,
+          "explain": "创建子类对象时，先执行父类的构造方法，再执行子类构造方法中其余的语句；子类构造方法第一句没写 super(…) 时，编译器自动加上 super()。所以从最上层的 Animal 开始依次输出。"
+        },
+        {
+          "id": "04748-u04-l2-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "super 关键字的使用",
+          "stem": "下面的程序编译时出错，原因是？",
+          "code": "class Person {\n  String name;\n  Person(String name) { this.name = name; }\n}\nclass Student extends Person {\n  int score;\n  Student(String name, int score) {\n    this.score = score;\n  }\n}",
+          "options": [
+            "子类不能定义自己的成员变量",
+            "没有用 super(name) 调用父类的构造方法",
+            "Student 的构造方法中不能使用 this",
+            "子类构造方法的参数个数必须和父类相同"
+          ],
+          "answer": 1,
+          "explain": "子类构造方法没写 super(…) 时，编译器自动调用父类的无参构造方法 super()；Person 只有带参数的构造方法，所以报“无法将类 Person中的构造器 Person应用到给定类型”。应在 Student 构造方法的第一句写 super(name);。"
+        },
+        {
+          "id": "04748-u04-l2-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "隐藏；覆盖",
+          "stem": "执行下面父类、子类有同名成员变量和同名方法的程序，输出结果是？",
+          "code": "class Animal {\n  String name = \"动物\";\n  String speak() { return \"……\"; }\n}\nclass Dog extends Animal {\n  String name = \"狗\";\n  String speak() { return \"汪汪\"; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Animal a = new Dog();\n    System.out.println(a.name + \" \" + a.speak());\n  }\n}",
+          "options": [
+            "狗 汪汪",
+            "动物 ……",
+            "狗 ……",
+            "动物 汪汪"
+          ],
+          "answer": 3,
+          "explain": "方法被覆盖后，调用哪个版本由对象的实际类型决定，a 指向 Dog 对象，调用 Dog 的 speak()；成员变量只是被隐藏，访问哪一个由引用变量的类型决定，a 是 Animal 型，取到的是 Animal 的 name。"
+        },
+        {
+          "id": "04748-u04-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "super 关键字的使用；覆盖",
+          "stem": "执行下面在子类方法中调用 super.info() 的程序，输出结果是？",
+          "code": "class Base {\n  String info() { return \"Base\"; }\n}\nclass Sub extends Base {\n  String info() { return super.info() + \"+Sub\"; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Base b = new Sub();\n    System.out.println(b.info());\n  }\n}",
+          "options": [
+            "Base",
+            "Base+Sub",
+            "Sub+Base",
+            "+Sub"
+          ],
+          "answer": 1,
+          "explain": "子类覆盖了 info()，b 指向 Sub 对象，调用的是 Sub 的 info()；在子类中用 super.info() 可以调用被覆盖的父类方法，得到 \"Base\"，再连接 \"+Sub\"。"
+        },
+        {
+          "id": "04748-u04-l2-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "final 修饰符",
+          "stem": "父类中有方法 public final void show() { … }，子类中又定义了 public void show() { … }。编译的结果是？",
+          "options": [
+            "编译通过，子类的 show() 覆盖父类的方法",
+            "编译通过，调用时总是执行父类的 show()",
+            "编译出错：子类不能定义与父类同名的方法",
+            "编译出错：final 方法不能被子类覆盖"
+          ],
+          "answer": 3,
+          "explain": "final 修饰的方法不能被覆盖，javac 报“…无法覆盖…被覆盖的方法为final”；final 修饰的类不能被继承，final 修饰的变量赋值后不能再修改。"
+        },
+        {
+          "id": "04748-u04-l2-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "子类对象的使用（对象的类型转换）",
+          "stem": "执行下面进行对象类型转换的程序，结果是？",
+          "code": "class Animal { }\nclass Dog extends Animal { }\npublic class Test {\n  public static void main(String[] args) {\n    Animal a = new Dog();\n    Dog d1 = (Dog) a;\n    Animal b = new Animal();\n    Dog d2 = (Dog) b;\n    System.out.println(\"ok\");\n  }\n}",
+          "options": [
+            "编译通过，运行时抛出 ClassCastException",
+            "输出 ok",
+            "编译出错：父类对象不能强制转换为子类",
+            "编译出错：Dog d1 = (Dog) a; 不合法"
+          ],
+          "answer": 0,
+          "explain": "父类引用可以指向子类对象；把它强制转换回子类时，要求它实际指向的确实是子类对象。a 实际是 Dog，转换成功；b 实际是 Animal，编译能通过，运行时抛出 ClassCastException。转换前可以用 b instanceof Dog 判断。"
+        },
+        {
+          "id": "04748-u04-l2-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "子类的创建；super 关键字的使用；覆盖",
+          "stem": "编写程序：定义类 Person，包含姓名 name、年龄 age 和构造方法，方法 info() 返回“姓名：…，年龄：…”；定义 Person 的子类 Student，增加学校 school，构造方法用 super 调用父类的构造方法，并覆盖 info()，在父类的信息后加上“，学校：…”。在主类 TestPerson 中创建一个 Student 对象，用 Person 类型的变量引用它，输出 info() 的结果。\n输出样例：姓名：张三，年龄：20，学校：南航",
+          "points": [
+            "Student 用 extends 继承 Person，增加成员变量 school（1 分）",
+            "子类构造方法的第一句用 super(name, age) 调用父类构造方法（2 分）",
+            "子类覆盖 info()，用 super.info() 复用父类的结果（2 分）",
+            "main 中用 Person 型变量引用 Student 对象，调用 info() 时执行子类的版本（2 分）"
+          ],
+          "answer": "class Person {\n  protected String name;\n  protected int age;\n  public Person(String name, int age) {\n    this.name = name;\n    this.age = age;\n  }\n  public String info() {\n    return \"姓名：\" + name + \"，年龄：\" + age;\n  }\n}\nclass Student extends Person {\n  private String school;\n  public Student(String name, int age,\n                 String school) {\n    super(name, age);\n    this.school = school;\n  }\n  public String info() {\n    return super.info() + \"，学校：\" + school;\n  }\n}\npublic class TestPerson {\n  public static void main(String[] args) {\n    Person p = new Student(\"张三\", 20, \"南航\");\n    System.out.println(p.info());\n  }\n}",
+          "explain": "super(…) 必须是子类构造方法的第一条语句。p 的类型是 Person，但指向 Student 对象，调用的是 Student 覆盖后的 info()，这就是多态。"
+        }
+      ]
+    },
+    {
+      "id": "04748-u04-l3",
+      "title": "抽象类、接口与多态",
+      "questions": [
+        {
+          "id": "04748-u04-l3-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "抽象类",
+          "stem": "已定义下面的抽象类 Shape 和它的子类 Square。在 main 方法中写下列语句，会编译出错的是？",
+          "code": "abstract class Shape {\n  abstract double area();\n}\nclass Square extends Shape {\n  double s = 2;\n  double area() { return s * s; }\n}",
+          "options": [
+            "Shape b = new Square();",
+            "Square c = new Square();",
+            "Shape a = new Shape();",
+            "Shape[] arr = new Shape[3];"
+          ],
+          "answer": 2,
+          "explain": "抽象类不能用 new 创建对象，javac 报“Shape是抽象的; 无法实例化”；但可以声明抽象类型的变量和数组，让它们指向、存放子类对象。new Shape[3] 创建的是数组，不是 Shape 对象。"
+        },
+        {
+          "id": "04748-u04-l3-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "接口的实现",
+          "stem": "下面的 Car 类实现了接口 Vehicle，但只实现了其中一个方法。编译的结果是？",
+          "code": "interface Vehicle {\n  void start();\n  void stop();\n}\nclass Car implements Vehicle {\n  public void start() {\n    System.out.println(\"启动\");\n  }\n}",
+          "options": [
+            "编译通过，调用 stop() 时什么也不做",
+            "编译通过，调用 stop() 时抛出异常",
+            "编译出错：Car 不是抽象类，又没有实现 stop()",
+            "编译出错：接口中的方法必须有方法体"
+          ],
+          "answer": 2,
+          "explain": "实现接口的类必须实现接口中的全部抽象方法，否则这个类要声明为 abstract。javac 报“Car不是抽象的, 并且未覆盖Vehicle中的抽象方法stop()”。"
+        },
+        {
+          "id": "04748-u04-l3-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "接口的定义；接口的实现",
+          "stem": "接口 Flyable 中声明了 void fly();，类 Bird 实现它时写成 void fly() { … }（没有写 public）。编译的结果是？",
+          "options": [
+            "编译出错：实现接口方法时不能缩小访问权限",
+            "编译通过，fly() 的访问权限是默认的包访问",
+            "编译通过，fly() 自动成为 public 方法",
+            "编译出错：接口中的方法必须写 abstract"
+          ],
+          "answer": 0,
+          "explain": "接口中的方法默认是 public abstract 的，实现时必须写 public，否则报“Bird中的fly()无法实现Flyable中的fly() 正在尝试分配更低的访问权限; 以前为public”。子类覆盖父类方法时，访问权限同样不能比父类小。"
+        },
+        {
+          "id": "04748-u04-l3-q4",
+          "type": "fill",
+          "level": "识记",
+          "kp": "接口的定义",
+          "stem": "接口中声明的成员变量 int MAX = 10; 默认带有修饰符 public static ____，所以不能再给它赋值。",
+          "answers": [
+            "final"
+          ],
+          "explain": "接口中的成员变量都是常量，默认是 public static final 的，必须赋初值，可以用“接口名.常量名”访问；写 Config.MAX = 20; 会报“无法为最终变量MAX分配值”。接口中的方法默认是 public abstract 的。"
+        },
+        {
+          "id": "04748-u04-l3-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "多态；抽象方法",
+          "stem": "执行下面通过抽象类数组调用 area() 的程序，输出结果是____。",
+          "code": "abstract class Shape {\n  abstract double area();\n}\nclass Square extends Shape {\n  double a = 3;\n  double area() { return a * a; }\n}\nclass Tri extends Shape {\n  double b = 4, h = 3;\n  double area() { return b * h / 2; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Shape[] s = { new Square(), new Tri() };\n    double t = 0;\n    for (int i = 0; i < s.length; i++)\n      t += s[i].area();\n    System.out.println(t);\n  }\n}",
+          "answers": [
+            "15.0"
+          ],
+          "explain": "数组元素的类型是 Shape，但 s[i].area() 调用的是各对象实际所属类的 area()（多态）：9.0 + 6.0 = 15.0。结果是 double 型，所以输出 15.0。"
+        },
+        {
+          "id": "04748-u04-l3-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "常用接口（Comparable）",
+          "stem": "执行下面实现 Comparable 接口、再用 Arrays.sort() 排序的程序，输出结果是？",
+          "code": "import java.util.Arrays;\nclass Stu implements Comparable<Stu> {\n  String name;\n  int score;\n  Stu(String n, int s) { name = n; score = s; }\n  public int compareTo(Stu o) {\n    return o.score - score;\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Stu[] a = { new Stu(\"甲\", 80),\n        new Stu(\"乙\", 95), new Stu(\"丙\", 70) };\n    Arrays.sort(a);\n    for (Stu s : a) System.out.print(s.name);\n  }\n}",
+          "options": [
+            "丙甲乙",
+            "甲乙丙",
+            "丙乙甲",
+            "乙甲丙"
+          ],
+          "answer": 3,
+          "explain": "Arrays.sort() 排序对象数组时调用 compareTo()：返回负数表示当前对象排在前面。o.score - score 在当前对象分数高时为负，所以按分数从高到低排列。对象没有实现 Comparable 接口时，Arrays.sort() 运行时会抛出 ClassCastException。",
+          "verify": "核对教材第 5 章“常用接口”是否包括 Comparable，以及是否用泛型写法 Comparable<Stu>。"
+        },
+        {
+          "id": "04748-u04-l3-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "接口的定义；接口的实现；多态",
+          "stem": "编写程序：定义接口 Shape，包含方法 double area() 和 String getName()；定义类 Circle（半径）和 Rect（长、宽）实现这个接口。在主类 TestShape 中把半径为 1 的圆和 3×4 的矩形放进 Shape 数组，逐个输出名称和面积（保留 2 位小数），最后输出面积之和。\n输出样例：\n圆：3.14\n矩形：12.00\n总面积：15.14",
+          "points": [
+            "在接口中声明两个方法，实现类用 implements 实现全部方法，并写成 public（2 分）",
+            "Circle 用 Math.PI 计算面积，Rect 计算长×宽（2 分）",
+            "用 Shape 类型的数组存放不同的对象，循环调用 area() 和 getName()（2 分）",
+            "按格式输出各图形的面积和总面积（2 分）"
+          ],
+          "answer": "interface Shape {\n  double area();\n  String getName();\n}\nclass Circle implements Shape {\n  private double r;\n  public Circle(double r) { this.r = r; }\n  public double area() { return Math.PI * r * r; }\n  public String getName() { return \"圆\"; }\n}\nclass Rect implements Shape {\n  private double w, h;\n  public Rect(double w, double h) {\n    this.w = w;\n    this.h = h;\n  }\n  public double area() { return w * h; }\n  public String getName() { return \"矩形\"; }\n}\npublic class TestShape {\n  public static void main(String[] args) {\n    Shape[] s = { new Circle(1), new Rect(3, 4) };\n    double sum = 0;\n    for (int i = 0; i < s.length; i++) {\n      double a = s[i].area();\n      System.out.printf(\"%s：%.2f%n\",\n          s[i].getName(), a);\n      sum += a;\n    }\n    System.out.printf(\"总面积：%.2f%n\", sum);\n  }\n}",
+          "explain": "用接口类型的变量调用方法，实际执行的是对象所属类的实现，以后增加新的图形类，main 中的循环不用改。实现接口的方法时漏写 public，会编译出错。"
+        }
+      ]
+    }
+  ]
+}

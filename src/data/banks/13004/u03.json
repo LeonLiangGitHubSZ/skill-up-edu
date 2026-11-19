@@ -1,0 +1,131 @@
+{
+  "course": "13004",
+  "unit": 3,
+  "title": "串的模式匹配",
+  "lessons": [
+    {
+      "id": "13004-u03-l1",
+      "title": "BF 算法和 KMP 算法",
+      "questions": [
+        {
+          "id": "13004-u03-l1-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "串的顺序存储",
+          "stem": "执行 char s[] = \"data\"; 后，sizeof(s) 和 strlen(s) 的值分别是？",
+          "options": [
+            "4 和 4",
+            "4 和 5",
+            "5 和 5",
+            "5 和 4"
+          ],
+          "answer": 3,
+          "explain": "数组 s 存放 4 个字符和结束标志 '\\0'，共 5 个字节；strlen 只数 '\\0' 之前的字符。用定长数组存串时，数组长度至少要比串长多 1。"
+        },
+        {
+          "id": "13004-u03-l1-q2",
+          "type": "fill",
+          "level": "应用",
+          "kp": "BF 模式匹配算法",
+          "stem": "BF 算法中 i、j 分别是主串 s 和模式串 t 当前比较的下标（都从 0 开始）。某次比较失配时，j 回到 0，i 回到____。",
+          "answers": [
+            "i - j + 1",
+            "i + 1 - j"
+          ],
+          "explain": "这一趟是从主串下标 i-j 开始比较的，失配后从它的下一个位置 i-j+1 开始下一趟。若下标从 1 开始，写法是 i = i - j + 2，j = 1。"
+        },
+        {
+          "id": "13004-u03-l1-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "KMP 算法的实现",
+          "stem": "下面的 KMP 函数中 next 数组已正确求出（next[0] = -1）。在主串 \"abcabd\" 中查找 \"abd\" 时却返回 -1（没找到），原因是？",
+          "code": "int KMP(const char *s, const char *t)\n{\n    int i = 0, j = 0;\n    while (i < strlen(s) && j < strlen(t)) {\n        if (j == -1 || s[i] == t[j]) {\n            i++;\n            j++;\n        } else\n            j = next[j];\n    }\n    if (j == strlen(t))\n        return i - j;\n    return -1;\n}",
+          "options": [
+            "next 数组的第一个值不应该是 -1",
+            "j 为 -1 时和 strlen 的结果比较，-1 被转换成很大的无符号数",
+            "主串中确实没有 \"abd\"",
+            "失配时主串指针 i 没有回溯"
+          ],
+          "answer": 1,
+          "explain": "strlen 返回无符号的 size_t，int 和它比较时，-1 先被转换成一个极大的无符号数，j < strlen(t) 不成立，循环提前结束。应先把长度存进 int 变量：int n = strlen(s), m = strlen(t);。gcc 加 -Wextra 会给出 comparison of integer expressions of different signedness 警告。"
+        },
+        {
+          "id": "13004-u03-l1-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "KMP 算法的 next 数组",
+          "stem": "约定下标从 0 开始、next[0] = -1，其余 next[j] 等于 t[0..j-1] 中最长的相等前缀与后缀（不含自身）的长度。模式串 \"aabaaf\" 的 next 数组依次为____。",
+          "answers": [
+            "-1 0 1 0 1 2",
+            "-1,0,1,0,1,2"
+          ],
+          "explain": "j=2 时前面是 aa，相等前后缀为 a，next=1；j=3 时是 aab，没有相等前后缀，next=0；j=5 时是 aabaa，相等前后缀为 aa，next=2。可以用求 next 的程序打印出来核对。",
+          "verify": "教材的 next 若从下标 1 开始（next[1] = 0），每个值都加 1，为 0 1 2 1 2 3；以教材约定为准。"
+        },
+        {
+          "id": "13004-u03-l1-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "KMP 算法的 next 数组",
+          "stem": "下面函数求模式串 t 的 next 数组（下标从 0 开始，next[0] = -1）。横线处应填____。",
+          "code": "void GetNext(const char *t, int next[])\n{\n    int j = 0, k = -1, m = strlen(t);\n    next[0] = -1;\n    while (j < m - 1) {\n        if (k == -1 || t[j] == t[k]) {\n            j++;\n            k++;\n            next[j] = k;\n        } else\n            ______;\n    }\n}",
+          "answers": [
+            "k = next[k]"
+          ],
+          "explain": "t[j] 和 t[k] 不相等时，k 退回到 next[k]，在更短的相等前后缀上继续比较；这和主串匹配失配时 j = next[j] 是同一个道理。k 退到 -1 时，下一步 j、k 都加 1，next[j] = 0。"
+        },
+        {
+          "id": "13004-u03-l1-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "KMP 算法的实现",
+          "stem": "KMP 主循环为 if (j == -1 || s[i] == t[j]) { i++; j++; } else j = next[j];。j 变为 -1 后执行 i++、j++，含义是？",
+          "options": [
+            "匹配失败，整个查找到此结束",
+            "主串指针 i 回到本趟比较的起点",
+            "t[0] 也和 s[i] 不等，改从 s[i+1] 与 t[0] 比较",
+            "模式串整体右移 j 个位置"
+          ],
+          "answer": 2,
+          "explain": "next[0] = -1 相当于一个哨兵：连 t[0] 都和 s[i] 不等时，只能让主串往后走一位，j 从 -1 加 1 正好回到 0。主串指针 i 从不回退，这是 KMP 比 BF 快的原因。"
+        },
+        {
+          "id": "13004-u03-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "BF 模式匹配算法",
+          "stem": "编写程序：输入主串 s 和模式串 t（都不含空格，长度为 1～100），用 BF 算法求 t 在 s 中第一次出现的位置（从 1 开始计），没有出现输出 0。\n样例输入：\nababcabcacbab abcac\n样例输出：\n6",
+          "answer": "#include <stdio.h>\n#include <string.h>\n\nint BF(const char *s, const char *t)\n{\n    int i = 0, j = 0;\n    int n = strlen(s), m = strlen(t);\n    while (i < n && j < m) {\n        if (s[i] == t[j]) {\n            i++;\n            j++;\n        } else {\n            i = i - j + 1;\n            j = 0;\n        }\n    }\n    return j == m ? i - m + 1 : 0;\n}\n\nint main(void)\n{\n    char s[101], t[101];\n    scanf(\"%s%s\", s, t);\n    printf(\"%d\\n\", BF(s, t));\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "s[i] 与 t[j] 相等时 i、j 同时后移（2 分）",
+            "失配时 i 回到 i-j+1，j 回到 0（3 分）",
+            "j 等于模式串长度时匹配成功，返回 i-m+1（2 分）",
+            "找不到返回 0；串长先存进 int 变量再比较（1 分）"
+          ],
+          "explain": "最坏情况下 BF 算法要比较 (n-m+1)×m 次。测试时要有：模式串比主串长、两串相同、匹配位置在主串末尾、完全不匹配这几种情况。"
+        },
+        {
+          "id": "13004-u03-l1-q8",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "KMP 算法",
+          "stem": "编写程序：输入主串 s 和模式串 t（都不含空格，长度为 1～100）。先求模式串的 next 数组（下标从 0 开始，next[0] = -1）并在第一行输出；再用 KMP 算法求 t 在 s 中第一次出现的位置（从 1 开始计，没有出现输出 0）。\n样例输入：\nababcabcacbab abcac\n样例输出：\n-1 0 0 0 1\n6",
+          "answer": "#include <stdio.h>\n#include <string.h>\n\nvoid GetNext(const char *t, int next[])\n{\n    int j = 0, k = -1, m = strlen(t);\n    next[0] = -1;\n    while (j < m - 1) {\n        if (k == -1 || t[j] == t[k]) {\n            j++;\n            k++;\n            next[j] = k;\n        } else\n            k = next[k];\n    }\n}\n\nint main(void)\n{\n    char s[101], t[101];\n    int next[101], i, j = 0, n, m;\n    scanf(\"%s%s\", s, t);\n    n = strlen(s);\n    m = strlen(t);\n    GetNext(t, next);\n    for (i = 0; i < m; i++)\n        printf(\"%d \", next[i]);\n    printf(\"\\n\");\n    i = 0;\n    while (i < n && j < m) {\n        if (j == -1 || s[i] == t[j]) {\n            i++;\n            j++;\n        } else\n            j = next[j];\n    }\n    printf(\"%d\\n\", j == m ? i - m + 1 : 0);\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "求 next：k == -1 或两字符相等时 j、k 各加 1，next[j] = k（3 分）",
+            "求 next：不相等时 k = next[k]（1 分）",
+            "匹配：相等或 j == -1 时 i、j 加 1，否则 j = next[j]，i 不回退（3 分）",
+            "串长用 int 变量保存，j == m 时输出 i-m+1（1 分）"
+          ],
+          "explain": "先输出 next 数组，便于核对中间结果。用 aabaabaaf 和 aabaaf 测试，next 应为 -1 0 1 0 1 2，位置是 4；再测一个找不到的例子，如 aaab 中找 aaaa。",
+          "verify": "核对教材 KMP 算法和 next 数组的下标约定（从 0 还是从 1 开始）。"
+        }
+      ]
+    }
+  ]
+}

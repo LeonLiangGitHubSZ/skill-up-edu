@@ -1,0 +1,48 @@
+{
+  "course": "13014",
+  "unit": 3,
+  "title": "选择结构程序",
+  "lessons": [
+    {
+      "id": "13014-u03-l1",
+      "title": "if 语句、switch 语句与条件中的常见错误",
+      "questions": [
+        { "id": "13014-u03-l1-q1", "type": "single", "level": "应用", "kp": "if 语句后多写分号",
+          "stem": "下面程序段中 if 的圆括号后面多了一个分号，执行后的输出是（↵ 表示换行）？",
+          "code": "int x = -5;\nif (x > 0);\n  printf(\"positive\\n\");\nprintf(\"end\\n\");",
+          "options": ["编译出错，没有输出", "positive↵end", "end", "positive"], "answer": 1,
+          "explain": "if (x > 0); 的执行部分是一个空语句，下一行虽然缩进了，却不受 if 控制，总会执行。if、for、while 的圆括号后面一般不加分号。" },
+        { "id": "13014-u03-l1-q2", "type": "single", "level": "应用", "kp": "关系运算的连用",
+          "stem": "下面程序段想判断 x 是否在 0 和 10 之间，执行后的输出是？",
+          "code": "int x = 20;\nif (0 < x < 10)\n  printf(\"in\\n\");\nelse\n  printf(\"out\\n\");",
+          "options": ["out", "编译出错", "什么也不输出", "in"], "answer": 3,
+          "explain": "0 < x < 10 按从左到右计算：0 < 20 的值是 1，1 < 10 又成立，所以条件恒为真。数学上的 0 < x < 10 要写成 x > 0 && x < 10。" },
+        { "id": "13014-u03-l1-q3", "type": "single", "level": "领会", "kp": "实数的比较",
+          "stem": "下面程序段用 == 比较两个实数，执行后的输出是？",
+          "code": "double x = 0.1 + 0.2;\nif (x == 0.3)\n  printf(\"yes\\n\");\nelse\n  printf(\"no\\n\");",
+          "options": ["编译出错", "yes 和 no 都输出", "no", "yes"], "answer": 2,
+          "explain": "0.1、0.2 在计算机中不能精确表示，相加后与 0.3 有微小的误差，用 == 比较不相等。判断实数是否相等，应写成 fabs(x - 0.3) < 1e-6（fabs 在 math.h 中）。" },
+        { "id": "13014-u03-l1-q4", "type": "single", "level": "应用", "kp": "switch 语句中的 break",
+          "stem": "下面程序段按运算符计算结果，但有的 case 后面漏写了 break，执行后的输出是？",
+          "code": "char op = '-';\nint a = 9, b = 3, r = 0;\nswitch (op) {\n  case '+': r = a + b;\n  case '-': r = a - b;\n  case '*': r = a * b;\n    break;\n  default: r = -1;\n}\nprintf(\"%d\\n\", r);",
+          "options": ["27", "6", "-1", "12"], "answer": 0,
+          "explain": "op 为 '-'，从 case '-' 进入，r 先得到 6；没有 break，接着执行 case '*' 的语句，r 变为 27，遇到 break 才跳出。写计算器一类程序时，每个 case 的末尾都要写 break。" },
+        { "id": "13014-u03-l1-q5", "type": "fill", "level": "应用", "kp": "逻辑运算的短路",
+          "stem": "下面程序段的 if 条件中，&& 左边先判断除数是否为 0。执行后输出____。",
+          "code": "int a = 7, b = 0;\nif (b != 0 && a / b > 2)\n  printf(\"big\\n\");\nelse\n  printf(\"small\\n\");",
+          "answers": ["small"],
+          "explain": "&& 左边的 b != 0 为假时，整个条件已经确定为假，右边的 a / b 不再计算，所以不会出现除以 0 的错误。先写“除数不为 0”，再写含除法的条件。" },
+        { "id": "13014-u03-l1-q6", "type": "short", "form": "程序设计", "level": "应用", "kp": "switch 语句的应用",
+          "stem": "编写一个简单的计算器程序：输入“数 运算符 数”（运算符为 + - * / 之一），输出计算结果，保留 2 位小数。除数为 0 或运算符不是这四种时，输出 Error。\n输入样例 1：9 / 2\n输出样例 1：4.50\n输入样例 2：5 / 0\n输出样例 2：Error",
+          "points": ["用 scanf(\"%lf %c%lf\", &a, &op, &b) 读入两个实数和运算符，%c 前加空格跳过空白", "用 switch (op) 区分 + - * / 四种情况，每个 case 末尾写 break", "除法前判断 b == 0，为 0 时输出 Error", "default 分支处理非法运算符，输出 Error", "结果用 %.2f 输出；测试 9 / 2、5 / 0、2 ^ 3"],
+          "answer": "#include <stdio.h>\nint main(void)\n{\n  double a, b, r = 0;\n  char op;\n  int ok = 1;\n  scanf(\"%lf %c%lf\", &a, &op, &b);\n  switch (op) {\n    case '+': r = a + b; break;\n    case '-': r = a - b; break;\n    case '*': r = a * b; break;\n    case '/':\n      if (b == 0) ok = 0;\n      else r = a / b;\n      break;\n    default: ok = 0;\n  }\n  if (ok)\n    printf(\"%.2f\\n\", r);\n  else\n    printf(\"Error\\n\");\n  return 0;\n}",
+          "explain": "用一个标志变量 ok 记录能否计算，最后统一输出，避免每个分支都写 printf。b == 0 是和常数 0 比较，输入的 0 能精确表示，这里可以用 ==。" },
+        { "id": "13014-u03-l1-q7", "type": "short", "form": "程序设计", "level": "应用", "kp": "多分支 if 语句的应用（分段计算）",
+          "stem": "某地按阶梯电价收费：每月用电量不超过 200 度的部分 0.5 元/度；超过 200 度、不超过 400 度的部分 0.6 元/度；超过 400 度的部分 0.8 元/度。编写程序：输入月用电量（非负整数），输出电费，保留 2 位小数。\n输入样例：450\n输出样例：260.00",
+          "points": ["用 if-else if-else 分成不超过 200、201～400、超过 400 三段", "超出部分分段累加：如超过 400 度时，电费 = 200 × 0.5 + 200 × 0.6 + (n − 400) × 0.8", "电费用 double 型保存，用 %.2f 输出", "测试分界点：200 输出 100.00，201 输出 100.60，400 输出 220.00，401 输出 220.80"],
+          "answer": "#include <stdio.h>\nint main(void)\n{\n  int n;\n  double fee;\n  scanf(\"%d\", &n);\n  if (n <= 200)\n    fee = n * 0.5;\n  else if (n <= 400)\n    fee = 200 * 0.5 + (n - 200) * 0.6;\n  else\n    fee = 200 * 0.5 + 200 * 0.6 + (n - 400) * 0.8;\n  printf(\"%.2f\\n\", fee);\n  return 0;\n}",
+          "explain": "分段计费题最容易错在分界点：“不超过 200”包括 200，写成 n <= 200；每一段只按超出上一段的部分计价。测试时一定要试分界点和它旁边的数。" }
+      ]
+    }
+  ]
+}

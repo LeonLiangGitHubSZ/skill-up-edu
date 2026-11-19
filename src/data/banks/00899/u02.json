@@ -1,0 +1,42 @@
+{
+  "course": "00899",
+  "unit": 2,
+  "title": "HTML表单",
+  "lessons": [
+    {
+      "id": "00899-u02-l1",
+      "title": "HTML表单与常用表单元素",
+      "questions": [
+        { "id": "00899-u02-l1-q1", "type": "single", "level": "识记", "kp": "HTML的典型标签（form的action与method）",
+          "stem": "登录表单要提交给doLogin.jsp，并且不希望用户名、密码出现在浏览器地址栏中，<form>标签应写成？",
+          "options": ["<form action=\"doLogin.jsp\" method=\"get\">", "<form href=\"doLogin.jsp\" method=\"post\">", "<form action=\"doLogin.jsp\" method=\"post\">", "<form action=\"doLogin.jsp\" type=\"post\">"], "answer": 2,
+          "explain": "action指定处理表单的页面，method=\"post\"把数据放在请求体中提交；method不写时默认是get，会把“参数名=值”附在URL后面，显示在地址栏里。" },
+        { "id": "00899-u02-l1-q2", "type": "single", "level": "领会", "kp": "HTML的典型标签（单选按钮）",
+          "stem": "注册页面中“性别”有“男”“女”两个单选按钮，要使两者只能选中一个，并且服务器端能用request.getParameter(\"sex\")取到所选的值，应该怎样写？",
+          "options": ["id都写sex，value分别写男、女", "name分别写男、女，value都写sex", "name都写sex，两个都不写value", "name都写sex，value分别写男、女"], "answer": 3,
+          "explain": "同一组单选按钮靠相同的name实现互斥，提交的是选中那一项的value；不写value时浏览器提交的是字符串on，分不出选了哪个。" },
+        { "id": "00899-u02-l1-q3", "type": "fill", "level": "识记", "kp": "文件的上传（表单的enctype）",
+          "stem": "带文件上传框<input type=\"file\">的表单，除了method=\"post\"以外，还必须设置enctype=\"____\"。",
+          "answers": ["multipart/form-data"],
+          "explain": "默认的application/x-www-form-urlencoded只能提交文本参数；multipart/form-data把文件内容分段放进请求体，服务器端再解析出文件。" },
+        { "id": "00899-u02-l1-q4", "type": "single", "level": "应用", "kp": "request对象（复选框未勾选时的参数值）",
+          "stem": "表单中有<input type=\"checkbox\" name=\"agree\" value=\"yes\">，用户没有勾选就提交，处理页面中request.getParameter(\"agree\")的值是？",
+          "options": ["null", "空字符串\"\"", "字符串\"no\"", "字符串\"off\""], "answer": 0,
+          "explain": "没有勾选的复选框（以及没有选中的单选按钮）根本不会被提交，所以取到的是null；写成\"yes\".equals(request.getParameter(\"agree\"))可以避免空指针异常。" },
+        { "id": "00899-u02-l1-q5", "type": "single", "level": "领会", "kp": "HTML的典型标签（disabled与readonly）",
+          "stem": "提交表单时，下列表单元素中，值不会发送到服务器的是？",
+          "options": ["设置了readonly属性的文本框", "设置了disabled属性的文本框", "type=\"hidden\"的隐藏域", "已经选中的单选按钮"], "answer": 1,
+          "explain": "disabled的元素不参与提交；readonly只是不能修改，值照样提交；隐藏域常用来传递用户看不到的数据，例如要修改的记录编号。" },
+        { "id": "00899-u02-l1-q6", "type": "fill", "level": "识记", "kp": "HTML的典型标签（多行文本框）",
+          "stem": "留言内容需要多行输入，应使用____标签，提交时以它的name属性作为参数名。",
+          "answers": ["textarea", "<textarea>"],
+          "explain": "写法如<textarea name=\"content\" rows=\"5\" cols=\"40\"></textarea>，初始内容写在开始标签和结束标签之间，不用value属性。" },
+        { "id": "00899-u02-l1-q7", "type": "short", "form": "设计", "level": "应用", "kp": "HTML表单（注册页面）",
+          "stem": "编写注册页面register.html，以POST方式提交给register.jsp，包含：用户名（文本框username）、密码（密码框password）、性别（单选按钮sex：男、女，默认选中男）、爱好（复选框hobby：读书、运动、音乐）、城市（下拉列表city：南京、苏州、无锡）、个人简介（多行文本框intro，5行40列），以及“注册”和“重置”按钮。",
+          "points": ["<form>的action为register.jsp，method为post", "密码框用type=\"password\"；两个单选按钮name相同，“男”加checked", "三个复选框name都为hobby，value分别为各项爱好", "<select name=\"city\">中用<option>列出三个城市", "<textarea>设rows=\"5\"、cols=\"40\"；注册按钮type=\"submit\"，重置按钮type=\"reset\""],
+          "answer": "<!-- register.html -->\n<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<title>用户注册</title>\n</head>\n<body>\n<form action=\"register.jsp\" method=\"post\">\n  用户名：<input type=\"text\" name=\"username\"><br>\n  密码：<input type=\"password\" name=\"password\"><br>\n  性别：\n  <input type=\"radio\" name=\"sex\" value=\"男\" checked>男\n  <input type=\"radio\" name=\"sex\" value=\"女\">女<br>\n  爱好：\n  <input type=\"checkbox\" name=\"hobby\" value=\"读书\">读书\n  <input type=\"checkbox\" name=\"hobby\" value=\"运动\">运动\n  <input type=\"checkbox\" name=\"hobby\" value=\"音乐\">音乐\n  <br>\n  城市：<select name=\"city\">\n    <option value=\"南京\">南京</option>\n    <option value=\"苏州\">苏州</option>\n    <option value=\"无锡\">无锡</option>\n  </select><br>\n  简介：<textarea name=\"intro\" rows=\"5\"\n    cols=\"40\"></textarea><br>\n  <input type=\"submit\" value=\"注册\">\n  <input type=\"reset\" value=\"重置\">\n</form>\n</body>\n</html>",
+          "explain": "下拉列表默认选中第一项（南京），也可以给某个<option>加selected；页面里有中文时要用<meta charset=\"UTF-8\">声明编码，并且文件按UTF-8保存。" }
+      ]
+    }
+  ]
+}

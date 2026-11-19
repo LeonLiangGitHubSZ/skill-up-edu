@@ -1,0 +1,189 @@
+{
+  "course": "04736",
+  "unit": 4,
+  "title": "单表查询",
+  "lessons": [
+    {
+      "id": "04736-u04-l1",
+      "title": "条件查询、模糊匹配、排序与 LIMIT",
+      "questions": [
+        {
+          "id": "04736-u04-l1-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "模糊查询（LIKE）",
+          "stem": "student 表中的数据如下。执行最后的模糊查询，返回几行？",
+          "code": "-- student(sno, sname, ssex, sage, sdept)\nINSERT INTO student VALUES\n('S01','张明','男',19,'计算机'),\n('S02','李丽','女',20,'计算机'),\n('S03','王强','男',21,'数学'),\n('S04','赵敏','女',19,'数学'),\n('S05','刘明亮','男',22,'物理'),\n('S06','陈晓明','女',20,'计算机');\nSELECT sname FROM student\nWHERE sname LIKE '_明%';",
+          "options": ["3", "2", "1", "0"],
+          "answer": 1,
+          "explain": "_ 匹配恰好一个字符，% 匹配任意个字符（包括 0 个），'_明%' 表示第二个字是“明”：张明、刘明亮符合，陈晓明的“明”是第三个字。查姓名中含有“明”字的要写 '%明%'，会返回 3 行。"
+        },
+        {
+          "id": "04736-u04-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "逻辑运算符的优先级",
+          "stem": "student 表中的数据如下。执行最后这个同时带 OR 和 AND 的查询，返回几行？",
+          "code": "-- student(sno, sname, ssex, sage, sdept)\nINSERT INTO student VALUES\n('S01','张明','男',19,'计算机'),\n('S02','李丽','女',20,'计算机'),\n('S03','王强','男',21,'数学'),\n('S04','赵敏','女',19,'数学'),\n('S05','刘明亮','男',22,'物理'),\n('S06','陈晓明','女',20,'计算机');\nSELECT sname FROM student\nWHERE sdept = '计算机' OR sdept = '数学'\n  AND sage > 20;",
+          "options": ["1", "5", "4", "3"],
+          "answer": 2,
+          "explain": "AND 的优先级高于 OR，条件相当于 sdept = '计算机' OR (sdept = '数学' AND sage > 20)：计算机系 3 人全部返回，再加上 21 岁的王强，共 4 行。要查“计算机系或数学系中年龄大于 20 的”，应写成 (sdept = '计算机' OR sdept = '数学') AND sage > 20，结果只有 1 行。"
+        },
+        {
+          "id": "04736-u04-l1-q3",
+          "type": "single",
+          "level": "识记",
+          "kp": "空值的判断（IS NULL）",
+          "stem": "student 表的 phone 列中，没有登记电话的学生为空值（NULL）。要查询这些学生，WHERE 子句应写成？",
+          "options": ["WHERE phone = NULL", "WHERE phone = ''", "WHERE phone IN (NULL)", "WHERE phone IS NULL"],
+          "answer": 3,
+          "explain": "与 NULL 做 =、<>、IN 比较，结果都是“未知”，一行也查不到；判断空值只能用 IS NULL 或 IS NOT NULL。'' 是空字符串，不是 NULL。"
+        },
+        {
+          "id": "04736-u04-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "限制结果行数（LIMIT）",
+          "stem": "网页上每页显示 10 种商品，按价格从低到高排列。查询第 3 页（第 21～30 种）的语句是？",
+          "options": ["SELECT * FROM goods ORDER BY price LIMIT 20, 10;", "SELECT * FROM goods ORDER BY price LIMIT 30, 10;", "SELECT * FROM goods ORDER BY price LIMIT 21, 30;", "SELECT * FROM goods LIMIT 20, 10 ORDER BY price;"],
+          "answer": 0,
+          "explain": "LIMIT m, n 表示跳过前 m 行、取 n 行（行号从 0 算起），第 3 页要跳过前 20 行，也可以写成 LIMIT 10 OFFSET 20。LIMIT 必须写在 ORDER BY 之后，否则报语法错误。"
+        },
+        {
+          "id": "04736-u04-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "对查询结果排序（ORDER BY）",
+          "stem": "student 表中的数据如下。执行最后的排序查询，结果的第一行是？",
+          "code": "-- student(sno, sname, ssex, sage, sdept)\nINSERT INTO student VALUES\n('S01','张明','男',19,'计算机'),\n('S02','李丽','女',20,'计算机'),\n('S03','王强','男',21,'数学'),\n('S04','赵敏','女',19,'数学'),\n('S05','刘明亮','男',22,'物理'),\n('S06','陈晓明','女',20,'计算机');\nSELECT sname FROM student\nORDER BY sage, sno DESC;",
+          "options": ["张明", "赵敏", "刘明亮", "陈晓明"],
+          "answer": 1,
+          "explain": "ORDER BY 后的每一列各自指定升降序，省略时为升序（ASC），DESC 只作用于紧挨着它的那一列。这里先按年龄升序，19 岁的有 S01 和 S04，再按学号降序，所以 S04 赵敏排第一。"
+        },
+        {
+          "id": "04736-u04-l1-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "模糊查询的转义字符（ESCAPE）",
+          "stem": "要查询课程名中含有下划线“_”的课程，可以写成 WHERE cname LIKE '%#_%' ____ '#'。",
+          "answers": ["ESCAPE"],
+          "explain": "_ 和 % 是通配符，要匹配它们本身就得转义：ESCAPE '#' 指定 # 为转义字符，#_ 表示普通的下划线。MySQL 默认的转义字符是反斜杠，也可以直接写 LIKE '%\\_%'。"
+        },
+        {
+          "id": "04736-u04-l1-q7",
+          "type": "fill",
+          "level": "领会",
+          "kp": "消除重复行（DISTINCT）",
+          "stem": "查询学生分布在哪些系，每个系名只显示一次：SELECT ____ sdept FROM student;",
+          "answers": ["DISTINCT"],
+          "explain": "DISTINCT 去掉结果中完全相同的行；写 SELECT DISTINCT sdept, ssex 时，是“系名＋性别”的组合不重复。默认是 ALL，保留重复行。"
+        },
+        {
+          "id": "04736-u04-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "单表查询综合",
+          "stem": "学生表 student(sno, sname, ssex, sage, sdept) 中的数据如下。用 SQL 语句完成：\n(1) 查询计算机系年龄在 19～20 岁（含）之间的学生的学号和姓名；\n(2) 查询姓“张”或姓“李”的学生的全部信息；\n(3) 查询全体学生的姓名和出生年份（用今年的年份减去年龄，列名为“出生年份”），按年龄从大到小排列；\n(4) 查询年龄最大的 2 名学生的姓名和年龄。",
+          "code": "-- student(sno, sname, ssex, sage, sdept)\nINSERT INTO student VALUES\n('S01','张明','男',19,'计算机'),\n('S02','李丽','女',20,'计算机'),\n('S03','王强','男',21,'数学'),\n('S04','赵敏','女',19,'数学'),\n('S05','刘明亮','男',22,'物理'),\n('S06','陈晓明','女',20,'计算机');",
+          "points": ["(1) sdept = '计算机' AND sage BETWEEN 19 AND 20（1 分）", "(2) sname LIKE '张%' OR sname LIKE '李%'（1 分）", "(3) YEAR(CURDATE()) - sage AS 出生年份，ORDER BY sage DESC（1 分）", "(4) ORDER BY sage DESC LIMIT 2（1 分）"],
+          "answer": "SELECT sno, sname FROM student\n  WHERE sdept = '计算机'\n    AND sage BETWEEN 19 AND 20;\nSELECT * FROM student\n  WHERE sname LIKE '张%' OR sname LIKE '李%';\nSELECT sname, YEAR(CURDATE()) - sage AS 出生年份\n  FROM student\n  ORDER BY sage DESC;\nSELECT sname, sage FROM student\n  ORDER BY sage DESC LIMIT 2;",
+          "explain": "按样例数据，(1) 返回张明、李丽、陈晓明；(2) 返回张明、李丽；(4) 返回刘明亮（22 岁）和王强（21 岁）。中文别名可以不加引号；年龄有并列时，LIMIT 只按排好的顺序取前几行。"
+        }
+      ]
+    },
+    {
+      "id": "04736-u04-l2",
+      "title": "聚合函数、分组与 HAVING",
+      "questions": [
+        {
+          "id": "04736-u04-l2-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "聚合函数与空值",
+          "stem": "sc 表中的数据如下。执行最后的统计查询，三个结果依次是？",
+          "code": "-- sc(sno, cno, grade)\nINSERT INTO sc VALUES\n('S01','C01',92),('S01','C02',85),\n('S01','C03',78),('S02','C01',88),\n('S02','C02',NULL),('S03','C01',58),\n('S03','C04',90),('S04','C04',75);\nSELECT COUNT(*), COUNT(grade),\n       COUNT(DISTINCT sno)\nFROM sc;",
+          "options": ["8, 8, 4", "7, 7, 4", "8, 7, 4", "8, 7, 8"],
+          "answer": 2,
+          "explain": "COUNT(*) 统计所有行；COUNT(列名) 不统计该列为 NULL 的行（S02 的 C02 成绩为空）；COUNT(DISTINCT sno) 先去掉重复的学号再计数，共 4 个。"
+        },
+        {
+          "id": "04736-u04-l2-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "AVG 与空值",
+          "stem": "sc 表中的数据如下。执行最后的查询，返回的 S02 的平均成绩是？",
+          "code": "-- sc(sno, cno, grade)\nINSERT INTO sc VALUES\n('S01','C01',92),('S01','C02',85),\n('S01','C03',78),('S02','C01',88),\n('S02','C02',NULL),('S03','C01',58),\n('S03','C04',90),('S04','C04',75);\nSELECT AVG(grade) FROM sc\nWHERE sno = 'S02';",
+          "options": ["44.0000", "NULL", "0.0000", "88.0000"],
+          "answer": 3,
+          "explain": "AVG、SUM、MAX、MIN 都忽略 NULL：S02 只有一个非空成绩 88，平均值就是 88，而不是 (88＋0)/2＝44。要把没有成绩当作 0 分，可以写 AVG(IFNULL(grade, 0))。"
+        },
+        {
+          "id": "04736-u04-l2-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "分组查询（GROUP BY）",
+          "stem": "在 MySQL 5.7 或 8.0 的默认设置下执行下面的语句（每个系都有多名学生），结果是？",
+          "code": "SELECT sdept, sname, COUNT(*)\nFROM student\nGROUP BY sdept;",
+          "options": ["报错 1055，sname 不在 GROUP BY 中", "每个系一行，sname 取该系第一个学生", "每个学生一行，COUNT(*) 都是 1", "每个系一行，sname 显示为 NULL"],
+          "answer": 0,
+          "explain": "5.7 起默认开启 ONLY_FULL_GROUP_BY：SELECT 中没有聚合的列必须出现在 GROUP BY 中（或由分组列唯一确定）。一个系有多名学生，sname 不知道取哪一个，所以报 1055；去掉 sname，或把它也写进 GROUP BY 即可。"
+        },
+        {
+          "id": "04736-u04-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "WHERE 与 HAVING 的区别",
+          "stem": "要查询平均成绩高于 80 分的学生的学号，执行下面的语句报错 1111 Invalid use of group function。应该怎样改？",
+          "code": "SELECT sno FROM sc\nWHERE AVG(grade) > 80\nGROUP BY sno;",
+          "options": ["把 AVG(grade) 改成 SUM(grade) / COUNT(*)", "去掉 WHERE，在 GROUP BY 后写 HAVING AVG(grade) > 80", "把 GROUP BY sno 移到 WHERE 之前", "给 AVG(grade) 起一个别名再比较"],
+          "answer": 1,
+          "explain": "WHERE 在分组之前逐行筛选，不能使用聚合函数；对分组结果筛选要用 HAVING，写在 GROUP BY 之后。子句的顺序是 WHERE → GROUP BY → HAVING → ORDER BY → LIMIT。"
+        },
+        {
+          "id": "04736-u04-l2-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "分组后筛选（HAVING）",
+          "stem": "sc 表中的数据如下。执行最后带 WHERE 和 HAVING 的分组查询，返回几行？",
+          "code": "-- sc(sno, cno, grade)\nINSERT INTO sc VALUES\n('S01','C01',92),('S01','C02',85),\n('S01','C03',78),('S02','C01',88),\n('S02','C02',NULL),('S03','C01',58),\n('S03','C04',90),('S04','C04',75);\nSELECT cno, AVG(grade)\nFROM sc\nWHERE grade >= 60\nGROUP BY cno\nHAVING COUNT(*) >= 2;",
+          "options": ["3", "4", "2", "1"],
+          "answer": 2,
+          "explain": "先由 WHERE 去掉不及格和成绩为空的行，再按课程分组，最后 HAVING 只保留组内不少于 2 行的组：C01（92、88）和 C04（90、75）符合，共 2 行。"
+        },
+        {
+          "id": "04736-u04-l2-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "数值的四舍五入（ROUND）",
+          "stem": "统计每门课的平均成绩并保留 1 位小数：SELECT cno, ____(AVG(grade), 1) FROM sc GROUP BY cno;",
+          "answers": ["ROUND"],
+          "explain": "ROUND(x, d) 把 x 四舍五入到 d 位小数，ROUND(AVG(grade), 1) 得到如 82.5 这样的结果；TRUNCATE(x, d) 则是直接截断，不四舍五入。"
+        },
+        {
+          "id": "04736-u04-l2-q7",
+          "type": "single",
+          "level": "应用",
+          "kp": "按多列分组",
+          "stem": "student 表中的数据如下。执行最后按两列分组的查询，返回几行？",
+          "code": "-- student(sno, sname, ssex, sage, sdept)\nINSERT INTO student VALUES\n('S01','张明','男',19,'计算机'),\n('S02','李丽','女',20,'计算机'),\n('S03','王强','男',21,'数学'),\n('S04','赵敏','女',19,'数学'),\n('S05','刘明亮','男',22,'物理'),\n('S06','陈晓明','女',20,'计算机');\nSELECT sdept, ssex, COUNT(*)\nFROM student\nGROUP BY sdept, ssex;",
+          "options": ["3", "2", "6", "5"],
+          "answer": 3,
+          "explain": "按多列分组时，各列的值都相同的行才算一组：计算机系男、女各一组，数学系男、女各一组，物理系只有男生一组，共 5 组。"
+        },
+        {
+          "id": "04736-u04-l2-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "分组统计综合",
+          "stem": "选课表 sc(sno, cno, grade) 中的数据如下。用 SQL 语句完成：\n(1) 统计每门课程的选课人数、最高分、最低分和平均分（平均分保留 1 位小数）；\n(2) 查询至少选了 2 门课的学生的学号和选课门数，按门数从多到少排列；\n(3) 查询平均成绩高于 85 分的学生的学号和平均成绩；\n(4) 查询有学生不及格（低于 60 分）的课程的课程号和不及格人数。",
+          "code": "-- sc(sno, cno, grade)\nINSERT INTO sc VALUES\n('S01','C01',92),('S01','C02',85),\n('S01','C03',78),('S02','C01',88),\n('S02','C02',NULL),('S03','C01',58),\n('S03','C04',90),('S04','C04',75);",
+          "points": ["(1) COUNT(*)、MAX、MIN、ROUND(AVG(grade), 1)，GROUP BY cno（1 分）", "(2) GROUP BY sno HAVING COUNT(*) >= 2 ORDER BY … DESC（1 分）", "(3) GROUP BY sno HAVING AVG(grade) > 85（1 分）", "(4) WHERE grade < 60 GROUP BY cno（1 分）"],
+          "answer": "SELECT cno, COUNT(*) AS 人数,\n       MAX(grade) AS 最高分,\n       MIN(grade) AS 最低分,\n       ROUND(AVG(grade), 1) AS 平均分\n  FROM sc GROUP BY cno;\nSELECT sno, COUNT(*) AS 门数 FROM sc\n  GROUP BY sno HAVING COUNT(*) >= 2\n  ORDER BY 门数 DESC;\nSELECT sno, AVG(grade) AS 平均成绩 FROM sc\n  GROUP BY sno HAVING AVG(grade) > 85;\nSELECT cno, COUNT(*) AS 不及格人数 FROM sc\n  WHERE grade < 60 GROUP BY cno;",
+          "explain": "按样例数据：(1) C02 有 2 人选课但只有一个成绩，平均分 85.0；(3) 只有 S02 符合，平均 88（空成绩不参加计算），S01 正好 85 分不算；(4) 只有 C01 有 1 人不及格。“选课人数”用 COUNT(*)，成绩为空的选课记录也要算上。"
+        }
+      ]
+    }
+  ]
+}

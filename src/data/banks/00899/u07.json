@@ -1,0 +1,43 @@
+{
+  "course": "00899",
+  "unit": 7,
+  "title": "JSP中的文件操作",
+  "lessons": [
+    {
+      "id": "00899-u07-l1",
+      "title": "读写文本文件与目录操作",
+      "questions": [
+        { "id": "00899-u07-l1-q1", "type": "single", "level": "领会", "kp": "相对路径和绝对路径的区别",
+          "stem": "JSP页面中写new File(\"data.txt\")，这个相对路径是相对于？",
+          "options": ["当前JSP页面所在的目录", "Web应用的根目录", "Web应用的WEB-INF目录", "Java虚拟机的当前工作目录（通常是启动Tomcat时所在的目录）"], "answer": 3,
+          "explain": "java.io.File的相对路径相对于JVM的工作目录，与JSP放在哪里无关；要访问Web应用中的文件，应先用application.getRealPath(\"/data.txt\")得到它在服务器上的绝对路径。" },
+        { "id": "00899-u07-l1-q2", "type": "fill", "level": "识记", "kp": "输出流的工作方式（追加写入）",
+          "stem": "用FileWriter向已有文件的末尾追加内容、不覆盖原有内容时，构造方法写成new FileWriter(file, ____)。",
+          "answers": ["true"],
+          "explain": "第二个参数append为true时追加写入；只给出文件时，会清空原有内容重新写。" },
+        { "id": "00899-u07-l1-q3", "type": "single", "level": "领会", "kp": "BufferedReader读写方法",
+          "stem": "文件f中有3行文字（最后一行末尾没有换行符），下面的代码输出的是？",
+          "code": "BufferedReader br = new BufferedReader(\n    new FileReader(f));\nString line;\nint n = 0;\nwhile ((line = br.readLine()) != null) {\n  n++;\n}\nbr.close();\nout.print(n);",
+          "options": ["3", "2", "4", "抛出EOFException"], "answer": 0,
+          "explain": "readLine()每次读一行（返回的字符串不含换行符），读到文件末尾返回null，不抛出异常；最后一行有没有换行符都算一行。" },
+        { "id": "00899-u07-l1-q4", "type": "single", "level": "应用", "kp": "创建和删除目录",
+          "stem": "要创建多级目录D:\\upload\\2026\\11（upload目录还不存在），应调用File对象的？",
+          "options": ["mkdir()", "mkdirs()", "createNewFile()", "createDirectory()"], "answer": 1,
+          "explain": "mkdirs()会把不存在的上级目录一起创建；mkdir()只在已存在的目录下建一级，上级不存在时返回false；createNewFile()创建的是空文件；File类没有createDirectory()方法。" },
+        { "id": "00899-u07-l1-q5", "type": "single", "level": "应用", "kp": "文件维护的相关方法（删除目录）",
+          "stem": "File对象dir表示的目录中还有文件，执行dir.delete()的结果是？",
+          "options": ["连同其中的文件一起删除，返回true", "抛出IOException", "返回false，目录没有被删除", "只删除其中的文件，保留目录"], "answer": 2,
+          "explain": "File的delete()只能删除文件或空目录，删除不了时返回false，不抛出异常；要删除非空目录，必须先用listFiles()把里面的文件逐个删除。" },
+        { "id": "00899-u07-l1-q6", "type": "fill", "level": "识记", "kp": "下载文件到本地",
+          "stem": "实现文件下载时，要让浏览器弹出保存对话框而不是直接打开文件，响应头写成response.setHeader(\"Content-Disposition\", \"____;filename=report.txt\")。",
+          "answers": ["attachment"],
+          "explain": "attachment表示作为附件下载，filename指定默认的保存文件名（中文文件名要用URLEncoder编码）；然后把文件内容写入response.getOutputStream()。" },
+        { "id": "00899-u07-l1-q7", "type": "short", "form": "综合应用", "level": "应用", "kp": "读写文件（文本留言簿）",
+          "stem": "编写guestbook.jsp：表单（提交给本页面）输入姓名name和留言content；提交后把“姓名：留言”作为一行追加到Web应用的WEB-INF/msg.txt中（文件按UTF-8编码，不存在时自动创建）；页面下方读出msg.txt的全部内容，每条留言占一行显示。",
+          "points": ["导入java.io.*，用application.getRealPath()得到WEB-INF/msg.txt的绝对路径", "提交时用FileOutputStream(f, true)追加写入，用OutputStreamWriter指定UTF-8编码", "每条留言write()后newLine()换行，写完调用close()（不关闭内容可能还留在缓冲区）", "显示时先判断文件存在，再用BufferedReader逐行readLine()直到返回null", "每行后输出<br>换行显示，读完关闭流"],
+          "answer": "<%-- guestbook.jsp --%>\n<%@ page contentType=\"text/html;charset=UTF-8\"\n    import=\"java.io.*\" %>\n<%\n  request.setCharacterEncoding(\"UTF-8\");\n  String path =\n      application.getRealPath(\"/WEB-INF/msg.txt\");\n  File f = new File(path);\n  String name = request.getParameter(\"name\");\n  String content = request.getParameter(\"content\");\n  if (name != null && content != null) {\n    BufferedWriter bw = new BufferedWriter(\n        new OutputStreamWriter(\n            new FileOutputStream(f, true), \"UTF-8\"));\n    bw.write(name + \"：\" + content);\n    bw.newLine();\n    bw.close();\n  }\n%>\n<form action=\"guestbook.jsp\" method=\"post\">\n  姓名：<input type=\"text\" name=\"name\"><br>\n  留言：<textarea name=\"content\"></textarea><br>\n  <input type=\"submit\" value=\"提交\">\n</form>\n<hr>\n<%\n  if (f.exists()) {\n    BufferedReader br = new BufferedReader(\n        new InputStreamReader(\n            new FileInputStream(f), \"UTF-8\"));\n    String line;\n    while ((line = br.readLine()) != null) {\n      out.print(line + \"<br>\");\n    }\n    br.close();\n  }\n%>",
+          "explain": "FileWriter、FileReader按平台默认编码读写（JDK 17及以前在中文Windows下是GBK，JDK 18起默认UTF-8），用OutputStreamWriter、InputStreamReader可以明确指定UTF-8，读写编码一致才不会乱码。文件放在WEB-INF下，浏览器不能直接下载它。" }
+      ]
+    }
+  ]
+}

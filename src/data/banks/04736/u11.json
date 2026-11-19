@@ -1,0 +1,94 @@
+{
+  "course": "04736",
+  "unit": 11,
+  "title": "备份与恢复",
+  "lessons": [
+    {
+      "id": "04736-u11-l1",
+      "title": "mysqldump、SOURCE、导出与导入数据",
+      "questions": [
+        {
+          "id": "04736-u11-l1-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "用 mysqldump 备份数据库",
+          "stem": "要把数据库 db_school 备份成脚本文件 D:/bak/school.sql，应在 Windows 命令提示符中执行？",
+          "options": ["mysql -u root -p db_school > D:/bak/school.sql", "mysqldump -u root -p db_school > D:/bak/school.sql", "mysqldump -u root -p db_school < D:/bak/school.sql", "BACKUP DATABASE db_school TO 'D:/bak/school.sql'"],
+          "answer": 1,
+          "explain": "mysqldump 把库中的表结构和数据导出成 CREATE TABLE、INSERT 等 SQL 语句，用 > 把输出写进文件。它是操作系统命令行中的程序，不能在 mysql> 下执行；BACKUP DATABASE 是 SQL Server 的语句。"
+        },
+        {
+          "id": "04736-u11-l1-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "恢复 mysqldump 的备份",
+          "stem": "备份文件 school.sql 是用 mysqldump -u root -p db_school > school.sql 生成的。要在另一台服务器上恢复它，正确的做法是？",
+          "options": ["直接执行 mysql -u root -p < school.sql，库会自动创建", "执行 mysqldump -u root -p db_school < school.sql", "先建好数据库，再执行 mysql -u root -p 库名 < school.sql", "在 mysql> 下执行 LOAD DATA INFILE 'school.sql'"],
+          "answer": 2,
+          "explain": "这样备份的文件中只有建表和插入数据的语句，没有 CREATE DATABASE 和 USE，恢复前要先建库，并在命令中指定库名（或登录后 USE 库名; 再 SOURCE school.sql）。加 --databases（或 -B）备份时，文件中才有建库语句。"
+        },
+        {
+          "id": "04736-u11-l1-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "mysqldump 在操作系统命令行中运行",
+          "stem": "在 mysql> 提示符下输入 mysqldump -u root -p db_school > D:/bak/s.sql;，结果是？",
+          "options": ["备份成功，文件保存为 D:/bak/s.sql", "提示输入密码，然后开始备份", "备份成功，但文件保存在数据目录中", "报 1064 语法错误，mysqldump 要在操作系统命令行中运行"],
+          "answer": 3,
+          "explain": "mysqldump、mysql 都是操作系统中的可执行程序，要在 Windows 命令提示符（或 Linux 终端）中运行。在 mysql> 下只能执行 SQL 语句和 SOURCE 等客户端命令，输入的 mysqldump … 会被当成 SQL 语句发给服务器，报语法错误。"
+        },
+        {
+          "id": "04736-u11-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "导出数据（secure_file_priv 的限制）",
+          "stem": "执行 SELECT * FROM student INTO OUTFILE 'D:/bak/stu.txt'; 报错 1290：The MySQL server is running with the --secure-file-priv option…。应该怎样处理？",
+          "options": ["查出 secure_file_priv 允许的目录，把文件写到该目录下", "把 SELECT * 改成 SELECT ALL *", "在 INTO 和 OUTFILE 之间加上 LOCAL", "先用 mysqldump 建好这个文件再执行"],
+          "answer": 0,
+          "explain": "5.7 和 8.0 用 secure_file_priv 限制服务器读写文件的目录：用 SHOW VARIABLES LIKE 'secure_file_priv'; 查看，值是某个目录时只能在该目录下导出导入（Windows 安装版常见的是 C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/），值为 NULL 时禁止导出导入，要改配置文件并重启服务。",
+          "verify": "Windows 安装版 secure_file_priv 的默认目录（…/MySQL Server 8.0/Uploads/）是按资料写的；本机是 Linux 版，只实测了 1290 报错和目录限制。"
+        },
+        {
+          "id": "04736-u11-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "导出文件的格式",
+          "stem": "student 表中有一行：sno 为 'S01'，sname 为 '张明'，sage 为 19，sdept 为 NULL。执行下面的语句后，文件中这一行的内容是？",
+          "code": "SELECT sno, sname, sage, sdept\n  FROM student WHERE sno = 'S01'\n  INTO OUTFILE 'D:/bak/s01.txt'\n  FIELDS TERMINATED BY ','\n  ENCLOSED BY '\"';",
+          "options": ["\"S01\",\"张明\",19,NULL", "\"S01\",\"张明\",\"19\",\\N", "\"S01\",\"张明\",\"19\",\"\"", "S01,张明,19,\\N"],
+          "answer": 1,
+          "explain": "ENCLOSED BY '\"' 给每个字段都加双引号（数字也加），只给字符串加引号要写 OPTIONALLY ENCLOSED BY '\"'；NULL 写成 \\N，不加引号，用 LOAD DATA 导入时会还原成 NULL。没写 LINES TERMINATED BY 时，每行以换行符 \\n 结束。"
+        },
+        {
+          "id": "04736-u11-l1-q6",
+          "type": "fill",
+          "level": "应用",
+          "kp": "导入数据（LOAD DATA）",
+          "stem": "文本文件 D:/bak/goods.csv 的第一行是列标题，其余各行用逗号分隔字段。导入时跳过标题行：LOAD DATA INFILE 'D:/bak/goods.csv' INTO TABLE goods FIELDS TERMINATED BY ',' IGNORE 1 ____;",
+          "answers": ["LINES", "ROWS"],
+          "explain": "IGNORE n LINES 跳过文件开头的 n 行。文件中字段的顺序要与表中列的顺序一致，不一致时在语句最后写出列名，如 (gno, gname, price)。不带 LOCAL 时由服务器读取文件，同样受 secure_file_priv 限制。"
+        },
+        {
+          "id": "04736-u11-l1-q7",
+          "type": "fill",
+          "level": "应用",
+          "kp": "备份多个数据库",
+          "stem": "用一条命令把 db_school 和 db_shop 两个库备份到 two.sql，并让文件中包含 CREATE DATABASE 和 USE 语句：mysqldump -u root -p ____ db_school db_shop > two.sql",
+          "answers": ["--databases", "-B"],
+          "explain": "--databases（-B）后面可以跟多个库名，文件中带建库语句，恢复时直接 mysql -u root -p < two.sql 即可；--all-databases（-A）备份全部数据库。只备份某个库中的几张表，写成 mysqldump -u root -p db_school student sc > t.sql。"
+        },
+        {
+          "id": "04736-u11-l1-q8",
+          "type": "short",
+          "form": "综合应用",
+          "level": "应用",
+          "kp": "备份与恢复综合",
+          "stem": "数据库 db_school 中有 student 等表，目录 D:/bak/ 是 secure_file_priv 允许的目录。写出完成下列操作的命令或语句：\n(1) 用 mysqldump 把整个 db_school 备份到 D:/bak/school.sql；\n(2) 误删了 student 表，登录 mysql 后用备份文件恢复；\n(3) 把 student 中计算机系学生的数据导出到 D:/bak/cs.txt，字段之间用逗号分隔；\n(4) 新建一个与 student 结构相同的空表 stu_cs，把 cs.txt 中的数据导入 stu_cs。",
+          "points": ["(1) 在命令提示符中 mysqldump … db_school > 文件（1 分）", "(2) 登录后 USE db_school; 再 SOURCE 备份文件（1 分）", "(3) SELECT … INTO OUTFILE … FIELDS TERMINATED BY ','（1 分）", "(4) CREATE TABLE stu_cs LIKE student; 再 LOAD DATA INFILE（1 分）"],
+          "answer": "mysqldump -u root -p db_school > D:/bak/school.sql\nmysql -u root -p\nUSE db_school;\nSOURCE D:/bak/school.sql\nSELECT * FROM student WHERE sdept = '计算机'\n  INTO OUTFILE 'D:/bak/cs.txt'\n  FIELDS TERMINATED BY ',';\nCREATE TABLE stu_cs LIKE student;\nLOAD DATA INFILE 'D:/bak/cs.txt'\n  INTO TABLE stu_cs\n  FIELDS TERMINATED BY ',';",
+          "explain": "前两行在命令提示符中执行，其余在 mysql> 下执行。mysqldump 生成的文件对每张表都先 DROP TABLE IF EXISTS 再建表、插入，所以 (2) 会把库中所有的表都恢复到备份时的状态；导入时的 FIELDS 子句要与导出时一致。"
+        }
+      ]
+    }
+  ]
+}

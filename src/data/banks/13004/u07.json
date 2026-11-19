@@ -1,0 +1,253 @@
+{
+  "course": "13004",
+  "unit": 7,
+  "title": "查找",
+  "lessons": [
+    {
+      "id": "13004-u07-l1",
+      "title": "顺序查找和折半查找",
+      "questions": [
+        {
+          "id": "13004-u07-l1-q1",
+          "type": "fill",
+          "level": "应用",
+          "kp": "顺序查找",
+          "stem": "下面的顺序查找函数把 key 放在 a[0] 作监视哨，元素存放在 a[1..n]。a[1]～a[5] 依次为 8 3 6 3 9，调用 Search(a, 5, 3) 和 Search(a, 5, 7) 的返回值分别是____。",
+          "code": "int Search(int a[], int n, int key)\n{\n    int i = n;\n    a[0] = key;\n    while (a[i] != key)\n        i--;\n    return i;\n}",
+          "answers": [
+            "4 0",
+            "4,0"
+          ],
+          "explain": "从后往前找，先遇到的是 a[4] 中的 3，返回 4；7 不在表中，一直比较到 a[0] 才相等，返回 0 表示查找失败。有了监视哨，循环里不用再判断 i >= 1，但数组要多开一个单元。"
+        },
+        {
+          "id": "13004-u07-l1-q2",
+          "type": "fill",
+          "level": "应用",
+          "kp": "折半查找",
+          "stem": "在有序数组 {5, 13, 19, 21, 37, 56, 64, 75, 80, 88, 92}（下标 0～10）中折半查找 85，mid = (low + high) / 2，依次比较的元素是____。",
+          "answers": [
+            "56 80 88",
+            "56,80,88"
+          ],
+          "explain": "mid = 5 比较 56，85 较大，low = 6；mid = 8 比较 80，low = 9；mid = 9 比较 88，85 较小，high = 8。此时 low > high，查找失败，共比较 3 次。让程序把每次的 a[mid] 打印出来，就能核对比较过程。"
+        },
+        {
+          "id": "13004-u07-l1-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "折半查找",
+          "stem": "折半查找（low = 0，high = n-1，循环条件 low <= high）查找失败、退出循环时，low 和 high 的关系是？",
+          "options": [
+            "low == high，二者都指向最后比较的元素",
+            "low == high + 1，low 是 key 应插入的位置",
+            "low == high - 1",
+            "low 和 high 都等于 -1"
+          ],
+          "answer": 1,
+          "explain": "每次比较后不是 high = mid-1 就是 low = mid+1，最后一次让 low 越过 high 一位，这时 a[high] < key < a[low]，key 应插在 low 处。例如在 {5, 13, 19, 21, 37, 56, 64, 75, 80, 88, 92} 中查 85 失败时，low = 9（88 所在的位置），high = 8。"
+        },
+        {
+          "id": "13004-u07-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "折半查找",
+          "stem": "折半查找中把 low = mid + 1 误写成了 low = mid。在有序数组 {1, 3} 中查找 4 时，会？",
+          "options": [
+            "返回下标 1",
+            "访问 a[-1]，数组越界",
+            "返回 -1，结果正确",
+            "陷入死循环"
+          ],
+          "answer": 3,
+          "explain": "low = 0、high = 1 时 mid = 0，a[0] < 4，low 仍是 0，以后每次都一样，循环永远不结束。low、high 的修改都必须越过 mid，这样区间才会一直缩小。"
+        },
+        {
+          "id": "13004-u07-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "折半查找",
+          "stem": "在有序数组 {2, 4, 4, 4, 7, 9}（下标 0～5）中用折半查找找 4（mid = (low + high) / 2，找到就返回下标），返回的是？",
+          "options": [
+            "2",
+            "1",
+            "3",
+            "4"
+          ],
+          "answer": 0,
+          "explain": "第一次 mid = (0+5)/2 = 2，a[2] 正好是 4，直接返回 2。有重复关键字时，折半查找找到的不一定是第一个；要找第一个，找到后还得继续在左半部分查找。"
+        },
+        {
+          "id": "13004-u07-l1-q6",
+          "type": "fill",
+          "level": "应用",
+          "kp": "折半查找",
+          "stem": "下面是折半查找的递归函数，找不到时返回 -1。横线处应填____。",
+          "code": "int BinSearch(int a[], int low, int high, int key)\n{\n    int mid;\n    if (low > high)\n        return -1;\n    mid = (low + high) / 2;\n    if (a[mid] == key)\n        return mid;\n    if (key < a[mid])\n        return ______;\n    return BinSearch(a, mid + 1, high, key);\n}",
+          "answers": [
+            "BinSearch(a, low, mid - 1, key)",
+            "BinSearch(a, low, mid-1, key)"
+          ],
+          "explain": "key 比 a[mid] 小，只能在左半部分 low～mid-1 中继续查找；递归出口是 low > high（区间为空）。递归调用前面的 return 不能省，否则找到的下标传不回来。"
+        },
+        {
+          "id": "13004-u07-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "折半查找",
+          "stem": "编写程序：输入 n（1 ≤ n ≤ 100）和 n 个递增的整数，再输入 key。用折半查找（mid = (low + high) / 2）查找 key：第一行输出依次比较过的元素，第二行输出 key 的位置（从 1 开始计），找不到输出 0。\n样例输入：\n11\n5 13 19 21 37 56 64 75 80 88 92\n21\n样例输出：\n56 19 21\n4",
+          "answer": "#include <stdio.h>\nint main(void)\n{\n    int a[100], n, i, key;\n    int low, high, mid, pos = 0;\n    scanf(\"%d\", &n);\n    for (i = 0; i < n; i++)\n        scanf(\"%d\", &a[i]);\n    scanf(\"%d\", &key);\n    low = 0;\n    high = n - 1;\n    while (low <= high) {\n        mid = (low + high) / 2;\n        printf(\"%d \", a[mid]);\n        if (a[mid] == key) {\n            pos = mid + 1;\n            break;\n        }\n        if (key < a[mid])\n            high = mid - 1;\n        else\n            low = mid + 1;\n    }\n    printf(\"\\n%d\\n\", pos);\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "low、high 初值为 0 和 n-1，循环条件 low <= high（2 分）",
+            "每次比较前输出 a[mid]，相等时记下位置 mid+1 并结束（2 分）",
+            "key 小于 a[mid] 时 high = mid-1，否则 low = mid+1（3 分）",
+            "找不到时输出 0（1 分）"
+          ],
+          "explain": "要测查找第一个元素、最后一个元素、比所有元素都小、比所有元素都大和 n = 1 这几种情况。查找 92 时依次比较 56、80、88、92，查找 85 时比较 56、80、88 后失败。"
+        },
+        {
+          "id": "13004-u07-l1-q8",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "折半查找",
+          "stem": "下面程序输入 n 和 n 个递增的整数，再输入 key，用折半查找输出 key 的位置（从 1 开始计），找不到输出 0。程序中有 3 处错误，找出并改正（不得增删行）。\n样例输入：\n11\n5 13 19 21 37 56 64 75 80 88 92\n21\n样例输出：\n4",
+          "code": "#include <stdio.h>\nint main(void)\n{\n    int a[100], n, i, key, low, high, mid = 0;\n    scanf(\"%d\", &n);\n    for (i = 0; i < n; i++)\n        scanf(\"%d\", &a[i]);\n    scanf(\"%d\", &key);\n    low = 0;\n    high = n;\n    while (low < high) {\n        mid = (low + high) / 2;\n        if (a[mid] == key)\n            break;\n        else if (key < a[mid])\n            high = mid - 1;\n        else\n            low = mid;\n    }\n    if (low <= high)\n        printf(\"%d\\n\", mid + 1);\n    else\n        printf(\"0\\n\");\n    return 0;\n}",
+          "answer": "#include <stdio.h>\nint main(void)\n{\n    int a[100], n, i, key, low, high, mid = 0;\n    scanf(\"%d\", &n);\n    for (i = 0; i < n; i++)\n        scanf(\"%d\", &a[i]);\n    scanf(\"%d\", &key);\n    low = 0;\n    high = n - 1;\n    while (low <= high) {\n        mid = (low + high) / 2;\n        if (a[mid] == key)\n            break;\n        else if (key < a[mid])\n            high = mid - 1;\n        else\n            low = mid + 1;\n    }\n    if (low <= high)\n        printf(\"%d\\n\", mid + 1);\n    else\n        printf(\"0\\n\");\n    return 0;\n}",
+          "points": [
+            "high = n; 改为 high = n - 1;（3 分）",
+            "while (low < high) 改为 while (low <= high)（3 分）",
+            "low = mid; 改为 low = mid + 1;（4 分）"
+          ],
+          "explain": "原程序查样例中的 21 能得到 4，查 85 却输出 10，查 13 或 100 时陷入死循环，只测样例发现不了这些错误。low、high 的修改都要越过 mid；循环条件要包含 low == high，即只剩一个元素的情况。"
+        }
+      ]
+    },
+    {
+      "id": "13004-u07-l2",
+      "title": "二叉排序树和散列表",
+      "questions": [
+        {
+          "id": "13004-u07-l2-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "二叉排序树的插入",
+          "stem": "递归插入函数 void Insert(BSTree *T, int key) 中，*T 为 NULL 时新建结点并令 *T 指向它。key 小于根结点的关键字时，向左子树递归插入应写成？",
+          "options": [
+            "Insert((*T)->lchild, key);",
+            "Insert(&(*T)->lchild, key);",
+            "Insert(T->lchild, key);",
+            "Insert(*T->lchild, key);"
+          ],
+          "answer": 1,
+          "explain": "要修改的是双亲结点的 lchild 指针本身，所以传它的地址：&(*T)->lchild 就是 &((*T)->lchild)。只传 (*T)->lchild 类型不对，gcc 报 passing argument 1 of ‘Insert’ from incompatible pointer type（新版 gcc 是错误，老版本只警告）；老编译器下勉强运行，会把空指针当作地址来访问而崩溃。"
+        },
+        {
+          "id": "13004-u07-l2-q2",
+          "type": "fill",
+          "level": "应用",
+          "kp": "二叉排序树的查找",
+          "stem": "依次插入 45, 24, 53, 12, 37, 93, 24 构造二叉排序树（与已有关键字相等的不再插入）。查找 37 时依次比较的关键字是____。",
+          "answers": [
+            "45 24 37",
+            "45,24,37"
+          ],
+          "explain": "45 是根；24 在左，53 在右；12 是 24 的左孩子，37 是 24 的右孩子，93 是 53 的右孩子，第二个 24 不插入。查 37：比 45 小走左边，比 24 大走右边，第 3 次比较找到。"
+        },
+        {
+          "id": "13004-u07-l2-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "二叉排序树的插入",
+          "stem": "二叉排序树的插入函数把左右写反了：key 大于根时插入左子树，小于根时插入右子树。依次插入 45, 24, 53, 12, 37, 93 后中序遍历，输出是？",
+          "options": [
+            "12 24 37 45 53 93",
+            "45 24 53 12 37 93",
+            "93 53 45 37 24 12",
+            "程序崩溃，没有输出"
+          ],
+          "answer": 2,
+          "explain": "左右写反后，较大的关键字都在左子树，中序遍历（左、根、右）就成了从大到小。中序遍历的结果是否递增，是检查二叉排序树程序最简单的办法。"
+        },
+        {
+          "id": "13004-u07-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "散列表的线性探测法",
+          "stem": "下面是用线性探测法向散列表插入关键字的程序段，横线处应填入的是？",
+          "code": "/* 表长 m，H(key) = key % p，-1 表示空单元 */\nh = key % p;\nwhile (HT[h] != -1)\n    h = ______;\nHT[h] = key;",
+          "options": [
+            "(h + 1) % p",
+            "h + 1",
+            "(key + 1) % m",
+            "(h + 1) % m"
+          ],
+          "answer": 3,
+          "explain": "探测要在整个表长 m 上循环：到了最后一个单元，再回到 0 号单元。对 p 取余只能落在 0～p-1，p < m 时表尾的单元永远用不上；只写 h + 1 会越界。"
+        },
+        {
+          "id": "13004-u07-l2-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "散列表的线性探测法",
+          "stem": "散列表长 m = 11，H(key) = key % 11，用线性探测法处理冲突，依次插入 22, 41, 53, 46, 30, 13, 1, 67。67 存放在下标为____的单元中。",
+          "answers": [
+            "4"
+          ],
+          "explain": "22→0，41→8，53→9，46→2，30 的地址 8 冲突，探测 9、10，放在 10；13 的地址 2 冲突，放在 3；1→1；67 的地址 1 冲突，探测 2、3 都已占用，放在 4，查找 67 要比较 4 次。"
+        },
+        {
+          "id": "13004-u07-l2-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "散列表的线性探测法",
+          "stem": "用 while (HT[h] != -1) h = (h + 1) % m; 寻找空单元插入关键字。散列表的 m 个单元已经全部占用时再插入新关键字，会？",
+          "options": [
+            "陷入死循环",
+            "覆盖 0 号单元中的关键字",
+            "写到 HT[m]，数组越界",
+            "表长自动扩大一倍"
+          ],
+          "answer": 0,
+          "explain": "找不到空单元，while 永远不结束。插入前要判断表中已有的关键字个数小于 m，或者最多探测 m 次。查找不存在的关键字也一样：遇到空单元或探测满 m 次就要停止。"
+        },
+        {
+          "id": "13004-u07-l2-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "二叉排序树的插入和查找",
+          "stem": "编写程序：输入若干个正整数（以 0 结束），依次插入二叉排序树（与已有关键字相等的不插入），第一行输出中序遍历序列；再输入 key，第二行输出查找 key 时的比较次数，找不到输出 0。\n样例输入：\n45 24 53 12 37 93 24 0\n37\n样例输出：\n12 24 37 45 53 93\n3",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct BSTNode {\n    int key;\n    struct BSTNode *lchild, *rchild;\n} BSTNode, *BSTree;\nvoid Insert(BSTree *T, int key)\n{\n    if (*T == NULL) {\n        *T = (BSTNode *)malloc(sizeof(BSTNode));\n        (*T)->key = key;\n        (*T)->lchild = (*T)->rchild = NULL;\n    } else if (key < (*T)->key)\n        Insert(&(*T)->lchild, key);\n    else if (key > (*T)->key)\n        Insert(&(*T)->rchild, key);\n}\nvoid InOrder(BSTree T)\n{\n    if (T != NULL) {\n        InOrder(T->lchild);\n        printf(\"%d \", T->key);\n        InOrder(T->rchild);\n    }\n}\n\nint main(void)\n{\n    BSTree T = NULL, p;\n    int x, cnt;\n    while (scanf(\"%d\", &x) == 1 && x != 0)\n        Insert(&T, x);\n    InOrder(T);\n    printf(\"\\n\");\n    scanf(\"%d\", &x);\n    for (p = T, cnt = 1; p && p->key != x; cnt++)\n        p = x < p->key ? p->lchild : p->rchild;\n    printf(\"%d\\n\", p != NULL ? cnt : 0);\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "插入：空树时新建结点；小于根插左子树，大于根插右子树，相等不插（3 分）",
+            "插入函数能修改双亲的指针（传 BSTree * 或返回新根）（2 分）",
+            "中序遍历输出递增序列（1 分）",
+            "从根开始比较，相等成功，否则按大小走左或右，走到空为失败（2 分）"
+          ],
+          "explain": "中序遍历是递增的，说明插入正确。查找次数等于 key 所在结点的层数。要测：输入按递增次序（树退化成单支树）、查找的关键字不存在、只有一个结点几种情况。"
+        },
+        {
+          "id": "13004-u07-l2-q8",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "散列表的线性探测法",
+          "stem": "编写程序：输入表长 m（≤ 20）、除数 p（p ≤ m）、关键字个数 n（1 ≤ n < m）和 n 个互不相同的非负整数关键字。用除留余数法 H(key) = key % p 和线性探测法建立散列表：第一行依次输出各单元（空单元输出 -1），第二行输出等概率下查找成功的平均查找长度（保留 2 位小数）。\n样例输入：\n11 11 8\n22 41 53 46 30 13 1 67\n样例输出：\n22 1 46 13 67 -1 -1 -1 41 53 30\n1.75",
+          "answer": "#include <stdio.h>\nint main(void)\n{\n    int HT[20], m, p, n, i, key, h, cnt;\n    int total = 0;\n    scanf(\"%d%d%d\", &m, &p, &n);\n    for (i = 0; i < m; i++)\n        HT[i] = -1;\n    for (i = 0; i < n; i++) {\n        scanf(\"%d\", &key);\n        h = key % p;\n        cnt = 1;\n        while (HT[h] != -1) {\n            h = (h + 1) % m;\n            cnt++;\n        }\n        HT[h] = key;\n        total += cnt;\n    }\n    for (i = 0; i < m; i++)\n        printf(\"%d \", HT[i]);\n    printf(\"\\n%.2f\\n\", (double)total / n);\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "散列表初始化为 -1，H(key) = key % p（2 分）",
+            "冲突时 h = (h + 1) % m，直到找到空单元（3 分）",
+            "插入时比较的次数就是查找该关键字的比较次数，累加求和（2 分）",
+            "平均查找长度 = 总次数 / n，用 %.2f 输出（1 分）"
+          ],
+          "explain": "各关键字的比较次数：22、41、53、46、1 各 1 次，13 为 2 次，30 为 3 次，67 为 4 次，共 14 次，14 / 8 = 1.75。total / n 是整数除法，结果只有 1，而且把 int 交给 %f 输出也不对（gcc 会警告），要写成 (double)total / n。"
+        }
+      ]
+    }
+  ]
+}

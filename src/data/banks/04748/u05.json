@@ -1,0 +1,136 @@
+{
+  "course": "04748",
+  "unit": 5,
+  "title": "异常处理",
+  "lessons": [
+    {
+      "id": "04748-u05-l1",
+      "title": "try-catch-finally、throw 与自定义异常",
+      "questions": [
+        {
+          "id": "04748-u05-l1-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常的处理",
+          "stem": "执行下面含有 try-catch-finally 的程序段，输出结果是？",
+          "code": "try {\n  System.out.print(\"1\");\n  int x = 5 / 0;\n  System.out.print(\"2\");\n} catch (ArithmeticException e) {\n  System.out.print(\"3\");\n} finally {\n  System.out.print(\"4\");\n}\nSystem.out.print(\"5\");",
+          "options": [
+            "12345",
+            "1345",
+            "134",
+            "1245"
+          ],
+          "answer": 1,
+          "explain": "执行到 5 / 0 时抛出 ArithmeticException，try 块中剩下的语句不再执行，转到匹配的 catch；不论是否发生异常，finally 都会执行；异常已经处理，程序继续执行后面的语句。"
+        },
+        {
+          "id": "04748-u05-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常的处理（多个 catch 的顺序）",
+          "stem": "下面的程序用两个 catch 捕获异常，编译、运行的结果是？",
+          "code": "public class Test {\n  public static void main(String[] args) {\n    try {\n      int[] a = new int[2];\n      a[2] = 1;\n    } catch (Exception e) {\n      System.out.println(\"异常\");\n    } catch (ArrayIndexOutOfBoundsException e) {\n      System.out.println(\"越界\");\n    }\n  }\n}",
+          "options": [
+            "输出：异常",
+            "输出：越界",
+            "先输出“异常”，再输出“越界”",
+            "编译出错：子类异常的 catch 要写在 Exception 前面"
+          ],
+          "answer": 3,
+          "explain": "多个 catch 按顺序匹配。Exception 是这些异常的父类，写在前面会把 ArrayIndexOutOfBoundsException 也截住，后面的 catch 永远执行不到，javac 报“已捕获到异常错误ArrayIndexOutOfBoundsException”。子类异常要写在父类异常的前面。"
+        },
+        {
+          "id": "04748-u05-l1-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "常见异常（受检异常）",
+          "stem": "已有方法 static void load() throws Exception { … }。在 main 中直接调用 load();，没有用 try-catch，main 方法也没有写 throws。编译的结果是？",
+          "options": [
+            "编译通过，运行时由系统自动处理",
+            "编译出错：必须捕获或声明抛出这个异常",
+            "编译通过，load() 不会被执行",
+            "编译通过，但有警告"
+          ],
+          "answer": 1,
+          "explain": "Exception 和它的非 RuntimeException 子类（如 IOException）是受检异常：调用声明了这类异常的方法，必须用 try-catch 捕获，或者在 main 上也写 throws Exception，否则报“未报告的异常错误Exception; 必须对其进行捕获或声明以便抛出”。ArithmeticException 等运行时异常不受这个限制。"
+        },
+        {
+          "id": "04748-u05-l1-q4",
+          "type": "fill",
+          "level": "识记",
+          "kp": "常见异常",
+          "stem": "执行 int n = Integer.parseInt(\"12a\"); 时会抛出____异常。",
+          "answers": [
+            "NumberFormatException",
+            "java.lang.NumberFormatException"
+          ],
+          "explain": "字符串不能转换成整数时，parseInt() 抛出 NumberFormatException（数字格式异常）。处理从键盘或文本框得到的数字时，常用 try-catch 捕获它，并提示“请输入整数”。"
+        },
+        {
+          "id": "04748-u05-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "用户自定义异常",
+          "stem": "执行下面使用自定义异常的程序，输出结果是？",
+          "code": "class AgeException extends Exception {\n  AgeException(String msg) { super(msg); }\n}\npublic class Test {\n  static void check(int age) throws AgeException {\n    if (age < 0) throw new AgeException(\"年龄不能为负\");\n    System.out.print(\"合法 \");\n  }\n  public static void main(String[] args) {\n    try {\n      check(18);\n      check(-1);\n      check(20);\n    } catch (AgeException e) {\n      System.out.print(e.getMessage());\n    }\n  }\n}",
+          "options": [
+            "合法 年龄不能为负 合法",
+            "年龄不能为负",
+            "合法 年龄不能为负",
+            "合法 合法"
+          ],
+          "answer": 2,
+          "explain": "自定义异常类一般继承 Exception，构造方法用 super(msg) 把信息交给父类，之后用 getMessage() 取出。check(-1) 抛出异常后，try 块中后面的 check(20) 不再执行，直接转到 catch。"
+        },
+        {
+          "id": "04748-u05-l1-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常的处理（finally）",
+          "stem": "执行下面在 try 块中执行 return 的程序，输出结果是？",
+          "code": "public class Test {\n  static int f() {\n    try {\n      return 1;\n    } finally {\n      System.out.print(\"F\");\n    }\n  }\n  public static void main(String[] args) {\n    System.out.println(f());\n  }\n}",
+          "options": [
+            "F1",
+            "1F",
+            "1",
+            "F"
+          ],
+          "answer": 0,
+          "explain": "即使 try 块中执行了 return，方法返回之前也要先执行 finally 块，所以先输出 F，再由 main 输出返回值 1。finally 常用来做必须完成的收尾工作，如关闭文件。"
+        },
+        {
+          "id": "04748-u05-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "用户自定义异常；常见异常的处理",
+          "stem": "编写程序：定义异常类 ScoreException（继承 Exception）。在主类 TestScore 中定义方法 static void check(int s) throws ScoreException，成绩不在 0～100 之间时抛出异常，异常信息为“成绩必须在 0～100 之间”。main 方法从键盘读入一行：不是整数时输出“请输入整数”；超出范围时输出异常信息；否则输出“成绩：…”。\n输入样例：105\n输出样例：成绩必须在 0～100 之间",
+          "points": [
+            "ScoreException 继承 Exception，构造方法用 super(msg) 传递异常信息（2 分）",
+            "check 方法头用 throws 声明，超出范围时用 throw 抛出异常对象（2 分）",
+            "main 中用 try-catch 分别捕获 NumberFormatException 和 ScoreException（2 分）",
+            "三种情况的输出与要求一致，用 getMessage() 取得异常信息（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\nclass ScoreException extends Exception {\n  public ScoreException(String msg) {\n    super(msg);\n  }\n}\npublic class TestScore {\n  static void check(int s) throws ScoreException {\n    if (s < 0 || s > 100)\n      throw new ScoreException(\"成绩必须在 0～100 之间\");\n  }\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    String line = sc.nextLine().trim();\n    try {\n      int s = Integer.parseInt(line);\n      check(s);\n      System.out.println(\"成绩：\" + s);\n    } catch (NumberFormatException e) {\n      System.out.println(\"请输入整数\");\n    } catch (ScoreException e) {\n      System.out.println(e.getMessage());\n    }\n  }\n}",
+          "explain": "先用 nextLine() 读成字符串，再用 Integer.parseInt() 转换，非整数时抛出的才是 NumberFormatException；直接用 nextInt() 读入非整数，抛出的是 InputMismatchException。0 和 100 都是合法成绩，注意边界。"
+        },
+        {
+          "id": "04748-u05-l1-q8",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "用户自定义异常；throw 与 throws",
+          "stem": "程序改错：下面的程序有 3 处错误，请指出错误所在的行号并改正，使程序输出“负数”。",
+          "code": "1  class MyException {\n2    MyException(String m) { super(m); }\n3  }\n4  public class TestEx {\n5    static void f(int n) {\n6      if (n < 0) throws new MyException(\"负数\");\n7      System.out.println(n);\n8    }\n9    public static void main(String[] args) {\n10     try {\n11       f(-5);\n12     } catch (MyException e) {\n13       System.out.println(e.getMessage());\n14     }\n15   }\n16 }",
+          "points": [
+            "第 1 行：自定义异常类要继承 Exception，改为 class MyException extends Exception {（2 分）",
+            "第 5 行：方法会抛出受检异常，要在方法头声明，改为 static void f(int n) throws MyException {（2 分）",
+            "第 6 行：在方法体中抛出异常对象用 throw，改为 if (n < 0) throw new MyException(\"负数\");（2 分）"
+          ],
+          "answer": "class MyException extends Exception {\n  MyException(String m) { super(m); }\n}\npublic class TestEx {\n  static void f(int n) throws MyException {\n    if (n < 0) throw new MyException(\"负数\");\n    System.out.println(n);\n  }\n  public static void main(String[] args) {\n    try {\n      f(-5);\n    } catch (MyException e) {\n      System.out.println(e.getMessage());\n    }\n  }\n}",
+          "explain": "throw 写在方法体中，后面跟一个异常对象；throws 写在方法头，后面跟异常类名。MyException 不继承 Exception 时，既不能被抛出，也不能写在 catch 中，第 2 行的 super(m) 也会出错（Object 没有带参数的构造方法）。"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "course": "04748",
+  "unit": 1,
+  "title": "编辑、编译与运行 Java 程序",
+  "lessons": [
+    {
+      "id": "04748-u01-l1",
+      "title": "javac 编译、java 运行与常见编译错误",
+      "questions": [
+        {
+          "id": "04748-u01-l1-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "javac 与 java 命令",
+          "stem": "源文件 Hello.java 中定义了含 main 方法的 public class Hello。在命令行窗口中先编译、再运行，应依次输入？",
+          "options": [
+            "javac Hello.java，然后 java Hello.class",
+            "javac Hello.java，然后 java Hello",
+            "javac Hello，然后 java Hello",
+            "javac Hello.class，然后 java Hello"
+          ],
+          "answer": 1,
+          "explain": "javac 后面写源文件名，要带扩展名 .java；java 后面写类名，不带 .class。写成 java Hello.class 会把“Hello.class”当作类名去找，报“找不到或无法加载主类”。"
+        },
+        {
+          "id": "04748-u01-l1-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "类名与源文件名",
+          "stem": "把含有 public class Hello { … } 的程序保存为 Test.java，再执行 javac Test.java，结果是？",
+          "options": [
+            "编译通过，生成 Test.class",
+            "编译通过，生成 Hello.class，只能用 java Test 运行",
+            "编译通过，运行时提示找不到 main 方法",
+            "编译出错，提示公共类 Hello 应在名为 Hello.java 的文件中声明"
+          ],
+          "answer": 3,
+          "explain": "源文件中 public 类的类名必须和文件名完全一致，连大小写也要一致。把文件改名为 Hello.java 即可；如果去掉 public，也能编译，生成的仍是 Hello.class，要用 java Hello 运行。"
+        },
+        {
+          "id": "04748-u01-l1-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "main 方法",
+          "stem": "下面程序的 main 方法参数少写了 []。编译、运行的结果是？",
+          "code": "public class Hello {\n  public static void main(String args) {\n    System.out.println(\"Hi\");\n  }\n}",
+          "options": [
+            "编译通过，运行时提示在类 Hello 中找不到 main 方法",
+            "编译出错，提示 main 方法的参数类型不对",
+            "编译通过，运行输出 Hi",
+            "编译通过，运行时抛出 NullPointerException"
+          ],
+          "answer": 0,
+          "explain": "main(String args) 只是一个普通的静态方法，语法没有错，javac 不报错；java 命令启动程序时要找 public static void main(String[] args)，找不到就报“在类 Hello 中找不到 main 方法”。漏写 static 也是到运行时才报错。参数写成 String args[] 是可以的。"
+        },
+        {
+          "id": "04748-u01-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "数据类型的相互转换",
+          "stem": "下列语句中，编译时会报“不兼容的类型: 从double转换到float可能会有损失”的是？",
+          "options": [
+            "double d = 1.5f;",
+            "int n = 'A';",
+            "float f = 1.5;",
+            "long m = 100;"
+          ],
+          "answer": 2,
+          "explain": "带小数点的常量默认是 double 型，赋给 float 变量要写成 1.5f 或 (float) 1.5。其余三句都是从表示范围小的类型自动转换到大的类型（float→double、char→int、int→long），可以直接赋值。"
+        },
+        {
+          "id": "04748-u01-l1-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "源文件的编码",
+          "stem": "在中文 Windows 上，把含有中文字符串的源文件保存成 UTF-8 编码，用 javac 编译时提示“编码GBK的不可映射字符”。正确的处理方法是？",
+          "options": [
+            "运行时指定编码：java -encoding UTF-8 类名",
+            "把源文件的扩展名改成 .txt 再编译",
+            "编译时指定编码：javac -encoding UTF-8 文件名.java",
+            "删除程序开头的 import 语句"
+          ],
+          "answer": 2,
+          "explain": "中文 Windows 上 javac 默认按 GBK 读源文件，和保存时用的编码不一致，就会报这个错误或者输出乱码。可以用 -encoding 指定源文件的编码，也可以在编辑器里把文件另存为 GBK（记事本里叫 ANSI）编码。java 命令没有 -encoding 选项。"
+        },
+        {
+          "id": "04748-u01-l1-q6",
+          "type": "fill",
+          "level": "应用",
+          "kp": "命令行参数",
+          "stem": "下面的程序用命令 java Echo 3 5 运行，输出结果是____。",
+          "code": "public class Echo {\n  public static void main(String[] args) {\n    int a = Integer.parseInt(args[0]);\n    int b = Integer.parseInt(args[1]);\n    int n = args.length;\n    System.out.println(n + \" \" + (a + b));\n  }\n}",
+          "answers": [
+            "2 8"
+          ],
+          "explain": "args 里只有类名后面的参数，不含类名本身：args[0] 是 \"3\"，args.length 是 2。参数都是字符串，要先用 Integer.parseInt() 转成整数再相加，否则 args[0] + args[1] 得到的是字符串 \"35\"。"
+        },
+        {
+          "id": "04748-u01-l1-q7",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "常见编译错误",
+          "stem": "程序改错：下面的程序保存为 Hello.java，编译、运行时共有 4 处错误。请指出错误所在的行号并改正，使程序输出 x=3。",
+          "code": "1  public class hello {\n2    public static void main(String args) {\n3      int x = 3.0;\n4      System.out.println(\"x=\" + x)\n5    }\n6  }",
+          "points": [
+            "第 1 行：公共类的类名必须与文件名一致（区分大小写），改为 public class Hello {（2 分）",
+            "第 2 行：参数应为字符串数组，改为 public static void main(String[] args) {（2 分）",
+            "第 3 行：3.0 是 double 型，不能直接赋给 int 变量，改为 int x = 3;（2 分）",
+            "第 4 行：语句末尾缺少分号，改为 System.out.println(\"x=\" + x);（2 分）"
+          ],
+          "answer": "public class Hello {\n  public static void main(String[] args) {\n    int x = 3;\n    System.out.println(\"x=\" + x);\n  }\n}",
+          "explain": "javac 分阶段报错：第一次编译只报第 4 行缺分号，改好后再编译才报第 1、3 行；第 2 行能通过编译，运行时才提示找不到 main 方法。所以每改一处都要重新编译、运行，直到输出正确为止。"
+        },
+        {
+          "id": "04748-u01-l1-q8",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "Java 应用程序",
+          "stem": "编写程序 Greet：从命令行参数读入一个姓名，输出“你好，姓名！”；没有给出参数时，输出“用法：java Greet 姓名”。\n运行示例：java Greet 张三\n输出：你好，张三！",
+          "points": [
+            "类名 Greet 与文件名 Greet.java 一致，main 方法写成 public static void main(String[] args)（2 分）",
+            "用 args.length 判断有没有参数，没有参数时输出用法提示（2 分）",
+            "用 args[0] 取得第一个参数，按样例格式输出（2 分）"
+          ],
+          "answer": "public class Greet {\n  public static void main(String[] args) {\n    if (args.length == 0) {\n      System.out.println(\"用法：java Greet 姓名\");\n    } else {\n      System.out.println(\"你好，\" + args[0] + \"！\");\n    }\n  }\n}",
+          "explain": "不先判断 args.length 就使用 args[0]，没有参数时会抛出 ArrayIndexOutOfBoundsException。给了多个参数时只用第一个。源文件里有中文，要注意保存的编码和 javac 用的编码一致。"
+        }
+      ]
+    }
+  ]
+}

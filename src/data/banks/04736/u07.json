@@ -1,0 +1,191 @@
+{
+  "course": "04736",
+  "unit": 7,
+  "title": "存储过程与存储函数",
+  "lessons": [
+    {
+      "id": "04736-u07-l1",
+      "title": "存储过程：参数、变量与条件语句",
+      "questions": [
+        {
+          "id": "04736-u07-l1-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "修改语句结束符（DELIMITER）",
+          "stem": "在 mysql 命令行中没有先执行 DELIMITER，直接输入下面的语句，结果是？",
+          "code": "CREATE PROCEDURE p1()\nBEGIN\n  SELECT COUNT(*) FROM student;\n  SELECT COUNT(*) FROM sc;\nEND;",
+          "options": ["存储过程创建成功", "创建成功，但过程中只有第一条 SELECT", "报 1064 语法错误，语句在第一个分号处就被发给了服务器", "提示符变为 ->，等待继续输入"],
+          "answer": 2,
+          "explain": "mysql 客户端默认遇到分号就把语句发给服务器，过程体中的第一个分号让 CREATE PROCEDURE 提前结束，服务器收到的是不完整的语句，报 1064。应先执行 DELIMITER $$，以 END $$ 结束定义，再用 DELIMITER ; 改回来。"
+        },
+        {
+          "id": "04736-u07-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "删除与重建存储过程",
+          "stem": "再次执行 CREATE PROCEDURE sp_count(…) 时报错 1304：PROCEDURE sp_count already exists。要换成新的定义，在 5.7 和 8.0 上都可行的做法是？",
+          "options": ["改用 CREATE OR REPLACE PROCEDURE 创建", "用 ALTER PROCEDURE 改写过程体", "用 UPDATE 语句修改存放过程的系统表", "先 DROP PROCEDURE IF EXISTS sp_count;，再重新创建"],
+          "answer": 3,
+          "explain": "MySQL 不支持 CREATE OR REPLACE PROCEDURE（会报语法错误）；ALTER PROCEDURE 只能改 COMMENT、SQL SECURITY 等特征，不能改参数和过程体。所以脚本里通常先写 DROP PROCEDURE IF EXISTS，再 CREATE。"
+        },
+        {
+          "id": "04736-u07-l1-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "存储过程的参数",
+          "stem": "sc 表中有多名学生的选课记录。执行下面的语句后，sc 中被删除的是？",
+          "code": "DELIMITER $$\nCREATE PROCEDURE sp_del(IN sno CHAR(5))\nBEGIN\n  DELETE FROM sc WHERE sno = sno;\nEND $$\nDELIMITER ;\nCALL sp_del('S01');",
+          "options": ["全部选课记录", "只有 S01 的选课记录", "没有任何记录", "语句报错，什么都没删"],
+          "answer": 0,
+          "explain": "过程体中的 sno 优先被当作参数，WHERE sno = sno 就成了 'S01' = 'S01'，对每一行都成立，sc 中的记录全被删除。参数要起与列不同的名字，如 p_sno，写成 WHERE sno = p_sno。"
+        },
+        {
+          "id": "04736-u07-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "SELECT … INTO 给变量赋值",
+          "stem": "存储过程中有语句 SELECT sname INTO v_name FROM student WHERE sdept = '计算机';，而计算机系有 3 名学生。调用该过程的结果是？",
+          "options": ["v_name 得到第一个学生的姓名", "报错 1172：Result consisted of more than one row", "v_name 得到最后一个学生的姓名", "v_name 为 NULL，不报错"],
+          "answer": 1,
+          "explain": "SELECT … INTO 要求查询结果最多一行：多于一行报 1172；一行也没有时变量保持原来的值，并产生 1329 No data 警告。要逐行处理多行结果，就得用游标。"
+        },
+        {
+          "id": "04736-u07-l1-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "查看存储过程",
+          "stem": "查看存储过程 sp_count 的定义：SHOW CREATE ____ sp_count;",
+          "answers": ["PROCEDURE"],
+          "explain": "SHOW CREATE PROCEDURE 显示过程的完整定义；SHOW PROCEDURE STATUS WHERE Db = 'db_school'; 列出某个库中的存储过程。存储函数对应的是 SHOW CREATE FUNCTION 和 SHOW FUNCTION STATUS。"
+        },
+        {
+          "id": "04736-u07-l1-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "局部变量的声明",
+          "stem": "在存储过程中声明一个整型局部变量 n，初值为 0：____ n INT DEFAULT 0;",
+          "answers": ["DECLARE"],
+          "explain": "DECLARE 只能写在 BEGIN … END 块的开头（其他语句之前），局部变量名前不加 @，只在本块内有效；带 @ 的用户变量不用声明，在整个会话中都有效。"
+        },
+        {
+          "id": "04736-u07-l1-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "带输入输出参数和 IF 语句的存储过程",
+          "stem": "选课表 sc(sno, cno, grade) 中的数据如下。\n(1) 创建存储过程 sp_level：输入学号和课程号，通过输出参数返回成绩等级（90 分及以上“优秀”，75～89 分“良好”，60～74 分“及格”，低于 60 分“不及格”；没有这条选课记录或没有成绩时返回“无成绩”）；\n(2) 调用该过程，查询 S01 的 C02 和 S03 的 C01 的等级，并显示结果。",
+          "code": "-- sc(sno, cno, grade)\nINSERT INTO sc VALUES\n('S01','C01',92),('S01','C02',85),\n('S02','C01',88),('S03','C01',58),\n('S03','C04',90),('S04','C04',75);",
+          "points": ["(1) 两个 IN 参数和一个 OUT 参数，参数名不与列名相同（1 分）", "(1) SELECT grade INTO 局部变量 … WHERE sno = … AND cno = …（1 分）", "(1) IF … ELSEIF … ELSE … END IF，先判断空值（1 分）", "(2) CALL 时用用户变量接收输出参数，再 SELECT（1 分）"],
+          "answer": "DELIMITER $$\nCREATE PROCEDURE sp_level(IN p_sno CHAR(5),\n  IN p_cno CHAR(3), OUT p_lv VARCHAR(4))\nBEGIN\n  DECLARE g INT DEFAULT NULL;\n  SELECT grade INTO g FROM sc\n    WHERE sno = p_sno AND cno = p_cno;\n  IF g IS NULL THEN SET p_lv = '无成绩';\n  ELSEIF g >= 90 THEN SET p_lv = '优秀';\n  ELSEIF g >= 75 THEN SET p_lv = '良好';\n  ELSEIF g >= 60 THEN SET p_lv = '及格';\n  ELSE SET p_lv = '不及格';\n  END IF;\nEND $$\nDELIMITER ;\nCALL sp_level('S01', 'C02', @a);\nCALL sp_level('S03', 'C01', @b);\nSELECT @a, @b;",
+          "explain": "按样例数据，@a 为“良好”，@b 为“不及格”。查不到选课记录时 SELECT … INTO 不改变 g，g 保持初值 NULL，返回“无成绩”；分数段要从高往低判断。"
+        },
+        {
+          "id": "04736-u07-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "CASE 语句与 ROW_COUNT()",
+          "stem": "商品表 goods(gno, gname, category, price, stock) 中的数据如下。\n(1) 创建存储过程 sp_adjust(IN p_cat VARCHAR(10), IN p_rate DECIMAL(4,2), OUT p_n INT)：把类别为 p_cat 的商品价格乘以 p_rate，用 p_n 返回被修改的商品数；\n(2) 用 CASE 语句创建存储过程 sp_stock(IN p_gno CHAR(4), OUT p_msg VARCHAR(10))：商品不存在返回“无此商品”，库存为 0 返回“缺货”，1～9 返回“库存紧张”，10 及以上返回“充足”；\n(3) 调用 sp_adjust 把“数码”类商品打九折，调用 sp_stock 查询 G03 的库存情况，并显示两个结果。",
+          "code": "-- goods(gno, gname, category, price, stock)\nINSERT INTO goods VALUES\n('G01','鼠标','数码',59,20),\n('G02','键盘','数码',129,0),\n('G03','台灯','家居',89,8),\n('G04','抱枕','家居',39,30);",
+          "points": ["(1) UPDATE … SET price = price * p_rate WHERE category = p_cat（1 分）", "(1) SET p_n = ROW_COUNT(); 取得修改的行数（1 分）", "(2) SELECT stock INTO 局部变量，CASE WHEN … ELSE … END CASE（1 分）", "(3) CALL 两个过程，用用户变量接收输出参数并 SELECT（1 分）"],
+          "answer": "DELIMITER $$\nCREATE PROCEDURE sp_adjust(IN p_cat VARCHAR(10),\n  IN p_rate DECIMAL(4,2), OUT p_n INT)\nBEGIN\n  UPDATE goods SET price = price * p_rate\n    WHERE category = p_cat;\n  SET p_n = ROW_COUNT();\nEND $$\nCREATE PROCEDURE sp_stock(IN p_gno CHAR(4),\n  OUT p_msg VARCHAR(10))\nBEGIN\n  DECLARE s INT DEFAULT NULL;\n  SELECT stock INTO s FROM goods\n    WHERE gno = p_gno;\n  CASE\n    WHEN s IS NULL THEN SET p_msg = '无此商品';\n    WHEN s = 0 THEN SET p_msg = '缺货';\n    WHEN s < 10 THEN SET p_msg = '库存紧张';\n    ELSE SET p_msg = '充足';\n  END CASE;\nEND $$\nDELIMITER ;\nCALL sp_adjust('数码', 0.9, @n);\nCALL sp_stock('G03', @m);\nSELECT @n, @m;",
+          "explain": "按样例数据，@n 为 2，@m 为“库存紧张”。CASE 语句没有 ELSE、又没有一个 WHEN 成立时会报 1339 Case not found for CASE statement，所以最好写上 ELSE。ROW_COUNT() 返回上一条 INSERT、UPDATE、DELETE 实际改变的行数，新值与旧值相同的行不计入。"
+        }
+      ]
+    },
+    {
+      "id": "04736-u07-l2",
+      "title": "循环语句、游标与存储函数",
+      "questions": [
+        {
+          "id": "04736-u07-l2-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "WHILE 循环",
+          "stem": "执行下面的语句后，SELECT @s 显示的结果是？",
+          "code": "DELIMITER $$\nCREATE PROCEDURE sp_sum(IN n INT, OUT s INT)\nBEGIN\n  DECLARE i INT DEFAULT 1;\n  SET s = 0;\n  WHILE i <= n DO\n    SET s = s + i;\n    SET i = i + 2;\n  END WHILE;\nEND $$\nDELIMITER ;\nCALL sp_sum(10, @s);\nSELECT @s;",
+          "options": ["55", "30", "25", "36"],
+          "answer": 2,
+          "explain": "i 从 1 开始，每次加 2，依次累加 1、3、5、7、9；i 变成 11 时 i <= 10 不成立，循环结束，s＝25。WHILE 先判断条件再执行循环体，条件一开始就不成立时一次也不执行。"
+        },
+        {
+          "id": "04736-u07-l2-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "REPEAT 循环",
+          "stem": "执行下面的语句后，SELECT @r 显示的结果是？",
+          "code": "DELIMITER $$\nCREATE PROCEDURE sp_rep(INOUT x INT)\nBEGIN\n  REPEAT\n    SET x = x * 2;\n  UNTIL x > 10\n  END REPEAT;\nEND $$\nDELIMITER ;\nSET @r = 20;\nCALL sp_rep(@r);\nSELECT @r;",
+          "options": ["20", "16", "80", "40"],
+          "answer": 3,
+          "explain": "REPEAT … UNTIL 先执行循环体再判断条件，循环体至少执行一次：20 先乘 2 得 40，再判断 40 > 10 成立，循环结束。若换成 WHILE x <= 10 DO … END WHILE，循环体一次也不执行，结果仍是 20。"
+        },
+        {
+          "id": "04736-u07-l2-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "LOOP、LEAVE 与 ITERATE",
+          "stem": "执行下面的语句后，SELECT @t 显示的结果是？",
+          "code": "DELIMITER $$\nCREATE PROCEDURE sp_loop(OUT t INT)\nBEGIN\n  DECLARE i INT DEFAULT 0;\n  SET t = 0;\n  lp: LOOP\n    SET i = i + 1;\n    IF i > 6 THEN LEAVE lp; END IF;\n    IF i % 3 = 0 THEN ITERATE lp; END IF;\n    SET t = t + i;\n  END LOOP lp;\nEND $$\nDELIMITER ;\nCALL sp_loop(@t);\nSELECT @t;",
+          "options": ["12", "21", "15", "6"],
+          "answer": 0,
+          "explain": "LOOP 本身没有结束条件，要用 LEAVE 标签 跳出；ITERATE 标签 跳过本次剩下的语句，开始下一次循环。i 为 3 和 6 时被跳过，累加的是 1＋2＋4＋5＝12；i 为 7 时执行 LEAVE，循环结束。"
+        },
+        {
+          "id": "04736-u07-l2-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "游标与 NOT FOUND 处理程序",
+          "stem": "存储过程用游标逐行读取 student 表，循环中反复执行 FETCH cur INTO v_sno, v_name;，但没有声明 NOT FOUND 处理程序。读完最后一行后再执行 FETCH，结果是？",
+          "options": ["变量保持最后一行的值，循环自动结束", "报错 1329：No data - zero rows fetched", "游标回到第一行重新读取", "变量被置为 NULL，继续循环"],
+          "answer": 1,
+          "explain": "游标没有更多的行时，FETCH 引发 NOT FOUND 条件，没有处理程序就以 1329 错误结束过程。通常声明 DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;，在循环中检查 done 来退出。"
+        },
+        {
+          "id": "04736-u07-l2-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "DECLARE 语句的顺序",
+          "stem": "在存储过程的 BEGIN … END 块中，局部变量、游标、处理程序的声明顺序，正确的是？",
+          "options": ["先游标，再变量，最后处理程序", "先处理程序，再游标，最后变量", "先变量，再游标，最后处理程序", "三者可以按任意顺序声明"],
+          "answer": 2,
+          "explain": "MySQL 要求变量（和条件）在游标之前声明，游标在处理程序之前声明，而且都要写在其他语句之前。顺序不对会报 1337 Variable or condition declaration after cursor or handler declaration，或 1338 Cursor declaration after handler declaration。"
+        },
+        {
+          "id": "04736-u07-l2-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "存储函数的特征子句",
+          "stem": "在 MySQL 8.0（默认开启二进制日志）中创建下面的函数，报错 1418：This function has none of DETERMINISTIC, NO SQL, or READS SQL DATA in its declaration…。正确的处理是？",
+          "code": "DELIMITER $$\nCREATE FUNCTION fn_cnt(p_dept VARCHAR(20))\n  RETURNS INT\nBEGIN\n  RETURN (SELECT COUNT(*) FROM student\n          WHERE sdept = p_dept);\nEND $$\nDELIMITER ;",
+          "options": ["把 RETURNS INT 改成 RETURN INT", "把 CREATE FUNCTION 改成 CREATE PROCEDURE", "去掉函数体外面的 BEGIN 和 END", "在 RETURNS INT 后面加上 READS SQL DATA"],
+          "answer": 3,
+          "explain": "开启二进制日志时，创建函数必须声明它的特征：只读数据写 READS SQL DATA，相同参数总得到相同结果写 DETERMINISTIC，不访问数据写 NO SQL；也可以由管理员执行 SET GLOBAL log_bin_trust_function_creators = 1。MySQL 5.7 默认不开二进制日志，不加也能建成。"
+        },
+        {
+          "id": "04736-u07-l2-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "创建与调用存储函数",
+          "stem": "学生选课库中有 student(sno, sname, ssex, sage, sdept) 和 sc(sno, cno, grade)，sc 的数据如下（student 中还有一名没有选课的学生 S05）。\n(1) 创建存储函数 fn_avg(p_sno CHAR(5))：返回该学生的平均成绩（保留 1 位小数），没有成绩时返回 0；\n(2) 用该函数查询每个学生的学号、姓名和平均成绩；\n(3) 删除该函数。",
+          "code": "-- sc(sno, cno, grade)\nINSERT INTO sc VALUES\n('S01','C01',92),('S01','C02',85),\n('S02','C01',88),('S03','C01',58),\n('S03','C04',90),('S04','C04',75);",
+          "points": ["(1) CREATE FUNCTION … RETURNS DECIMAL(5,1) READS SQL DATA（1 分）", "(1) SELECT ROUND(AVG(grade), 1) INTO 局部变量，为 NULL 时置 0（1 分）", "(1) 函数体中用 RETURN 返回结果（1 分）", "(2) SELECT sno, sname, fn_avg(sno) …；(3) DROP FUNCTION（1 分）"],
+          "answer": "DELIMITER $$\nCREATE FUNCTION fn_avg(p_sno CHAR(5))\n  RETURNS DECIMAL(5,1)\n  READS SQL DATA\nBEGIN\n  DECLARE a DECIMAL(5,1);\n  SELECT ROUND(AVG(grade), 1) INTO a\n    FROM sc WHERE sno = p_sno;\n  IF a IS NULL THEN SET a = 0; END IF;\n  RETURN a;\nEND $$\nDELIMITER ;\nSELECT sno, sname, fn_avg(sno) AS 平均成绩\n  FROM student;\nDROP FUNCTION fn_avg;",
+          "explain": "按样例数据，张明为 88.5，没有选课的 S05 为 0.0。函数的参数只写名字和类型，不写 IN；函数头部用 RETURNS 声明类型，函数体用 RETURN 返回值。READS SQL DATA 是为了在开启二进制日志的 8.0 上能建成，5.7 默认配置下可以不写。"
+        },
+        {
+          "id": "04736-u07-l2-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "使用游标的存储过程",
+          "stem": "商品表 goods(gno, gname, category, price, stock) 中的数据如下。\n(1) 创建存储过程 sp_low(OUT p_list VARCHAR(200))：用游标按商品编号顺序逐行读取库存少于 10 的商品，把它们的名称用逗号连接起来，通过 p_list 返回；\n(2) 调用该过程并显示结果。",
+          "code": "-- goods(gno, gname, category, price, stock)\nINSERT INTO goods VALUES\n('G01','鼠标','数码',59,20),\n('G02','键盘','数码',129,0),\n('G03','台灯','家居',89,8),\n('G04','抱枕','家居',39,30);",
+          "points": ["(1) 依次声明变量、游标和 NOT FOUND 处理程序（1 分）", "(1) OPEN 游标，FETCH … INTO 变量，用完 CLOSE（1 分）", "(1) 循环中用 CONCAT 拼接名称，读完时退出循环（1 分）", "(2) CALL sp_low(@s); SELECT @s;（1 分）"],
+          "answer": "DELIMITER $$\nCREATE PROCEDURE sp_low(OUT p_list VARCHAR(200))\nBEGIN\n  DECLARE v_name VARCHAR(30);\n  DECLARE done INT DEFAULT 0;\n  DECLARE cur CURSOR FOR\n    SELECT gname FROM goods\n    WHERE stock < 10 ORDER BY gno;\n  DECLARE CONTINUE HANDLER FOR NOT FOUND\n    SET done = 1;\n  SET p_list = '';\n  OPEN cur;\n  FETCH cur INTO v_name;\n  WHILE done = 0 DO\n    IF p_list = '' THEN\n      SET p_list = v_name;\n    ELSE\n      SET p_list = CONCAT(p_list, ',', v_name);\n    END IF;\n    FETCH cur INTO v_name;\n  END WHILE;\n  CLOSE cur;\nEND $$\nDELIMITER ;\nCALL sp_low(@s);\nSELECT @s;",
+          "explain": "按样例数据，结果是“键盘,台灯”。先 FETCH 一次再进入 WHILE，循环末尾再 FETCH；读完时处理程序把 done 置为 1，循环正常结束。也可以用 LOOP 加 LEAVE 来写。"
+        }
+      ]
+    }
+  ]
+}

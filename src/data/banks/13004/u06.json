@@ -1,0 +1,359 @@
+{
+  "course": "13004",
+  "unit": 6,
+  "title": "图的存储、遍历与应用",
+  "lessons": [
+    {
+      "id": "13004-u06-l1",
+      "title": "邻接矩阵、邻接表与图的遍历",
+      "questions": [
+        {
+          "id": "13004-u06-l1-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "邻接矩阵",
+          "stem": "建立无向图的邻接矩阵 G，读入一条边 (u, v) 后应执行？",
+          "options": [
+            "G[u][v] = G[v][u] = 1;",
+            "G[u][v] = 1;",
+            "G[u][u] = G[v][v] = 1;",
+            "G[v][u] = 0;"
+          ],
+          "answer": 0,
+          "explain": "无向图的边没有方向，(u, v) 和 (v, u) 是同一条边，邻接矩阵是对称的，两个位置都要置 1。只置 G[u][v] 是有向图（弧 <u, v>）的写法；带权图把 1 换成权值。"
+        },
+        {
+          "id": "13004-u06-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "邻接表",
+          "stem": "无向图的邻接表用头插法建立（新的边结点插在边表的最前面），边按 (0,1)、(0,2)、(0,3) 的次序读入。顶点 0 的边表从头到尾依次是？",
+          "options": [
+            "3 2 1",
+            "1 2 3",
+            "1 3 2",
+            "2 3 1"
+          ],
+          "answer": 0,
+          "explain": "头插法使后读入的边排在前面。遍历时邻接点按边表的次序访问，所以同一个图，邻接表的建法不同，DFS、BFS 序列也可能不同。想按读入次序排列就要用尾插法。"
+        },
+        {
+          "id": "13004-u06-l1-q3",
+          "type": "fill",
+          "level": "应用",
+          "kp": "图的深度优先搜索",
+          "stem": "无向图有顶点 0～5，边按 (0,1)、(0,2)、(1,3)、(1,4)、(2,4)、(3,5)、(4,5) 的次序读入，用头插法建立邻接表。从顶点 0 出发深度优先遍历（按边表的次序访问邻接点），序列是____。",
+          "answers": [
+            "0 2 4 5 3 1",
+            "0,2,4,5,3,1"
+          ],
+          "explain": "头插法建成的边表：0 为 2→1，2 为 4→0，4 为 5→2→1，5 为 4→3，3 为 5→1。从 0 出发依次访问 2、4、5，5 的下一个未访问邻接点是 3，3 再到 1。若用邻接矩阵按编号从小到大访问，序列是 0 1 3 5 4 2。"
+        },
+        {
+          "id": "13004-u06-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "图的广度优先搜索",
+          "stem": "广度优先搜索中，若顶点出队时才把 visited 置为 1（入队时不置），可能出现的问题是？",
+          "options": [
+            "有的顶点永远访问不到",
+            "队列的下标会变成负数",
+            "同一个顶点可能多次入队，被重复访问",
+            "遍历次序变成深度优先"
+          ],
+          "answer": 2,
+          "explain": "顶点在出队之前还没标记，可能又被别的顶点发现而再次入队。例如三角形 0-1-2 从 0 出发：0 出队时 1、2 入队，1 出队时 2 还没标记，又入队一次，输出成了 0 1 2 2。应在入队的同时置 visited 为 1。"
+        },
+        {
+          "id": "13004-u06-l1-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "图的遍历",
+          "stem": "main 中先调用 DFS 输出深度优先序列，再调用 BFS 输出广度优先序列，两者共用全局数组 visited，结果 BFS 的输出不对。应怎样修改？",
+          "options": [
+            "把 visited 改成 DFS 函数的局部变量",
+            "BFS 改为从编号最大的顶点出发",
+            "把 BFS 用的队列改成栈",
+            "调用 BFS 之前把 visited 全部重新置 0"
+          ],
+          "answer": 3,
+          "explain": "DFS 结束后，能到达的顶点都已标记为访问过，BFS 一开始就找不到未访问的邻接点。每次遍历之前都要把 visited 清零。visited 也不能当递归函数的局部变量，那样每层调用都是一份新的数组。"
+        },
+        {
+          "id": "13004-u06-l1-q6",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "邻接矩阵与深度优先搜索",
+          "stem": "编写程序：输入无向图的顶点数 n（≤ 20）、边数 e 和 e 条边（顶点编号 0～n-1），建立邻接矩阵。从顶点 0 出发深度优先遍历，邻接点按编号从小到大访问；图不连通时，再依次从编号最小的未访问顶点出发，直到所有顶点都访问过。输出遍历序列。\n样例输入：\n6 7\n0 1\n0 2\n1 3\n1 4\n2 4\n3 5\n4 5\n样例输出：\n0 1 3 5 4 2",
+          "answer": "#include <stdio.h>\n#define MAXV 20\nint G[MAXV][MAXV], visited[MAXV], n;\n\nvoid DFS(int v)\n{\n    int w;\n    printf(\"%d \", v);\n    visited[v] = 1;\n    for (w = 0; w < n; w++)\n        if (G[v][w] == 1 && !visited[w])\n            DFS(w);\n}\n\nint main(void)\n{\n    int e, u, v;\n    scanf(\"%d%d\", &n, &e);\n    while (e-- > 0) {\n        scanf(\"%d%d\", &u, &v);\n        G[u][v] = G[v][u] = 1;\n    }\n    for (v = 0; v < n; v++)\n        if (!visited[v])\n            DFS(v);\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "读入边 (u, v) 时 G[u][v]、G[v][u] 都置 1（2 分）",
+            "DFS：访问 v 并标记，再按编号顺序递归访问未访问的邻接点（3 分）",
+            "主函数对每个未访问的顶点调用 DFS，非连通图也能访问全部顶点（2 分）",
+            "visited 使用前全部为 0（全局数组或显式清零）（1 分）"
+          ],
+          "explain": "G、visited 定义成全局数组，初值都是 0。用邻接矩阵找邻接点要扫描一整行，时间复杂度 O(n²)。要加测一个不连通的图，例如 5 个顶点只有边 (0,1)、(2,3)，应输出 0 1 2 3 4。"
+        },
+        {
+          "id": "13004-u06-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "邻接表与广度优先搜索",
+          "stem": "编写程序：输入连通无向图的顶点数 n（≤ 20）、边数 e 和 e 条边，用头插法建立邻接表（每读入一条边 (u, v)，在 u 和 v 的边表最前面各插入一个结点）。从顶点 0 出发广度优先遍历，邻接点按边表的次序访问，输出遍历序列。\n样例输入：\n6 7\n0 1\n0 2\n1 3\n1 4\n2 4\n3 5\n4 5\n样例输出：\n0 2 1 4 3 5",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct ArcNode {\n    int adjvex;\n    struct ArcNode *next;\n} ArcNode;\nArcNode *adj[20];   /* 各顶点边表的头指针 */\nvoid AddArc(int u, int v)    /* 头插法 */\n{\n    ArcNode *p;\n    p = (ArcNode *)malloc(sizeof(ArcNode));\n    p->adjvex = v;\n    p->next = adj[u];\n    adj[u] = p;\n}\nint main(void)\n{\n    int n, e, u, v, Q[20], front = 0, rear = 0;\n    int visited[20] = {0};\n    ArcNode *p;\n    scanf(\"%d%d\", &n, &e);\n    while (e-- > 0) {\n        scanf(\"%d%d\", &u, &v);\n        AddArc(u, v);\n        AddArc(v, u);\n    }\n    visited[0] = 1;\n    Q[rear++] = 0;\n    while (front != rear) {\n        u = Q[front++];\n        printf(\"%d \", u);\n        for (p = adj[u]; p != NULL; p = p->next)\n            if (!visited[p->adjvex]) {\n                visited[p->adjvex] = 1;\n                Q[rear++] = p->adjvex;\n            }\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "边结点的定义正确，头插法：新结点的 next 指向原表头（3 分）",
+            "无向图的每条边在两个顶点的边表中各插入一次（1 分）",
+            "BFS：顶点入队时就标记 visited，出队时输出（2 分）",
+            "沿边表依次检查邻接点，未访问的入队（2 分）"
+          ],
+          "explain": "同一组边，用邻接矩阵按编号访问得到 0 1 2 3 4 5，用头插法建的邻接表得到 0 2 1 4 3 5，两者都对，区别只在邻接点的次序。每个顶点只入队一次，队列开 20 个单元就够了。"
+        }
+      ]
+    },
+    {
+      "id": "13004-u06-l2",
+      "title": "最小生成树：Prim 算法和 Kruskal 算法",
+      "questions": [
+        {
+          "id": "13004-u06-l2-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "Prim 算法",
+          "stem": "Prim 算法用 lowcost[v] 记录顶点 v 到当前生成树的最短边的权值，用 closest[v] 记录这条边在树内的端点。程序中把 lowcost[v] 置为 0 表示？",
+          "options": [
+            "v 与生成树之间没有边",
+            "v 是出发顶点的邻接点",
+            "v 的度为 0",
+            "顶点 v 已经加入生成树"
+          ],
+          "answer": 3,
+          "explain": "边的权值都是正数，就用 0 作为“已在树中”的标记；与树之间没有边时 lowcost 是 INF。每轮在 lowcost 不为 0 的顶点中选最小的，选中后把它的 lowcost 置 0。"
+        },
+        {
+          "id": "13004-u06-l2-q2",
+          "type": "fill",
+          "level": "应用",
+          "kp": "Prim 算法",
+          "stem": "带权无向图的输入数据如下（第一行是顶点数和边数，以下每行一条边 u v w）。从顶点 0 出发用 Prim 算法，顶点加入生成树的次序是____。",
+          "code": "6 10\n0 1 4\n0 2 3\n1 2 2\n1 3 7\n1 4 8\n2 3 10\n2 4 6\n3 4 5\n3 5 1\n4 5 9",
+          "answers": [
+            "0 2 1 4 3 5",
+            "0,2,1,4,3,5"
+          ],
+          "explain": "依次选中的边是 (0,2)=3、(2,1)=2、(2,4)=6、(4,3)=5、(3,5)=1，权值之和为 17。(3,5)=1 虽然最小，要等 3 进入生成树之后才能选；顶点 3 的最短边先后是 (2,3)=10、(1,3)=7，4 加入后改成了 (4,3)=5。"
+        },
+        {
+          "id": "13004-u06-l2-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "Prim 算法",
+          "stem": "下面是 Prim 算法中修改 lowcost 的程序段（树内顶点的 lowcost 为 0），横线处应填入的是？",
+          "code": "/* k 刚加入生成树，修改 lowcost 和 closest */\nfor (v = 0; v < n; v++)\n    if (G[k][v] < lowcost[v]) {\n        lowcost[v] = G[k][v];\n        ______;\n    }",
+          "options": [
+            "closest[v] = k",
+            "closest[k] = v",
+            "lowcost[k] = 0",
+            "closest[v] = v"
+          ],
+          "answer": 0,
+          "explain": "顶点 v 到树的最短边改成了 (k, v)，要记下树内的端点 k，最后才能输出这条边。条件里不用再判断 lowcost[v] != 0：树内顶点的 lowcost 是 0，正的权值不会小于它。"
+        },
+        {
+          "id": "13004-u06-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "Kruskal 算法",
+          "stem": "Kruskal 算法先用 qsort(E, e, sizeof(Edge), cmp) 把边按权值从小到大排序，比较函数 int cmp(const void *a, const void *b) 的函数体应写成？",
+          "options": [
+            "return ((Edge *)a)->w - ((Edge *)b)->w;",
+            "return ((Edge *)b)->w - ((Edge *)a)->w;",
+            "return a->w - b->w;",
+            "return ((Edge *)a)->w > ((Edge *)b)->w;"
+          ],
+          "answer": 0,
+          "explain": "qsort 要求：a 应排在前面时返回负数，相等返回 0，否则返回正数。b 减 a 就成了从大到小；a、b 是 void 指针，要先转换成 Edge * 才能用 ->（gcc 报 request for member ‘w’ in something not a structure or union）；用 > 只返回 0 或 1，不符合要求，即使碰巧排对了也没有保证。"
+        },
+        {
+          "id": "13004-u06-l2-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "Kruskal 算法",
+          "stem": "Kruskal 算法用 parent 数组表示各顶点所在的连通分量，Find(x) 沿 parent 找到分量的根。对边 (u, v)，若 Find(u) == Find(v)，说明？",
+          "options": [
+            "u、v 之间没有边",
+            "(u, v) 是当前权值最小的边",
+            "u、v 已经连通，再加 (u, v) 会构成回路",
+            "u、v 都还没有加入生成树"
+          ],
+          "answer": 2,
+          "explain": "parent 数组把每个连通分量组织成一棵树。根相同说明 u、v 已在同一个分量里，这条边要舍弃；根不同才选它，并把一个根挂到另一个根下（parent[r1] = r2），两个分量合并成一个。"
+        },
+        {
+          "id": "13004-u06-l2-q6",
+          "type": "fill",
+          "level": "应用",
+          "kp": "Kruskal 算法",
+          "stem": "对下面输入数据表示的带权无向图（每行一条边 u v w）用 Kruskal 算法求最小生成树，第一条因构成回路而被舍弃的边是____（写成 (u,v)）。",
+          "code": "6 10\n0 1 4\n0 2 3\n1 2 2\n1 3 7\n1 4 8\n2 3 10\n2 4 6\n3 4 5\n3 5 1\n4 5 9",
+          "answers": [
+            "(0,1)",
+            "(1,0)",
+            "0,1",
+            "1,0"
+          ],
+          "explain": "按权值从小到大依次考虑：(3,5)=1、(1,2)=2、(0,2)=3 都选中；(0,1)=4 的两个端点已经通过 2 连通，舍弃；再选 (3,4)=5、(2,4)=6，共 5 条边，权值之和 17，与 Prim 算法的结果相同。"
+        },
+        {
+          "id": "13004-u06-l2-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "Prim 算法",
+          "stem": "编写程序：输入连通带权无向图的顶点数 n（≤ 20）、边数 e 和 e 条边（u v w，权值为正整数），用邻接矩阵存储（没有边用 INF = 32767 表示）。从顶点 0 出发用 Prim 算法求最小生成树：按加入的次序，每行输出一条边“树内端点 新顶点 权值”，最后一行输出权值之和。\n样例输入：\n5 7\n0 1 2\n0 3 6\n1 2 3\n1 3 8\n1 4 5\n2 4 7\n3 4 9\n样例输出：\n0 1 2\n1 2 3\n1 4 5\n0 3 6\n16",
+          "answer": "#include <stdio.h>\n#define MAXV 20\n#define INF 32767\nint G[MAXV][MAXV];\nint main(void)\n{\n    int n, e, u, v, w, i, k = 0, min, sum = 0;\n    int lowcost[MAXV], closest[MAXV];\n    scanf(\"%d%d\", &n, &e);\n    for (u = 0; u < n; u++)\n        for (v = 0; v < n; v++)\n            G[u][v] = INF;\n    while (e-- > 0) {\n        scanf(\"%d%d%d\", &u, &v, &w);\n        G[u][v] = G[v][u] = w;\n    }\n    for (v = 0; v < n; v++) {\n        lowcost[v] = G[0][v];\n        closest[v] = 0;\n    }\n    lowcost[0] = 0;\n    for (i = 1; i < n; i++) {\n        min = INF;\n        for (v = 0; v < n; v++)\n            if (lowcost[v] && lowcost[v] < min) {\n                min = lowcost[v];\n                k = v;\n            }\n        printf(\"%d %d %d\\n\", closest[k], k, min);\n        sum += min;\n        lowcost[k] = 0;\n        for (v = 0; v < n; v++)\n            if (G[k][v] < lowcost[v]) {\n                lowcost[v] = G[k][v];\n                closest[v] = k;\n            }\n    }\n    printf(\"%d\\n\", sum);\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "邻接矩阵初始化为 INF，读入边时对称赋值（1 分）",
+            "lowcost、closest 用顶点 0 的那一行初始化，lowcost[0] = 0（2 分）",
+            "每轮选 lowcost 不为 0 的最小者 k，输出边并把 lowcost[k] 置 0（3 分）",
+            "用 k 的边修改其余顶点的 lowcost 和 closest（2 分）"
+          ],
+          "explain": "两重循环，时间复杂度 O(n²)，与边数无关，适合稠密图。INF 只要比所有权值都大即可。顶点 3 的最短边一开始是 (0,3)=6，后来出现的 (1,3)=8 不比它小，所以最后选的仍是 (0,3)。"
+        },
+        {
+          "id": "13004-u06-l2-q8",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "Kruskal 算法",
+          "stem": "编写程序：输入连通带权无向图的顶点数 n（≤ 20）、边数 e（≤ 100）和 e 条边（u v w，权值互不相同），用 Kruskal 算法求最小生成树：先用 qsort 把边按权值从小到大排序，再用 parent 数组判断回路。按选中的次序，每行输出一条边“u v w”，最后一行输出权值之和。\n样例输入：\n5 7\n0 1 2\n0 3 6\n1 2 3\n1 3 8\n1 4 5\n2 4 7\n3 4 9\n样例输出：\n0 1 2\n1 2 3\n1 4 5\n0 3 6\n16",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct {\n    int u, v, w;\n} Edge;\nint parent[20];\nint cmp(const void *a, const void *b)\n{\n    return ((Edge *)a)->w - ((Edge *)b)->w;\n}\nint Find(int x)\n{\n    while (parent[x] != -1)\n        x = parent[x];\n    return x;\n}\nint main(void)\n{\n    Edge E[100], *p;\n    int n, e, i, r1, r2, cnt = 0, sum = 0;\n    scanf(\"%d%d\", &n, &e);\n    for (p = E; p < E + e; p++)\n        scanf(\"%d%d%d\", &p->u, &p->v, &p->w);\n    for (i = 0; i < n; i++)\n        parent[i] = -1;\n    qsort(E, e, sizeof(Edge), cmp);\n    for (i = 0; i < e && cnt < n - 1; i++) {\n        p = &E[i];\n        r1 = Find(p->u);\n        r2 = Find(p->v);\n        if (r1 == r2)\n            continue;\n        parent[r1] = r2;\n        printf(\"%d %d %d\\n\", p->u, p->v, p->w);\n        sum += p->w;\n        cnt++;\n    }\n    printf(\"%d\\n\", sum);\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "边的结构体和比较函数正确，qsort 按权值递增排序（2 分）",
+            "parent 初始化为 -1，Find 沿 parent 找到根（2 分）",
+            "根不同才选边并合并两个分量（parent[r1] = r2），根相同就舍弃（3 分）",
+            "选够 n-1 条边就结束，输出权值之和（1 分）"
+          ],
+          "explain": "排序要 O(elog₂e)，适合边少的稀疏图。同一个图用 Prim 和 Kruskal 得到的边相同，只是选边的次序可能不同。Find 一直沿 parent 往上找，最基本的写法就够了。"
+        }
+      ]
+    },
+    {
+      "id": "13004-u06-l3",
+      "title": "最短路径与拓扑排序",
+      "questions": [
+        {
+          "id": "13004-u06-l3-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "Dijkstra 算法",
+          "stem": "Dijkstra 程序中 #define INF INT_MAX，并用 if (!s[v] && dist[u] + G[u][v] < dist[v]) 修改距离。u、v 之间没有弧（G[u][v] 为 INF）时，可能出现的问题是？",
+          "options": [
+            "INT_MAX 不能用作宏的值",
+            "dist 数组存不下 INT_MAX",
+            "使用 INT_MAX 要包含 math.h",
+            "dist[u] + INF 溢出成负数，条件被误判为真"
+          ],
+          "answer": 3,
+          "explain": "INT_MAX 加上正数超出了 int 的范围，属于未定义行为，实际运行时通常变成一个很小的负数，没有弧的顶点也被“修改”了。INF 可以取 32767 这样足够大、相加也不会溢出的数，或者先判断 G[u][v] < INF 再相加。INT_MAX 在 limits.h 中定义。"
+        },
+        {
+          "id": "13004-u06-l3-q2",
+          "type": "fill",
+          "level": "应用",
+          "kp": "Dijkstra 算法",
+          "stem": "带权有向图的输入数据如下（第一行是顶点数和弧数，以下每行一条弧 u v w）。用 Dijkstra 算法求顶点 0 到其余顶点的最短路径，其余顶点按求出最短路径的先后次序依次是____。",
+          "code": "6 10\n0 1 8\n0 2 3\n0 4 12\n1 3 2\n2 1 4\n2 3 9\n2 4 7\n3 5 5\n4 3 1\n4 5 10",
+          "answers": [
+            "2 1 3 4 5",
+            "2,1,3,4,5"
+          ],
+          "explain": "最短路径长度依次为：2 是 3，1 是 7（0→2→1），3 是 9（0→2→1→3），4 是 10（0→2→4），5 是 14（0→2→1→3→5）。直接的弧 <0,1>=8、<0,4>=12 都不是最短的。"
+        },
+        {
+          "id": "13004-u06-l3-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "Dijkstra 算法",
+          "stem": "Dijkstra 程序用 path[w] 记录从源点到 w 的最短路径上 w 的前一个顶点。要按从源点到 w 的次序输出这条路径，通常借助？",
+          "options": [
+            "栈（或递归），把找到的顶点倒过来输出",
+            "队列，按入队的次序输出",
+            "直接从 w 沿 path 依次输出",
+            "先把 path 数组排序再输出"
+          ],
+          "answer": 0,
+          "explain": "从 w 开始沿 path 往回找，得到的是 w、path[w]、path[path[w]]……直到源点，正好是倒序。把它们依次进栈再全部出栈，或者写一个先递归输出前驱、再输出自己的函数，就得到从源点到 w 的路径。"
+        },
+        {
+          "id": "13004-u06-l3-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "拓扑排序",
+          "stem": "用栈实现拓扑排序时，删去顶点 u 的出边写成了 if (G[u][v] && indegree[v]-- == 0) st[++top] = v;（应为 --indegree[v] == 0）。对一个有向无环图运行，结果是？",
+          "options": [
+            "结果不变",
+            "入度减到 0 的顶点进不了栈，程序误报有回路",
+            "每个顶点都进栈两次",
+            "编译出错"
+          ],
+          "answer": 1,
+          "explain": "后置 -- 先用原值比较再减 1，判断的是“减之前是不是 0”，入度从 1 减到 0 的顶点不会进栈。排序提前结束，输出的顶点数少于 n，被误判为有回路：例如 6 个顶点的无环图，只输出了 0 就报 cycle。"
+        },
+        {
+          "id": "13004-u06-l3-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "拓扑排序",
+          "stem": "有向无环图的输入数据如下（每行一条弧 u v）。拓扑排序程序把入度为 0 的顶点进栈，每次出栈一个顶点输出，按编号从小到大删去它的出边，入度变为 0 的顶点进栈。输出的拓扑序列是____。",
+          "code": "6 7\n0 1\n0 2\n1 3\n2 3\n2 4\n3 5\n4 5",
+          "answers": [
+            "0 2 4 1 3 5",
+            "0,2,4,1,3,5"
+          ],
+          "explain": "输出 0 后 1、2 的入度变为 0，先后进栈，栈顶是 2；输出 2 后 4 进栈（3 的入度还剩 1）；输出 4，再输出 1，这时 3 进栈；最后是 3、5。用队列代替栈得到 0 1 2 3 4 5，也是正确的拓扑序列。"
+        },
+        {
+          "id": "13004-u06-l3-q6",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "Dijkstra 算法",
+          "stem": "编写程序：输入带权有向图的顶点数 n（≤ 20）、弧数 e 和 e 条弧（u v w，权值为正整数），用邻接矩阵存储（没有弧用 INF = 32767），保证从顶点 0 能到达所有顶点。用 Dijkstra 算法求顶点 0 到其余顶点的最短路径长度，按求出的先后次序，每行输出“顶点 长度”。\n样例输入：\n4 5\n0 1 1\n0 2 4\n1 2 2\n2 3 1\n1 3 6\n样例输出：\n1 1\n2 3\n3 4",
+          "answer": "#include <stdio.h>\n#define MAXV 20\n#define INF 32767\n/* s[v] 为 1 表示 v 的最短路径已经求出 */\nint G[MAXV][MAXV], s[MAXV];\n\nint main(void)\n{\n    int n, e, u = 0, v, w, i, min, dist[MAXV];\n    scanf(\"%d%d\", &n, &e);\n    for (u = 0; u < n; u++)\n        for (v = 0; v < n; v++)\n            G[u][v] = INF;\n    while (e-- > 0) {\n        scanf(\"%d%d%d\", &u, &v, &w);\n        G[u][v] = w;\n    }\n    for (v = 0; v < n; v++)\n        dist[v] = G[0][v];\n    dist[0] = 0;\n    s[0] = 1;\n    for (i = 1; i < n; i++) {\n        min = INF;\n        for (v = 0; v < n; v++)\n            if (!s[v] && dist[v] < min) {\n                min = dist[v];\n                u = v;\n            }\n        s[u] = 1;\n        printf(\"%d %d\\n\", u, min);\n        for (v = 0; v < n; v++)\n            if (!s[v] && min + G[u][v] < dist[v])\n                dist[v] = min + G[u][v];\n    }\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "邻接矩阵初始化为 INF，dist 初值取顶点 0 的那一行（2 分）",
+            "每轮在未求出的顶点中选 dist 最小的 u，置 s[u] = 1（3 分）",
+            "用 u 修改其余未求出顶点：dist[u] + G[u][v] < dist[v] 时更新（2 分）",
+            "INF 取相加不会溢出的值，按求出次序输出（1 分）"
+          ],
+          "explain": "INF 取 32767，两个 INF 相加也不会超出 int 的范围。按求出的次序输出，可以看到 Dijkstra 算法是按路径长度递增的次序产生最短路径的。还要输出路径时，另设 path 数组记录前驱。"
+        },
+        {
+          "id": "13004-u06-l3-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "拓扑排序",
+          "stem": "编写程序：输入有向图的顶点数 n（≤ 20）、弧数 e 和 e 条弧（u v），用邻接矩阵存储，用栈实现拓扑排序：入度为 0 的顶点按编号从小到大进栈，每次出栈一个顶点输出，按编号从小到大删去它的出边，入度变为 0 的顶点进栈。输出拓扑序列；若图中有回路，在已输出的顶点后面输出 cycle。\n样例输入：\n4 3\n0 1\n1 2\n3 2\n样例输出：\n3 0 1 2",
+          "answer": "#include <stdio.h>\n#define MAXV 20\nint G[MAXV][MAXV], indegree[MAXV];\n\nint main(void)\n{\n    int n, e, u, v, st[MAXV], top = -1, cnt = 0;\n    scanf(\"%d%d\", &n, &e);\n    while (e-- > 0) {\n        scanf(\"%d%d\", &u, &v);\n        G[u][v] = 1;\n        indegree[v]++;\n    }\n    for (v = 0; v < n; v++)\n        if (indegree[v] == 0)\n            st[++top] = v;\n    while (top != -1) {\n        u = st[top--];\n        printf(\"%d \", u);\n        cnt++;\n        for (v = 0; v < n; v++)\n            if (G[u][v] && --indegree[v] == 0)\n                st[++top] = v;\n    }\n    if (cnt < n)\n        printf(\"cycle\");\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "读入弧时统计各顶点的入度（2 分）",
+            "入度为 0 的顶点进栈，栈不空时出栈输出并计数（2 分）",
+            "删去出边：入度减 1，减到 0 的顶点进栈（3 分）",
+            "输出的顶点数少于 n 时输出 cycle（1 分）"
+          ],
+          "explain": "--indegree[v] 要用前置减，先减再判断。用栈和用队列得到的序列可能不同，都是正确的拓扑序列，考试按题目规定的方法输出。要用带回路的图测试，例如 3 个顶点的环 0→1→2→0，应直接输出 cycle。"
+        }
+      ]
+    }
+  ]
+}

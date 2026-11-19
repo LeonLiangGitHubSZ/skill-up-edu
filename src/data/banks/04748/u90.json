@@ -1,0 +1,265 @@
+{
+  "course": "04748",
+  "unit": 90,
+  "title": "专项：上机模拟题",
+  "lessons": [
+    {
+      "id": "04748-u90-l1",
+      "title": "控制台编程",
+      "questions": [
+        {
+          "id": "04748-u90-l1-q1",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "循环的嵌套；方法调用语句",
+          "stem": "上机题：编写程序 Primes。从键盘输入两个正整数 m 和 n（不超过 10000；如果 m > n，先交换），输出 m～n（含 m、n）中的全部素数，每行 5 个，数之间用空格分隔；最后一行输出“共 k 个”。\n输入样例：10 30\n输出样例：\n11 13 17 19 23\n29\n共 6 个",
+          "points": [
+            "编写判断素数的方法 isPrime(n)：n < 2 不是素数，只需试除到 √n（2 分）",
+            "读入 m、n，m > n 时交换（1 分）",
+            "循环找出素数并计数，每输出 5 个换一行（3 分）",
+            "最后输出“共 k 个”；最后一行不满 5 个时也要先换行（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\npublic class Primes {\n  static boolean isPrime(int n) {\n    if (n < 2) return false;\n    for (int i = 2; i * i <= n; i++)\n      if (n % i == 0) return false;\n    return true;\n  }\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int m = sc.nextInt(), n = sc.nextInt();\n    if (m > n) {\n      int t = m; m = n; n = t;\n    }\n    int count = 0;\n    for (int i = m; i <= n; i++) {\n      if (isPrime(i)) {\n        if (count % 5 != 0)\n          System.out.print(\" \");\n        System.out.print(i);\n        count++;\n        if (count % 5 == 0) System.out.println();\n      }\n    }\n    if (count % 5 != 0) System.out.println();\n    System.out.println(\"共 \" + count + \" 个\");\n  }\n}",
+          "explain": "1 不是素数，2 是最小的素数，边界要单独想清楚。i * i <= n 等价于 i <= √n，比试除到 n - 1 快得多。素数个数正好是 5 的倍数时，最后一个数后面已经换行，不能再多输出一个空行。"
+        },
+        {
+          "id": "04748-u90-l1-q2",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "一维数组的使用；条件选择语句",
+          "stem": "上机题：编写程序 Scores。先输入学生人数 n（n ≥ 1），再输入 n 个成绩（0～100 的整数）。输出最高分、最低分、平均分（保留 1 位小数），以及优秀（90 分及以上）、及格（60～89 分）、不及格（60 分以下）的人数。\n输入样例：\n5\n95 78 60 59 88\n输出样例：\n最高分：95\n最低分：59\n平均分：76.0\n优秀 1 人，及格 3 人，不及格 1 人",
+          "points": [
+            "读入 n 和 n 个成绩，用循环累加总分（2 分）",
+            "求最高分、最低分：初值取第一个成绩或取 -1 / 101（2 分）",
+            "按 90、60 两个分界统计三类人数，边界 90 和 60 归类正确（2 分）",
+            "平均分用 (double) sum / n 计算并保留 1 位小数，输出格式与样例一致（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\npublic class Scores {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    int max = -1, min = 101, sum = 0;\n    int good = 0, pass = 0, fail = 0;\n    for (int i = 0; i < n; i++) {\n      int s = sc.nextInt();\n      sum += s;\n      if (s > max) max = s;\n      if (s < min) min = s;\n      if (s >= 90) good++;\n      else if (s >= 60) pass++;\n      else fail++;\n    }\n    double avg = (double) sum / n;\n    System.out.println(\"最高分：\" + max);\n    System.out.println(\"最低分：\" + min);\n    System.out.printf(\"平均分：%.1f%n\", avg);\n    System.out.println(\"优秀 \" + good + \" 人，及格 \"\n        + pass + \" 人，不及格 \" + fail + \" 人\");\n  }\n}",
+          "explain": "sum / n 是整数除法，会丢掉小数，必须先把一个操作数转换成 double。if-else if 从高到低判断，90 分只算优秀、不会再算及格。"
+        },
+        {
+          "id": "04748-u90-l1-q3",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "String 类；StringBuffer 类",
+          "stem": "上机题：编写程序 Capital。从键盘输入一行英文（单词之间可能有多个空格，行首行尾也可能有空格），输出单词个数，再把每个单词的首字母改为大写，单词之间用一个空格分隔后输出。输入空行时只输出“单词数：0”。\n输入样例：  hello   java world \n输出样例：\n单词数：3\nHello Java World",
+          "points": [
+            "用 nextLine() 读入整行，先用 trim() 去掉首尾空格，空行单独处理（2 分）",
+            "用 split(\"\\\\s+\") 按一个或多个空白分割出单词（2 分）",
+            "用 Character.toUpperCase() 和 substring(1) 把首字母改为大写（2 分）",
+            "用 StringBuffer（或字符串连接）组装结果，单词之间只留一个空格（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\npublic class Capital {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    String line = sc.nextLine().trim();\n    if (line.length() == 0) {\n      System.out.println(\"单词数：0\");\n      return;\n    }\n    String[] words = line.split(\"\\\\s+\");\n    StringBuffer sb = new StringBuffer();\n    for (int i = 0; i < words.length; i++) {\n      String w = words[i];\n      char c = Character.toUpperCase(w.charAt(0));\n      sb.append(c).append(w.substring(1));\n      if (i < words.length - 1) sb.append(\" \");\n    }\n    System.out.println(\"单词数：\" + words.length);\n    System.out.println(sb);\n  }\n}",
+          "explain": "不先 trim()，行首的空格会让 split() 得到一个空字符串元素；对空字符串调用 split() 得到的数组长度是 1 而不是 0，所以空行要单独判断。\"\\\\s+\" 在 Java 字符串里写成两个反斜杠，表示正则表达式 \\s+。"
+        },
+        {
+          "id": "04748-u90-l1-q4",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "StringBuffer 类；String 类",
+          "stem": "上机题：编写程序 Palindrome。从键盘输入一行字符串，先用 StringBuffer 把整行反转后输出，再判断它是不是回文：只比较其中的字母和数字，不区分大小写。\n输入样例：Was it a car or a cat I saw?\n输出样例：\n反转：?was I tac a ro rac a ti saW\n是回文",
+          "points": [
+            "用 StringBuffer 的 reverse() 反转整行并输出（2 分）",
+            "逐个字符用 Character.isLetterOrDigit() 筛选，并转换成小写（2 分）",
+            "比较筛选后的字符串与它的反转是否相同（2 分）",
+            "输出格式与样例一致（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\npublic class Palindrome {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    String s = sc.nextLine();\n    StringBuffer r = new StringBuffer(s);\n    System.out.println(\"反转：\" + r.reverse());\n    StringBuffer t = new StringBuffer();\n    for (int i = 0; i < s.length(); i++) {\n      char c = s.charAt(i);\n      if (Character.isLetterOrDigit(c))\n        t.append(Character.toLowerCase(c));\n    }\n    String a = t.toString();\n    String b = t.reverse().toString();\n    if (a.equals(b))\n      System.out.println(\"是回文\");\n    else\n      System.out.println(\"不是回文\");\n  }\n}",
+          "explain": "reverse() 会直接修改 StringBuffer 本身，所以要先用 toString() 保存原来的内容 a，再反转得到 b。比较字符串内容用 equals()，不能用 ==。"
+        },
+        {
+          "id": "04748-u90-l1-q5",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "一维数组的使用；方法调用语句",
+          "stem": "上机题：编写程序 DayOfYear。从键盘输入年、月、日三个整数（用空格分隔），输出这一天是这一年的第几天。月份不在 1～12 或日期超出当月天数时，输出“日期不合法”。闰年的规则：能被 4 整除但不能被 100 整除，或者能被 400 整除。\n输入样例：2024 3 1\n输出样例：第 61 天",
+          "points": [
+            "编写判断闰年的方法，条件写对（2 分）",
+            "用数组保存每月天数，闰年时 2 月为 29 天（2 分）",
+            "检查月、日是否合法，不合法时输出提示（2 分）",
+            "累加前 m - 1 个月的天数再加上 d（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\npublic class DayOfYear {\n  static boolean isLeap(int y) {\n    return (y % 4 == 0 && y % 100 != 0)\n        || y % 400 == 0;\n  }\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int y = sc.nextInt(), m = sc.nextInt();\n    int d = sc.nextInt();\n    int[] days = {31, 28, 31, 30, 31, 30,\n                  31, 31, 30, 31, 30, 31};\n    if (isLeap(y)) days[1] = 29;\n    if (m < 1 || m > 12 || d < 1\n        || d > days[m - 1]) {\n      System.out.println(\"日期不合法\");\n      return;\n    }\n    int total = d;\n    for (int i = 0; i < m - 1; i++)\n      total += days[i];\n    System.out.println(\"第 \" + total + \" 天\");\n  }\n}",
+          "explain": "|| 是短路运算：m 不在 1～12 时不会再计算 days[m - 1]，避免数组越界，所以判断月份的条件必须写在前面。1900 年能被 100 整除但不能被 400 整除，不是闰年。"
+        }
+      ]
+    },
+    {
+      "id": "04748-u90-l2",
+      "title": "面向对象编程",
+      "questions": [
+        {
+          "id": "04748-u90-l2-q1",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "用户自定义异常；类的声明；访问控制符",
+          "stem": "上机题：定义异常类 BankException（继承 Exception）和账户类 Account：余额 balance 为私有成员；deposit(double) 存款、withdraw(double) 取款，金额 ≤ 0 时抛出 BankException（信息“金额无效”），取款金额大于余额时抛出 BankException（信息“余额不足”）。主类 TestAccount 中账户初始余额 100，从键盘读入若干条命令：d 金额（存款）、w 金额（取款）、q（结束），每条命令成功时输出“余额：…”，失败时输出异常信息。\n输入样例：\nd 50\nw 30\nw 200\nd -5\nq\n输出样例：\n余额：150.0\n余额：120.0\n余额不足\n金额无效",
+          "points": [
+            "BankException 继承 Exception，构造方法调用 super(msg)（2 分）",
+            "balance 用 private 修饰，通过 getBalance() 读取（1 分）",
+            "deposit、withdraw 用 throws 声明，按条件 throw 异常对象；余额等于取款额时允许取款（3 分）",
+            "main 中循环读命令，用 try-catch 捕获并输出 getMessage()（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\nclass BankException extends Exception {\n  BankException(String m) { super(m); }\n}\nclass Account {\n  private double balance;\n  public Account(double b) { balance = b; }\n  public double getBalance() { return balance; }\n  void deposit(double x) throws BankException {\n    if (x <= 0)\n      throw new BankException(\"金额无效\");\n    balance += x;\n  }\n  void withdraw(double x) throws BankException {\n    if (x <= 0)\n      throw new BankException(\"金额无效\");\n    if (x > balance)\n      throw new BankException(\"余额不足\");\n    balance -= x;\n  }\n}\npublic class TestAccount {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    Account a = new Account(100);\n    while (true) {\n      String op = sc.next();\n      if (op.equals(\"q\")) break;\n      double amt = sc.nextDouble();\n      try {\n        if (op.equals(\"d\")) a.deposit(amt);\n        else a.withdraw(amt);\n      } catch (BankException e) {\n        System.out.println(e.getMessage());\n        continue;\n      }\n      System.out.println(\"余额：\" + a.getBalance());\n    }\n  }\n}",
+          "explain": "异常一旦抛出，方法中后面的 balance -= x 等语句都不执行，余额保持不变；main 中 catch 后用 continue 跳过输出余额的语句。取款条件写 x > balance，余额正好等于取款额时可以取，取完余额为 0.0。"
+        },
+        {
+          "id": "04748-u90-l2-q2",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "抽象类；抽象方法；覆盖；多态",
+          "stem": "上机题：定义抽象类 Employee（姓名 name；抽象方法 double earnings()；toString() 返回“姓名：工资”，工资保留 2 位小数），以及两个子类：Salaried（月薪制，工资 = 月薪）和 Hourly（计时制：工时不超过 40 时，工资 = 时薪 × 工时；超过 40 的部分按时薪的 1.5 倍计）。主类 Payroll 中用 Employee 数组存放：张三月薪 5000；李四时薪 50、工时 40；王五时薪 50、工时 45。逐个输出，最后输出工资总额。\n输出样例：\n张三：5000.00\n李四：2000.00\n王五：2375.00\n工资总额：9375.00",
+          "points": [
+            "Employee 声明为 abstract，earnings() 是抽象方法（2 分）",
+            "两个子类用 super(name) 调用父类构造方法，并覆盖 earnings()（2 分）",
+            "Hourly 的加班计算正确，工时正好 40 时不算加班（2 分）",
+            "用父类数组存放子类对象，循环输出并累加总额（2 分）"
+          ],
+          "answer": "abstract class Employee {\n  protected String name;\n  Employee(String n) { name = n; }\n  abstract double earnings();\n  public String toString() {\n    return String.format(\"%s：%.2f\", name,\n        earnings());\n  }\n}\nclass Salaried extends Employee {\n  private double salary;\n  Salaried(String n, double s) {\n    super(n); salary = s;\n  }\n  double earnings() { return salary; }\n}\nclass Hourly extends Employee {\n  private double wage, hours;\n  Hourly(String n, double w, double h) {\n    super(n);\n    wage = w; hours = h;\n  }\n  double earnings() {\n    if (hours <= 40) return wage * hours;\n    return wage * 40 + wage * 1.5 * (hours - 40);\n  }\n}\npublic class Payroll {\n  public static void main(String[] args) {\n    Employee[] e = { new Salaried(\"张三\", 5000),\n        new Hourly(\"李四\", 50, 40),\n        new Hourly(\"王五\", 50, 45) };\n    double total = 0;\n    for (int i = 0; i < e.length; i++) {\n      System.out.println(e[i]);\n      total += e[i].earnings();\n    }\n    System.out.printf(\"工资总额：%.2f%n\", total);\n  }\n}",
+          "explain": "toString() 中调用的 earnings() 是抽象方法，运行时执行的是子类的实现，这正是多态。println(e[i]) 会自动调用 toString()，toString() 必须写成 public。"
+        },
+        {
+          "id": "04748-u90-l2-q3",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "常用接口（Comparable）；对象的创建与使用",
+          "stem": "上机题：定义学生类 Student（学号 id、姓名 name、成绩 score），实现 Comparable<Student> 接口：按成绩从高到低排序，成绩相同时按学号从小到大。主类 Rank 先读入人数 n，再读入 n 行“学号 姓名 成绩”，用 Arrays.sort() 排序后，按“名次 学号 姓名 成绩”输出（名次按排序后的顺序编号 1、2、3……）。\n输入样例：\n4\n1003 王五 88\n1001 张三 92\n1004 赵六 88\n1002 李四 75\n输出样例：\n1 1001 张三 92\n2 1003 王五 88\n3 1004 赵六 88\n4 1002 李四 75",
+          "points": [
+            "Student 用 implements Comparable<Student> 实现 compareTo()（2 分）",
+            "compareTo() 先比成绩（高分在前），成绩相同再比学号（小号在前）（2 分）",
+            "读入数据，创建对象数组，调用 Arrays.sort()（2 分）",
+            "按格式输出名次和各项信息（2 分）"
+          ],
+          "answer": "import java.util.*;\nclass Student implements Comparable<Student> {\n  int id, score;\n  String name;\n  Student(int id, String name, int score) {\n    this.id = id;\n    this.name = name;\n    this.score = score;\n  }\n  public int compareTo(Student o) {\n    if (score != o.score) return o.score - score;\n    return id - o.id;\n  }\n}\npublic class Rank {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    Student[] a = new Student[n];\n    for (int i = 0; i < n; i++) {\n      int id = sc.nextInt();\n      String name = sc.next();\n      a[i] = new Student(id, name, sc.nextInt());\n    }\n    Arrays.sort(a);\n    for (int i = 0; i < n; i++) {\n      Student s = a[i];\n      System.out.println((i + 1) + \" \" + s.id\n          + \" \" + s.name + \" \" + s.score);\n    }\n  }\n}",
+          "explain": "compareTo() 返回负数表示当前对象排在前面。o.score - score 在当前对象分数高时为负，实现降序；id - o.id 实现学号升序。名次是下标加 1：写成 \"第\" + i + 1 会先连接成字符串，得到“第01”，所以要加括号写成 (i + 1)。"
+        },
+        {
+          "id": "04748-u90-l2-q4",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "Vector 类；类的声明；对象的使用",
+          "stem": "上机题：定义商品类 Item（名称 name、单价 price、数量 qty，方法 subtotal() 返回小计）。主类 Cart 从键盘读入若干行“名称 单价 数量”，以 end 结束，用 Vector<Item> 保存。然后逐个输出“名称：小计”，再输出总金额；总金额满 200 元（含 200）打九折，输出实付金额。金额都保留 2 位小数。\n输入样例：\n笔记本 12.5 4\n钢笔 35 2\n书包 89 1\nend\n输出样例：\n笔记本：50.00\n钢笔：70.00\n书包：89.00\n总金额：209.00\n实付：188.10",
+          "points": [
+            "Item 类有三个成员变量、构造方法和 subtotal()（2 分）",
+            "循环读入，遇到 end 结束，用 add() 把对象加入 Vector<Item>（2 分）",
+            "用 size() 和 get(i) 遍历，输出小计并累加总金额（2 分）",
+            "满 200 打九折（边界 200 也打折），用 printf 保留 2 位小数（2 分）"
+          ],
+          "answer": "import java.util.*;\nclass Item {\n  String name;\n  double price;\n  int qty;\n  Item(String n, double p, int q) {\n    name = n;\n    price = p;\n    qty = q;\n  }\n  double subtotal() { return price * qty; }\n}\npublic class Cart {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    Vector<Item> v = new Vector<Item>();\n    while (true) {\n      String n = sc.next();\n      if (n.equals(\"end\")) break;\n      double p = sc.nextDouble();\n      int q = sc.nextInt();\n      v.add(new Item(n, p, q));\n    }\n    double total = 0;\n    for (int i = 0; i < v.size(); i++) {\n      Item it = v.get(i);\n      System.out.printf(\"%s：%.2f%n\", it.name,\n          it.subtotal());\n      total += it.subtotal();\n    }\n    double pay = total;\n    if (total >= 200) pay = total * 0.9;\n    System.out.printf(\"总金额：%.2f%n\", total);\n    System.out.printf(\"实付：%.2f%n\", pay);\n  }\n}",
+          "explain": "用泛型 Vector<Item> 时，get(i) 直接得到 Item 对象；用不带泛型的 Vector，要写 (Item) v.get(i) 强制转换。金额用 double 计算会有微小误差，输出时用 %.2f 保留 2 位小数。"
+        },
+        {
+          "id": "04748-u90-l2-q5",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "类的声明；构造方法；方法的重载与调用",
+          "stem": "上机题：定义分数类 Fraction：分子、分母为私有 int 成员；构造方法中约分，分母为 0 时抛出 IllegalArgumentException（信息“分母不能为 0”），分母为负时把负号移到分子；方法 add(Fraction f) 返回两个分数的和（新对象）；toString() 返回“分子/分母”，分母为 1 时只返回分子。主类 TestFraction 读入四个整数 a b c d，输出 a/b + c/d 的结果。\n输入样例：1 2 1 3\n输出样例：1/2 + 1/3 = 5/6",
+          "points": [
+            "成员变量私有，构造方法检查分母为 0 并抛出异常（2 分）",
+            "用最大公约数约分，分母为负时调整符号；分子为 0 时结果为 0（2 分）",
+            "add() 按 a/b + c/d = (ad + cb)/bd 计算并返回新对象（2 分）",
+            "toString() 处理分母为 1 的情况，main 中捕获异常输出信息（2 分）"
+          ],
+          "answer": "import java.util.Scanner;\nclass Fraction {\n  private int num, den;\n  public Fraction(int n, int d) {\n    if (d == 0)\n      throw new IllegalArgumentException(\n          \"分母不能为 0\");\n    if (d < 0) { n = -n; d = -d; }\n    int g = gcd(Math.abs(n), d);\n    num = n / g;\n    den = d / g;\n  }\n  static int gcd(int a, int b) {\n    return b == 0 ? a : gcd(b, a % b);\n  }\n  public Fraction add(Fraction f) {\n    return new Fraction(num * f.den + f.num * den,\n        den * f.den);\n  }\n  public String toString() {\n    return den == 1 ? \"\" + num : num + \"/\" + den;\n  }\n}\npublic class TestFraction {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int a = sc.nextInt(), b = sc.nextInt();\n    int c = sc.nextInt(), d = sc.nextInt();\n    try {\n      Fraction f1 = new Fraction(a, b);\n      Fraction f2 = new Fraction(c, d);\n      System.out.println(f1 + \" + \" + f2 + \" = \"\n          + f1.add(f2));\n    } catch (IllegalArgumentException e) {\n      System.out.println(e.getMessage());\n    }\n  }\n}",
+          "explain": "分子为 0 时 gcd(0, d) = d，约分后得到 0/1，toString() 输出 0。add() 中的 f.den、f.num 虽然是私有成员，但在 Fraction 类自己的方法中可以访问。IllegalArgumentException 是运行时异常，构造方法不用写 throws。"
+        }
+      ]
+    },
+    {
+      "id": "04748-u90-l3",
+      "title": "界面编程",
+      "questions": [
+        {
+          "id": "04748-u90-l3-q1",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "常规组件；事件处理；常见异常的处理",
+          "stem": "上机题：编写简单计算器 Calc。窗口（FlowLayout）中依次放两个文本框、一个结果标签和“+”“-”“*”“/”四个按钮。在文本框中输入两个数，单击运算按钮后，标签显示“结果：…”（保留 2 位小数）；除数为 0 时显示“除数不能为 0”；输入的不是数字时显示“请输入数字”。\n示例：输入 7 和 2，单击“/”，标签显示“结果：3.50”。",
+          "points": [
+            "创建两个文本框、标签和四个按钮并加入窗口，关闭窗口时结束程序（2 分）",
+            "四个按钮注册同一个监听器，用 getActionCommand() 区分运算（2 分）",
+            "用 Double.parseDouble() 转换输入，按运算符计算，保留 2 位小数显示（2 分）",
+            "处理除数为 0 和 NumberFormatException 两种情况（2 分）"
+          ],
+          "answer": "import java.awt.*;\nimport java.awt.event.*;\nimport javax.swing.*;\npublic class Calc extends JFrame\n    implements ActionListener {\n  JTextField t1 = new JTextField(6);\n  JTextField t2 = new JTextField(6);\n  JLabel result = new JLabel(\"结果：\");\n  public Calc() {\n    super(\"计算器\");\n    setLayout(new FlowLayout());\n    add(t1); add(t2); add(result);\n    for (char c : \"+-*/\".toCharArray()) {\n      JButton b = new JButton(\"\" + c);\n      b.addActionListener(this);\n      add(b);\n    }\n    setDefaultCloseOperation(EXIT_ON_CLOSE);\n    setSize(360, 120); setVisible(true);\n  }\n  public void actionPerformed(ActionEvent e) {\n    String op = e.getActionCommand();\n    try {\n      double a = Double.parseDouble(t1.getText());\n      double b = Double.parseDouble(t2.getText());\n      double r = a / b;\n      if (op.equals(\"+\")) r = a + b;\n      if (op.equals(\"-\")) r = a - b;\n      if (op.equals(\"*\")) r = a * b;\n      String s = String.format(\"结果：%.2f\", r);\n      if (op.equals(\"/\") && b == 0) s = \"除数不能为 0\";\n      result.setText(s);\n    } catch (NumberFormatException ex) {\n      result.setText(\"请输入数字\");\n    }\n  }\n  public static void main(String[] args) {\n    new Calc();\n  }\n}",
+          "explain": "double 型除以 0 不会抛出异常，得到的是 Infinity 或 NaN，所以除数为 0 要自己判断。文本框为空时 parseDouble(\"\") 也抛出 NumberFormatException。"
+        },
+        {
+          "id": "04748-u90-l3-q2",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "常规组件（密码框）；事件处理（事件源）",
+          "stem": "上机题：编写登录窗口 Login。窗口用 4 行 2 列的 GridLayout，依次放“用户名：”标签、文本框、“密码：”标签、密码框、“登录”按钮、“重置”按钮和一个提示标签。单击“登录”：用户名 admin、密码 123456 时提示“登录成功”，否则提示“用户名或密码错误”，连续错 3 次后提示“错误 3 次，已锁定”并禁用“登录”按钮。单击“重置”清空两个输入框和提示。",
+          "points": [
+            "按要求布局：GridLayout(4, 2)，组件顺序正确（2 分）",
+            "两个按钮注册监听器，用 getSource() 区分“登录”和“重置”（2 分）",
+            "用 new String(pwd.getPassword()) 取得密码，用 equals() 比较（2 分）",
+            "统计失败次数，第 3 次失败时 setEnabled(false)；重置清空输入（2 分）"
+          ],
+          "answer": "import java.awt.*;\nimport java.awt.event.*;\nimport javax.swing.*;\npublic class Login extends JFrame\n    implements ActionListener {\n  JTextField user = new JTextField(10);\n  JPasswordField pwd = new JPasswordField(10);\n  JButton ok = new JButton(\"登录\");\n  JButton reset = new JButton(\"重置\");\n  JLabel msg = new JLabel();\n  int fails = 0;\n  public Login() {\n    setLayout(new GridLayout(4, 2, 5, 5));\n    add(new JLabel(\"用户名：\")); add(user);\n    add(new JLabel(\"密码：\")); add(pwd);\n    add(ok); add(reset); add(msg);\n    ok.addActionListener(this);\n    reset.addActionListener(this);\n    setDefaultCloseOperation(EXIT_ON_CLOSE);\n    setSize(280, 160); setVisible(true);\n  }\n  public void actionPerformed(ActionEvent e) {\n    if (e.getSource() == reset) {\n      user.setText(\"\"); pwd.setText(\"\");\n      msg.setText(\"\");\n      return;\n    }\n    String u = user.getText().trim();\n    String p = new String(pwd.getPassword());\n    if (u.equals(\"admin\") && p.equals(\"123456\")) {\n      msg.setText(\"登录成功\"); fails = 0;\n    } else if (++fails >= 3) {\n      msg.setText(\"错误 3 次，已锁定\");\n      ok.setEnabled(false);\n    } else msg.setText(\"用户名或密码错误\");\n  }\n  public static void main(String[] args) {\n    new Login();\n  }\n}",
+          "explain": "getPassword() 返回 char[]，不能直接和字符串比较。++fails 先加 1 再比较，第 3 次失败时条件成立；登录成功时把 fails 清零，统计的才是“连续”错误的次数。"
+        },
+        {
+          "id": "04748-u90-l3-q3",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "常规组件（单选按钮、复选框、组合框、文本区）",
+          "stem": "上机题：编写信息登记窗口 Register（FlowLayout）：“姓名”文本框；性别单选按钮“男”“女”（默认选“男”，二者互斥）；爱好复选框“阅读”“运动”“音乐”；城市组合框（南京、苏州、无锡）；“提交”按钮和一个文本区。单击“提交”后，文本区分四行显示：姓名：…、性别：…、爱好：…（多个爱好用空格分隔，一个都没选显示“无”）、城市：…。",
+          "points": [
+            "两个单选按钮加入同一个 ButtonGroup，默认选中“男”（2 分）",
+            "创建复选框、组合框和文本区，加入窗口（2 分）",
+            "用 isSelected() 判断单选按钮和复选框，用 getSelectedItem() 取得城市（2 分）",
+            "按四行格式显示到文本区，没有爱好时显示“无”（2 分）"
+          ],
+          "answer": "import java.awt.*;\nimport java.awt.event.*;\nimport javax.swing.*;\npublic class Register extends JFrame\n    implements ActionListener {\n  JTextField name = new JTextField(8);\n  JRadioButton male = new JRadioButton(\"男\", true);\n  JRadioButton female = new JRadioButton(\"女\");\n  JCheckBox[] hobby = { new JCheckBox(\"阅读\"),\n      new JCheckBox(\"运动\"), new JCheckBox(\"音乐\") };\n  String[] cities = {\"南京\", \"苏州\", \"无锡\"};\n  JComboBox<String> cb = new JComboBox<>(cities);\n  JTextArea info = new JTextArea(4, 20);\n  public Register() {\n    setLayout(new FlowLayout());\n    add(new JLabel(\"姓名\")); add(name);\n    ButtonGroup g = new ButtonGroup();\n    g.add(male); g.add(female);\n    add(male); add(female);\n    for (JCheckBox c : hobby) add(c);\n    JButton ok = new JButton(\"提交\");\n    ok.addActionListener(this);\n    add(cb); add(ok); add(info);\n    setDefaultCloseOperation(EXIT_ON_CLOSE);\n    setSize(300, 240); setVisible(true);\n  }\n  public void actionPerformed(ActionEvent e) {\n    String h = \"\";\n    for (JCheckBox c : hobby)\n      if (c.isSelected()) h += c.getText() + \" \";\n    if (h.equals(\"\")) h = \"无\";\n    String sex = male.isSelected() ? \"男\" : \"女\";\n    info.setText(\"姓名：\" + name.getText()\n        + \"\\n性别：\" + sex + \"\\n爱好：\" + h.trim()\n        + \"\\n城市：\" + cb.getSelectedItem());\n  }\n  public static void main(String[] args) {\n    new Register();\n  }\n}",
+          "explain": "ButtonGroup 只负责让单选按钮互斥，按钮本身还要加入窗口。new JComboBox<>(数组) 用数组的元素作为选项，getSelectedItem() 返回 Object，与字符串连接时自动调用 toString()。"
+        },
+        {
+          "id": "04748-u90-l3-q4",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "菜单和菜单项；常规组件（文本区）",
+          "stem": "上机题：编写简易文本编辑器 Editor：窗口中部是带滚动条的文本区，南部是状态标签（初始显示“就绪”）；菜单栏上有“编辑”菜单，含“大写”“小写”“统计”“清空”四个菜单项。“大写”“小写”把文本区中的英文字母全部转换成大写、小写；“统计”在状态标签显示“字符数：n”；“清空”清除文本区内容。",
+          "points": [
+            "创建 JMenuBar、JMenu、JMenuItem，用 setJMenuBar() 放到窗口上（2 分）",
+            "文本区放进 JScrollPane 后放在中部，状态标签放在南部（2 分）",
+            "四个菜单项注册监听器，用 getActionCommand() 区分（2 分）",
+            "用 toUpperCase()、toLowerCase()、length() 和 setText() 完成各功能（2 分）"
+          ],
+          "answer": "import java.awt.*;\nimport java.awt.event.*;\nimport javax.swing.*;\npublic class Editor extends JFrame\n    implements ActionListener {\n  JTextArea area = new JTextArea();\n  JLabel status = new JLabel(\"就绪\");\n  public Editor() {\n    super(\"文本编辑\");\n    JMenuBar bar = new JMenuBar();\n    JMenu edit = new JMenu(\"编辑\");\n    String[] items = {\"大写\", \"小写\", \"统计\", \"清空\"};\n    for (String s : items) {\n      JMenuItem mi = new JMenuItem(s);\n      mi.addActionListener(this);\n      edit.add(mi);\n    }\n    bar.add(edit);\n    setJMenuBar(bar);\n    JScrollPane sp = new JScrollPane(area);\n    add(sp, BorderLayout.CENTER);\n    add(status, BorderLayout.SOUTH);\n    setDefaultCloseOperation(EXIT_ON_CLOSE);\n    setSize(360, 240);\n    setVisible(true);\n  }\n  public void actionPerformed(ActionEvent e) {\n    String op = e.getActionCommand();\n    String t = area.getText();\n    if (op.equals(\"大写\")) t = t.toUpperCase();\n    else if (op.equals(\"小写\")) t = t.toLowerCase();\n    else if (op.equals(\"清空\")) t = \"\";\n    else status.setText(\"字符数：\" + t.length());\n    area.setText(t);\n  }\n  public static void main(String[] args) {\n    new Editor();\n  }\n}",
+          "explain": "菜单项和按钮一样产生 ActionEvent，动作命令默认是菜单项的文字。String 的 toUpperCase() 返回新字符串，要用 setText() 写回文本区。length() 统计的字符数包括空格和换行。"
+        },
+        {
+          "id": "04748-u90-l3-q5",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "常规组件；事件处理；Math 类",
+          "stem": "上机题：编写猜数字游戏 Guess：程序随机产生一个 1～100 的整数；窗口中有一个文本框、“猜”按钮和提示标签。单击“猜”：输入的不是 1～100 的整数时提示“请输入 1～100 的整数”（不计次数）；比答案大提示“大了”，小提示“小了”；猜中提示“猜对了！共猜了 n 次”，并重新产生一个数、次数清零，开始新的一局。",
+          "points": [
+            "用 (int) (Math.random() * 100) + 1 产生 1～100 的随机整数（2 分）",
+            "按钮注册监听器，读入并转换输入，非整数和超出范围都给出提示（2 分）",
+            "比较大小并给出“大了”“小了”提示，正确统计次数（2 分）",
+            "猜中后显示次数，重新产生随机数并把次数清零（2 分）"
+          ],
+          "answer": "import java.awt.*;\nimport java.awt.event.*;\nimport javax.swing.*;\npublic class Guess extends JFrame\n    implements ActionListener {\n  JTextField input = new JTextField(5);\n  JLabel tip = new JLabel(\"请输入 1～100 的整数\");\n  int secret = (int) (Math.random() * 100) + 1;\n  int count = 0;\n  public Guess() {\n    super(\"猜数字\");\n    setLayout(new FlowLayout());\n    JButton btn = new JButton(\"猜\");\n    btn.addActionListener(this);\n    add(input); add(btn); add(tip);\n    setDefaultCloseOperation(EXIT_ON_CLOSE);\n    setSize(360, 100); setVisible(true);\n  }\n  public void actionPerformed(ActionEvent e) {\n    String s = input.getText().trim();\n    int n;\n    try { n = Integer.parseInt(s); }\n    catch (NumberFormatException ex) { n = 0; }\n    if (n < 1 || n > 100) {\n      tip.setText(\"请输入 1～100 的整数\");\n      return;\n    }\n    count++;\n    if (n > secret) tip.setText(\"大了\");\n    else if (n < secret) tip.setText(\"小了\");\n    else {\n      tip.setText(\"猜对了！共猜了 \" + count + \" 次\");\n      secret = (int) (Math.random() * 100) + 1;\n      count = 0;\n    }\n  }\n  public static void main(String[] args) {\n    new Guess();\n  }\n}",
+          "explain": "Math.random() 返回 [0, 1) 之间的 double，乘以 100 再取整得到 0～99，加 1 得到 1～100。也可以用 java.util.Random 的 nextInt(100) + 1。"
+        }
+      ]
+    }
+  ]
+}

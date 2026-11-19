@@ -1,0 +1,94 @@
+{
+  "course": "04736",
+  "unit": 8,
+  "title": "触发器",
+  "lessons": [
+    {
+      "id": "04736-u08-l1",
+      "title": "触发器的创建、激活与 NEW、OLD",
+      "questions": [
+        {
+          "id": "04736-u08-l1-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "创建触发器的语法",
+          "stem": "要在 sc 表上创建一个“插入每一行之前”执行的触发器，语句的开头正确的是？",
+          "options": ["CREATE TRIGGER tr_sc BEFORE INSERT ON sc FOR EACH ROW", "CREATE TRIGGER tr_sc ON sc BEFORE INSERT FOR EACH ROW", "CREATE TRIGGER tr_sc BEFORE INSERT ON sc", "CREATE TRIGGER tr_sc FOR INSERT ON sc EACH ROW"],
+          "answer": 0,
+          "explain": "格式为 CREATE TRIGGER 触发器名 {BEFORE | AFTER} {INSERT | UPDATE | DELETE} ON 表名 FOR EACH ROW 触发动作。MySQL 只支持行级触发器，FOR EACH ROW 不能省略；触发器只能建在基本表上，不能建在视图上。"
+        },
+        {
+          "id": "04736-u08-l1-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "BEFORE 与 AFTER 触发器",
+          "stem": "在 AFTER INSERT 触发器中写了 SET NEW.grade = 0;，创建时报错 1362：Updating of NEW row is not allowed in after trigger。要在成绩写入表之前修正它，应该？",
+          "options": ["把 NEW.grade 改为 OLD.grade", "把触发器改为 BEFORE INSERT", "改用 UPDATE sc SET grade = 0 …", "在 SET 语句前面加上 BEGIN"],
+          "answer": 1,
+          "explain": "行写入之后就不能再改 NEW 的值，修改要插入（或修改后）的值只能在 BEFORE 触发器中用 SET NEW.列名 = …。INSERT 触发器中没有 OLD（引用会报 1363），而在触发器里修改本表会报 1442。"
+        },
+        {
+          "id": "04736-u08-l1-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "触发器中不能修改本表",
+          "stem": "在 goods 表上创建了 AFTER UPDATE 触发器，触发动作是一条修改 goods 自己的 UPDATE 语句。创建成功后，执行一条 UPDATE goods 语句，结果是？",
+          "options": ["触发器被反复激活，直到条件不满足", "触发动作被忽略，原来的 UPDATE 正常完成", "报错 1442，原来的 UPDATE 也没有执行成功", "原来的 UPDATE 完成后，触发动作再执行一次"],
+          "answer": 2,
+          "explain": "MySQL 不允许在触发器（以及被语句调用的存储函数）中修改正在被该语句使用的表，错误在触发器被激活时才出现，原来的 UPDATE 也随之失败。要改本行的值，用 BEFORE 触发器加 SET NEW.列名 = …；修改别的表没有这个限制。"
+        },
+        {
+          "id": "04736-u08-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "触发器的激活与执行效果",
+          "stem": "goods 中 G01 的库存为 50，orders 表上只有下面这一个触发器。执行下面的语句后，G01 的库存是多少？",
+          "code": "CREATE TRIGGER tr_order AFTER INSERT ON orders\nFOR EACH ROW\n  UPDATE goods SET stock = stock - NEW.qty\n  WHERE gno = NEW.gno;\nINSERT INTO orders(gno, qty)\n  VALUES ('G01', 3), ('G01', 5);\nDELETE FROM orders WHERE gno = 'G01';",
+          "options": ["50", "47", "45", "42"],
+          "answer": 3,
+          "explain": "FOR EACH ROW 对每一行执行一次：插入两行，库存先后减 3 和 5，变为 42；表上没有 DELETE 触发器，删除订单不会把库存加回来。触发动作只有一条语句时，可以不写 BEGIN … END。"
+        },
+        {
+          "id": "04736-u08-l1-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "查看与删除触发器",
+          "stem": "查看当前数据库中已定义的触发器：SHOW ____;",
+          "answers": ["TRIGGERS"],
+          "explain": "SHOW TRIGGERS 列出触发器的名字、事件、所在表、时机和触发动作；删除用 DROP TRIGGER [IF EXISTS] 触发器名;。MySQL 没有 ALTER TRIGGER，要修改就先删除再重建。"
+        },
+        {
+          "id": "04736-u08-l1-q6",
+          "type": "fill",
+          "level": "领会",
+          "kp": "触发器中的 OLD",
+          "stem": "在 emp 表的 AFTER UPDATE 触发器中，要取得某职工修改之前的工资，应写成____.salary。",
+          "answers": ["OLD"],
+          "explain": "UPDATE 触发器中 OLD 表示修改前的行，NEW 表示修改后的行；INSERT 触发器只有 NEW，DELETE 触发器只有 OLD。OLD 的值只能读，不能修改。"
+        },
+        {
+          "id": "04736-u08-l1-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "用 BEFORE 触发器修正数据",
+          "stem": "选课表 sc(sno, cno, grade)。\n(1) 创建触发器 tr_sc_ins：插入选课记录之前，成绩小于 0 的改为 0，大于 100 的改为 100；\n(2) 创建触发器 tr_sc_upd：修改选课记录之前做同样的处理；\n(3) 插入 ('S01','C01',105) 和 ('S02','C01',-3) 两行，再把 S02 的 C01 成绩改为 120，最后查询 sc 验证结果。",
+          "points": ["(1) BEFORE INSERT ON sc FOR EACH ROW（1 分）", "(1) IF … SET NEW.grade = 0 … ELSEIF … END IF（1 分）", "(2) BEFORE UPDATE 触发器，处理方法相同（1 分）", "(3) INSERT 两行、UPDATE，再 SELECT 查看（1 分）"],
+          "answer": "DELIMITER $$\nCREATE TRIGGER tr_sc_ins BEFORE INSERT ON sc\nFOR EACH ROW\nBEGIN\n  IF NEW.grade < 0 THEN SET NEW.grade = 0;\n  ELSEIF NEW.grade > 100 THEN\n    SET NEW.grade = 100;\n  END IF;\nEND $$\nCREATE TRIGGER tr_sc_upd BEFORE UPDATE ON sc\nFOR EACH ROW\nBEGIN\n  IF NEW.grade < 0 THEN SET NEW.grade = 0;\n  ELSEIF NEW.grade > 100 THEN\n    SET NEW.grade = 100;\n  END IF;\nEND $$\nDELIMITER ;\nINSERT INTO sc VALUES ('S01', 'C01', 105),\n                      ('S02', 'C01', -3);\nUPDATE sc SET grade = 120\n  WHERE sno = 'S02' AND cno = 'C01';\nSELECT * FROM sc;",
+          "explain": "执行后 S01、S02 的 C01 成绩都是 100：S02 插入时被改为 0，修改为 120 时又被改成 100。触发动作有多条语句（含 IF）时要放在 BEGIN … END 中，并修改结束符；两个触发器可以在同一个 DELIMITER $$ 范围内连续创建。"
+        },
+        {
+          "id": "04736-u08-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "用 AFTER 触发器记录日志",
+          "stem": "职工表 emp(eno CHAR(4) 主键, ename VARCHAR(20), salary DECIMAL(8,2))。\n(1) 创建工资日志表 sal_log(id 自增主键, eno, old_sal, new_sal, op_time)；\n(2) 创建触发器 tr_sal：职工工资被修改、且新旧值不同时，把工号、修改前后的工资和当前时间记入 sal_log；\n(3) 创建触发器 tr_emp_del：删除职工后，在 sal_log 中记一条 new_sal 为空的记录；\n(4) 把 E001 的工资加 500、删除 E002，然后查询 sal_log。",
+          "points": ["(1) id INT AUTO_INCREMENT PRIMARY KEY，其余列类型合理（1 分）", "(2) AFTER UPDATE ON emp，IF NEW.salary <> OLD.salary（1 分）", "(2) INSERT … VALUES (OLD.eno, OLD.salary, NEW.salary, NOW())（1 分）", "(3) AFTER DELETE 触发器中用 OLD 取被删职工的数据（1 分）", "(4) UPDATE、DELETE 后查询 sal_log 验证（1 分）"],
+          "answer": "CREATE TABLE sal_log (\n  id      INT AUTO_INCREMENT PRIMARY KEY,\n  eno     CHAR(4),\n  old_sal DECIMAL(8,2),\n  new_sal DECIMAL(8,2),\n  op_time DATETIME\n);\nDELIMITER $$\nCREATE TRIGGER tr_sal AFTER UPDATE ON emp\nFOR EACH ROW\nBEGIN\n  IF NEW.salary <> OLD.salary THEN\n    INSERT INTO sal_log(eno, old_sal,\n      new_sal, op_time)\n    VALUES (OLD.eno, OLD.salary,\n      NEW.salary, NOW());\n  END IF;\nEND $$\nDELIMITER ;\nCREATE TRIGGER tr_emp_del AFTER DELETE ON emp\nFOR EACH ROW\n  INSERT INTO sal_log(eno, old_sal, op_time)\n  VALUES (OLD.eno, OLD.salary, NOW());\nUPDATE emp SET salary = salary + 500\n  WHERE eno = 'E001';\nDELETE FROM emp WHERE eno = 'E002';\nSELECT * FROM sal_log;",
+          "explain": "执行后 sal_log 中有 2 行：E001 的工资变动和 E002 的删除记录。UPDATE 触发器中 OLD、NEW 都能用，DELETE 触发器中只有 OLD；只有一条语句的触发动作不需要 BEGIN … END，也就不必修改结束符。"
+        }
+      ]
+    }
+  ]
+}

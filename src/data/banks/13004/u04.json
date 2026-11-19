@@ -1,0 +1,244 @@
+{
+  "course": "13004",
+  "unit": 4,
+  "title": "二叉树",
+  "lessons": [
+    {
+      "id": "13004-u04-l1",
+      "title": "按先序序列建立二叉树与递归遍历",
+      "questions": [
+        {
+          "id": "13004-u04-l1-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "按先序序列建立二叉链表",
+          "stem": "下面的建树函数用 scanf(\"%c\", &ch) 逐个读入扩展先序序列（# 表示空树）。如果输入时在字符之间加了空格，如 A B # # #，结果是？",
+          "code": "BiTree Create(void)\n{\n    BiTree T;\n    char ch;\n    scanf(\"%c\", &ch);\n    if (ch == '#')\n        return NULL;\n    T = (BiTNode *)malloc(sizeof(BiTNode));\n    T->data = ch;\n    T->lchild = Create();\n    T->rchild = Create();\n    return T;\n}",
+          "options": [
+            "scanf 会自动跳过空格，结果不受影响",
+            "编译时报错",
+            "空格也被当作结点读入，建出的树不对",
+            "空格被当作 #，表示空树"
+          ],
+          "answer": 2,
+          "explain": "%c 不跳过空白字符，空格、换行都会被当成结点的数据读进来，树建错了，程序还可能停下来等待更多输入。输入时字符之间不要加空格；或者改成 scanf(\" %c\", &ch)，%c 前面的空格会跳过所有空白字符。"
+        },
+        {
+          "id": "13004-u04-l1-q2",
+          "type": "fill",
+          "level": "应用",
+          "kp": "按先序序列建立二叉链表",
+          "stem": "按扩展先序序列 ABD##E##C#F## 建立二叉树（# 表示空树），它的中序遍历序列是____。",
+          "answers": [
+            "DBEACF"
+          ],
+          "explain": "A 的左子树对应 BD##E##：B 的左、右孩子是 D、E；A 的右子树对应 C#F##：C 没有左孩子，右孩子是 F。中序遍历得 DBEACF，后序遍历得 DEBFCA。"
+        },
+        {
+          "id": "13004-u04-l1-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "按先序序列建立二叉链表",
+          "stem": "含 n 个结点的二叉树，它的扩展先序序列（空树用 # 表示）共有多少个字符？",
+          "options": [
+            "2n+1",
+            "2n",
+            "n+1",
+            "2n-1"
+          ],
+          "answer": 0,
+          "explain": "n 个结点的二叉链表有 n+1 个空指针，每个空指针对应一个 #，共 n + (n+1) = 2n+1 个字符。输入时少了 #，建树函数就会停下来等待输入。"
+        },
+        {
+          "id": "13004-u04-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "按先序序列建立二叉链表",
+          "stem": "下面的建树函数先建右子树、后建左子树。输入扩展先序序列 ABD##E##C#F##，建出的二叉树与按正常次序建出的相比？",
+          "code": "BiTree Create(void)\n{\n    BiTree T;\n    char ch;\n    scanf(\"%c\", &ch);\n    if (ch == '#')\n        return NULL;\n    T = (BiTNode *)malloc(sizeof(BiTNode));\n    T->data = ch;\n    T->rchild = Create();\n    T->lchild = Create();\n    return T;\n}",
+          "options": [
+            "完全相同",
+            "左右子树互换，成为原来那棵树的镜像",
+            "变成只有右子树的单支树",
+            "建树失败，程序一直等待输入"
+          ],
+          "answer": 1,
+          "explain": "读入的次序没变，只是第一个子序列被当成了右子树：A 的右子树是 B（右孩子 D、左孩子 E），左子树是 C（左孩子 F）。每个结点的左右都反了，中序序列由 DBEACF 变成了 FCAEBD。"
+        },
+        {
+          "id": "13004-u04-l1-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "二叉树遍历算法的应用",
+          "stem": "二叉树 T 已按扩展先序序列 ABD##E##C#F## 建好（结构定义略），执行下面的程序，输出____。",
+          "code": "int n0 = 0;\nvoid Leaf(BiTree T)\n{\n    if (T == NULL)\n        return;\n    if (T->lchild == NULL && T->rchild == NULL)\n        n0++;\n    Leaf(T->lchild);\n    Leaf(T->rchild);\n}\n/* main 中，T 已按 ABD##E##C#F## 建好： */\nLeaf(T);\nprintf(\"%d \", n0);\nLeaf(T);\nprintf(\"%d\\n\", n0);",
+          "answers": [
+            "3 6",
+            "3,6"
+          ],
+          "explain": "全局变量 n0 只在定义时初始化一次，第二次调用前没有清零，叶子数在 3 的基础上又加了 3。每次统计前都要 n0 = 0;，或者改用返回值的递归写法：return Leaf(T->lchild) + Leaf(T->rchild);。"
+        },
+        {
+          "id": "13004-u04-l1-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "求二叉树的高度",
+          "stem": "关于下面求二叉树高度的函数，说法正确的是？",
+          "code": "int Depth(BiTree T)\n{\n    if (T == NULL)\n        return 0;\n    return Depth(T->lchild) > Depth(T->rchild)\n           ? Depth(T->lchild) + 1\n           : Depth(T->rchild) + 1;\n}",
+          "options": [
+            "结果总比实际高度大 1",
+            "空树时返回 1",
+            "会无限递归，导致栈溢出",
+            "结果正确，但子树的高度被重复计算，效率很低"
+          ],
+          "answer": 3,
+          "explain": "比较时已经把左右子树的高度各算了一遍，返回时又重新递归一次，层数一多调用次数成倍增加：20 个结点的单支树要调用 300 多万次，先存进变量再比较只要 41 次。应写成 hl = Depth(T->lchild); hr = Depth(T->rchild); 再返回较大者加 1。"
+        },
+        {
+          "id": "13004-u04-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "二叉树的建立与递归遍历",
+          "stem": "编写程序：输入一行扩展先序序列（结点数据为字母，# 表示空树，中间没有空格），建立二叉链表，然后依次输出先序、中序、后序遍历序列，各占一行。\n样例输入：\nABD##E##C#F##\n样例输出：\nABDECF\nDBEACF\nDEBFCA",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct BiTNode {\n    char data;\n    struct BiTNode *lchild, *rchild;\n} BiTNode, *BiTree;\nBiTree Create(void)\n{\n    BiTree T;\n    char ch = getchar();\n    if (ch == '#')\n        return NULL;\n    T = (BiTNode *)malloc(sizeof(BiTNode));\n    T->data = ch;\n    T->lchild = Create();\n    T->rchild = Create();\n    return T;\n}\n/* k 为 0、1、2 时分别做先序、中序、后序遍历 */\nvoid Order(BiTree T, int k)\n{\n    if (T == NULL)\n        return;\n    if (k == 0) putchar(T->data);\n    Order(T->lchild, k);\n    if (k == 1) putchar(T->data);\n    Order(T->rchild, k);\n    if (k == 2) putchar(T->data);\n}\n\nint main(void)\n{\n    BiTree T = Create();\n    int k;\n    for (k = 0; k < 3; k++) {\n        Order(T, k);\n        putchar('\\n');\n    }\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "读到 # 返回 NULL，否则申请结点并存入数据（2 分）",
+            "按先序次序递归建立左子树、右子树（2 分）",
+            "三种遍历访问根的时机正确：先序在前、中序在中间、后序在最后（3 分）",
+            "空树（只输入 #）时不出错（1 分）"
+          ],
+          "explain": "参考答案用一个带参数 k 的函数完成三种遍历，可以看出它们的区别只是访问根的时机；写成 PreOrder、InOrder、PostOrder 三个函数也可以。建树也可以写成 void Create(BiTree *T)，递归时传 &(*T)->lchild。"
+        },
+        {
+          "id": "13004-u04-l1-q8",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "二叉树遍历算法的应用",
+          "stem": "下面程序输入扩展先序序列（# 表示空树）建立二叉树，第一行输出中序序列，第二行输出结点个数。程序中有 3 处错误，找出并改正（不得增删行）。\n样例输入：\nABD##E##C#F##\n样例输出：\nDBEACF\n6",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct BiTNode {\n    char data;\n    struct BiTNode *lchild, *rchild;\n} BiTNode, *BiTree;\nBiTree Create(void)\n{\n    BiTree T;\n    char ch = getchar();\n    if (ch == '#')\n        return NULL;\n    T = (BiTNode *)malloc(sizeof(BiTree));\n    T->data = ch;\n    T->lchild = Create();\n    T->rchild = Create();\n    return T;\n}\nvoid InOrder(BiTree T)\n{\n    if (T == NULL)\n        return;\n    InOrder(T->lchild);\n    putchar(T->data);\n    InOrder(T->lchild);\n}\nint Num(BiTree T)      /* 求结点个数 */\n{\n    if (T == NULL)\n        return 0;\n    return Num(T->lchild) + Num(T->rchild);\n}\n\nint main(void)\n{\n    BiTree T = Create();\n    InOrder(T);\n    printf(\"\\n%d\\n\", Num(T));\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct BiTNode {\n    char data;\n    struct BiTNode *lchild, *rchild;\n} BiTNode, *BiTree;\nBiTree Create(void)\n{\n    BiTree T;\n    char ch = getchar();\n    if (ch == '#')\n        return NULL;\n    T = (BiTNode *)malloc(sizeof(BiTNode));\n    T->data = ch;\n    T->lchild = Create();\n    T->rchild = Create();\n    return T;\n}\nvoid InOrder(BiTree T)\n{\n    if (T == NULL)\n        return;\n    InOrder(T->lchild);\n    putchar(T->data);\n    InOrder(T->rchild);\n}\nint Num(BiTree T)      /* 求结点个数 */\n{\n    if (T == NULL)\n        return 0;\n    return Num(T->lchild) + Num(T->rchild) + 1;\n}\n\nint main(void)\n{\n    BiTree T = Create();\n    InOrder(T);\n    printf(\"\\n%d\\n\", Num(T));\n    return 0;\n}",
+          "points": [
+            "malloc 的大小改为 sizeof(BiTNode)（原来只有指针那么大）（3 分）",
+            "InOrder 的第二个递归调用改为 InOrder(T->rchild)（3 分）",
+            "Num 的返回值要再加 1（根结点本身）（4 分）"
+          ],
+          "explain": "第 1 处编译时不一定报错（新版 gcc 会给出 allocation of insufficient size 警告），运行时写 lchild、rchild 就越界了。第 3 处的写法对任何树都返回 0：递归到底只会返回 0，加起来还是 0。"
+        }
+      ]
+    },
+    {
+      "id": "13004-u04-l2",
+      "title": "非递归遍历与层次遍历",
+      "questions": [
+        {
+          "id": "13004-u04-l2-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "中序遍历的非递归算法",
+          "stem": "用栈实现中序遍历的非递归算法：p 不空时进栈并令 p = p->lchild；p 为空时出栈得到 p，接下来应？",
+          "options": [
+            "令 p = p->rchild，再访问 p",
+            "访问 p，再令 p = p->lchild",
+            "访问 p，再令 p = p->rchild",
+            "访问 p，再把 p 的双亲进栈"
+          ],
+          "answer": 2,
+          "explain": "结点出栈说明它的左子树已经遍历完，按“左、根、右”该访问它，再转去遍历它的右子树。右子树为空时 p 为 NULL，下一轮接着出栈。"
+        },
+        {
+          "id": "13004-u04-l2-q2",
+          "type": "fill",
+          "level": "应用",
+          "kp": "中序遍历的非递归算法",
+          "stem": "结点类型 BiTNode 的定义如下，非递归遍历用的栈要保存结点的地址，栈数组应定义为 ____ st[100];。",
+          "code": "typedef struct BiTNode {\n    char data;\n    struct BiTNode *lchild, *rchild;\n} BiTNode, *BiTree;",
+          "answers": [
+            "BiTNode *",
+            "BiTree",
+            "struct BiTNode *"
+          ],
+          "explain": "栈里存的是结点指针，出栈后才能找到这个结点的右孩子。若定义成 char st[100] 只存数据，出栈后就找不到它的孩子了。"
+        },
+        {
+          "id": "13004-u04-l2-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "先序遍历的非递归算法",
+          "stem": "下面的非递归先序遍历函数先让左孩子进栈、再让右孩子进栈。对按扩展先序序列 ABD##E##C#F## 建立的二叉树调用它，输出是？",
+          "code": "void PreOrder(BiTree T)\n{\n    BiTNode *st[50], *p;\n    int top = -1;\n    if (T == NULL)\n        return;\n    st[++top] = T;\n    while (top != -1) {\n        p = st[top--];\n        putchar(p->data);\n        if (p->lchild != NULL)\n            st[++top] = p->lchild;\n        if (p->rchild != NULL)\n            st[++top] = p->rchild;\n    }\n}",
+          "options": [
+            "ABDECF",
+            "ACFBED",
+            "DBEACF",
+            "ABCDEF"
+          ],
+          "answer": 1,
+          "explain": "栈是后进先出，后进栈的右孩子先出栈，结果成了“根、右、左”的次序。正确的写法是先让右孩子进栈、再让左孩子进栈，这样才得到先序序列 ABDECF。"
+        },
+        {
+          "id": "13004-u04-l2-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "二叉树的层次遍历",
+          "stem": "层次遍历时，队头结点 p 出队并访问后，接下来应？",
+          "options": [
+            "依次把 p 的非空右孩子、左孩子入队",
+            "把 p 的左孩子入队，右孩子进栈",
+            "把 p 的所有子孙结点依次入队",
+            "依次把 p 的非空左孩子、右孩子入队"
+          ],
+          "answer": 3,
+          "explain": "同一层先访问左边的结点，它的孩子也要排在前面，所以按先左后右的次序把非空孩子入队。空指针不入队，否则出队后访问 p->data 会出错。"
+        },
+        {
+          "id": "13004-u04-l2-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "二叉树的层次遍历",
+          "stem": "按扩展先序序列 AB#DE###CF### 建立二叉树，它的层次遍历序列是____。",
+          "answers": [
+            "ABCDFE"
+          ],
+          "explain": "A 的左孩子 B 没有左子树，右孩子是 D，D 的左孩子是 E；A 的右孩子 C 只有左孩子 F。按层从上到下、每层从左到右：A；B、C；D、F；E。"
+        },
+        {
+          "id": "13004-u04-l2-q6",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "二叉树的层次遍历",
+          "stem": "编写程序：输入一行扩展先序序列（结点数据为字母，# 表示空树，结点数不超过 100），建立二叉链表，用队列按层次遍历，输出层次序列。\n样例输入：\nABD##E##C#F##\n样例输出：\nABCDEF",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct BiTNode {\n    char data;\n    struct BiTNode *lchild, *rchild;\n} BiTNode, *BiTree;\n\nBiTree Create(void)\n{\n    BiTree T;\n    char ch = getchar();\n    if (ch == '#')\n        return NULL;\n    T = (BiTNode *)malloc(sizeof(BiTNode));\n    T->data = ch;\n    T->lchild = Create();\n    T->rchild = Create();\n    return T;\n}\n\nint main(void)\n{\n    BiTree Q[100], p, T = Create();\n    int front = 0, rear = 0;\n    if (T != NULL)\n        Q[rear++] = T;\n    while (front != rear) {\n        p = Q[front++];\n        putchar(p->data);\n        if (p->lchild != NULL)\n            Q[rear++] = p->lchild;\n        if (p->rchild != NULL)\n            Q[rear++] = p->rchild;\n    }\n    putchar('\\n');\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "按扩展先序序列递归建立二叉链表（2 分）",
+            "队列中存放结点指针，根不空时先入队（2 分）",
+            "出队并访问，再依次把非空的左、右孩子入队（3 分）",
+            "空树时输出空行，不出错（1 分）"
+          ],
+          "explain": "每个结点只入队一次，结点数不超过 100 时用普通数组做队列就够了；结点多、数组小时要改成循环队列。用单支树（如 A#B#C##）和满二叉树各测一次。"
+        },
+        {
+          "id": "13004-u04-l2-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "中序遍历的非递归算法",
+          "stem": "编写程序：输入一行扩展先序序列（结点数据为字母，# 表示空树，结点数不超过 100），建立二叉链表，用栈实现中序遍历的非递归算法，输出中序序列。\n样例输入：\nABD##E##C#F##\n样例输出：\nDBEACF",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct BiTNode {\n    char data;\n    struct BiTNode *lchild, *rchild;\n} BiTNode, *BiTree;\n\nBiTree Create(void)\n{\n    BiTree T;\n    char ch = getchar();\n    if (ch == '#')\n        return NULL;\n    T = (BiTNode *)malloc(sizeof(BiTNode));\n    T->data = ch;\n    T->lchild = Create();\n    T->rchild = Create();\n    return T;\n}\n\nint main(void)\n{\n    BiTree st[100], p = Create();\n    int top = -1;\n    while (p != NULL || top != -1) {\n        if (p != NULL) {\n            st[++top] = p;\n            p = p->lchild;\n        } else {\n            p = st[top--];\n            putchar(p->data);\n            p = p->rchild;\n        }\n    }\n    putchar('\\n');\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "栈中存放结点指针，循环条件为 p 不空或栈不空（2 分）",
+            "p 不空：进栈，p 指向左孩子（2 分）",
+            "p 为空：出栈并访问，p 指向右孩子（3 分）",
+            "空树时输出空行，不出错（1 分）"
+          ],
+          "explain": "循环条件不能只写 top != -1：一开始栈就是空的，根出栈后栈也可能是空的，而右子树还没遍历。把 putchar 移到进栈之前，就成了非递归的先序遍历。"
+        }
+      ]
+    }
+  ]
+}

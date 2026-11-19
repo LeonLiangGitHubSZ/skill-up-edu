@@ -110,7 +110,7 @@ function paceLine(p: Pace): string {
 function Urgency({ pace, name }: { pace: Pace; name: string }) {
   const at = pace.examAt;
   const plan = STUDY_PLAN.find((p) => p.code === pace.code);
-  const slot = plan ? sessionById(plan.session)?.slots[pace.code] : undefined;
+  const slot = plan?.session ? sessionById(plan.session)?.slots[pace.code] : undefined;
   const when = at ? `${at.getMonth() + 1}/${at.getDate()}（周${WEEKDAY[at.getDay()]}）${slot ? SLOT_LABEL[slot].slice(2) : ""}` : "";
   return (
     <div className={`urg ${pace.level}`}>
@@ -132,7 +132,7 @@ function Urgency({ pace, name }: { pace: Pace; name: string }) {
 
 function RegistrationNotice() {
   const { state, update } = useStore();
-  const session = sessionById(STUDY_PLAN[0].session);
+  const session = sessionById(STUDY_PLAN[0].session ?? "");
   const reg = session?.registration;
   if (!session || !reg || state.registered[session.id]) return null;
   const today = dayKey();

@@ -1,0 +1,44 @@
+{
+  "course": "00899",
+  "unit": 5,
+  "title": "Cookie与会话跟踪",
+  "lessons": [
+    {
+      "id": "00899-u05-l1",
+      "title": "Cookie的读写与会话跟踪",
+      "questions": [
+        { "id": "00899-u05-l1-q1", "type": "single", "level": "应用", "kp": "Cookie的创建和语法、传送给客户端的方法",
+          "stem": "要把用户名tom用Cookie在客户端保存7天，下面四种写法中正确的是？",
+          "code": "① Cookie c = new Cookie(\"user\", \"tom\");\n  c.setMaxAge(7 * 24 * 60 * 60);\n  response.addCookie(c);\n② Cookie c = new Cookie(\"user\", \"tom\");\n  c.setMaxAge(7);\n  response.addCookie(c);\n③ Cookie c = new Cookie(\"user\", \"tom\");\n  c.setMaxAge(7 * 24 * 60 * 60);\n  request.addCookie(c);\n④ Cookie c = new Cookie(\"user=tom\");\n  c.setMaxAge(7 * 24 * 60 * 60);\n  response.addCookie(c);",
+          "options": ["写法②", "写法①", "写法③", "写法④"], "answer": 1,
+          "explain": "Cookie的构造方法有两个参数（名字、值）；setMaxAge()的单位是秒，7天是7 * 24 * 60 * 60；Cookie要通过response.addCookie()随响应发给浏览器，request没有addCookie()方法。" },
+        { "id": "00899-u05-l1-q2", "type": "single", "level": "识记", "kp": "读写Cookie（读取Cookie）",
+          "stem": "在JSP中读取浏览器发来的名为user的Cookie，正确的做法是？",
+          "options": ["直接调用request.getCookie(\"user\")", "用response.getCookies()得到数组后遍历", "用request.getCookies()得到数组，遍历找名字为user的", "调用session.getCookie(\"user\")"], "answer": 2,
+          "explain": "request.getCookies()返回浏览器发来的全部Cookie，一个都没有时返回null；遍历时用getName()比较名字，再用getValue()取值。没有按名字取单个Cookie的方法。" },
+        { "id": "00899-u05-l1-q3", "type": "fill", "level": "识记", "kp": "操作Cookie的常用方法（删除Cookie）",
+          "stem": "要删除浏览器中名为user的Cookie，可以新建一个同名的Cookie，调用setMaxAge(____)后再用response.addCookie()发给浏览器。",
+          "answers": ["0"],
+          "explain": "maxAge为0表示立即删除；同名（并且path相同）的Cookie会替换浏览器中原有的那个；maxAge为负数（默认-1）表示临时Cookie，关闭浏览器就失效。" },
+        { "id": "00899-u05-l1-q4", "type": "single", "level": "应用", "kp": "Cookie的主要方法（Cookie值中的非法字符）",
+          "stem": "在Tomcat 9中访问下面的页面，结果是？",
+          "code": "<%@ page contentType=\"text/html;charset=UTF-8\"\n    import=\"java.text.*,java.util.*\" %>\n<%\n  SimpleDateFormat f = new SimpleDateFormat(\n      \"yyyy-MM-dd HH:mm:ss\");\n  String now = f.format(new Date());\n  Cookie c = new Cookie(\"last\", now);\n  response.addCookie(c);\n%>\n已保存",
+          "options": ["正常保存，页面显示“已保存”", "编译出错，Cookie的值不能是字符串", "能保存，但每次刷新页面都会被删除", "抛出IllegalArgumentException，提示Cookie值中有非法字符"], "answer": 3,
+          "explain": "格式化后的时间中间有空格。Tomcat 9按RFC 6265检查Cookie值，空格、逗号、分号、双引号、反斜杠等不能直接出现在值中，addCookie()时抛出异常。可以改存毫秒数，或用URLEncoder.encode()编码后再保存。" },
+        { "id": "00899-u05-l1-q5", "type": "fill", "level": "识记", "kp": "会话追踪4种方式的工作及优缺点（URL重写）",
+          "stem": "浏览器禁用了Cookie时，为了保持会话，页面中的超链接地址要用response.____(\"cart.jsp\")处理，让地址后面带上会话ID。",
+          "answers": ["encodeURL"],
+          "explain": "encodeURL()在需要时把;jsessionid=…附加到地址后面，这就是URL重写；重定向的地址用encodeRedirectURL()处理。会话追踪还可以用Cookie、隐藏表单域和session对象。" },
+        { "id": "00899-u05-l1-q6", "type": "single", "level": "领会", "kp": "Cookie的有效周期及其设置（默认周期）",
+          "stem": "创建Cookie后没有调用setMaxAge()，就用response.addCookie()发给了浏览器，这个Cookie会？",
+          "options": ["保存在浏览器内存中，关闭浏览器后失效", "在客户端的硬盘上永久保存", "保存30分钟后失效", "不会被发送给浏览器"], "answer": 0,
+          "explain": "Cookie默认的maxAge是-1，表示临时Cookie（会话Cookie），只存在于浏览器的内存中；要保存一段时间，必须用setMaxAge()设置正的秒数。" },
+        { "id": "00899-u05-l1-q7", "type": "short", "form": "综合应用", "level": "应用", "kp": "Cookie的各种应用；Cookie的遍历（记录上次访问时间）",
+          "stem": "编写last.jsp：第一次访问时显示“欢迎首次访问本站”；以后再访问时显示“您上次访问的时间是：yyyy-MM-dd HH:mm:ss”。上次访问的时间用名为lastTime的Cookie保存30天（Cookie中存毫秒数）。",
+          "points": ["用request.getCookies()取得全部Cookie，判断不为null后遍历", "用getName()找到lastTime，用getValue()取出上次的时间", "新建Cookie保存当前的毫秒数，setMaxAge(30 * 24 * 60 * 60)", "用response.addCookie()把Cookie发给浏览器", "第一次访问显示欢迎信息，否则用SimpleDateFormat把毫秒数格式化后显示"],
+          "answer": "<%-- last.jsp --%>\n<%@ page contentType=\"text/html;charset=UTF-8\"\n    import=\"java.util.*,java.text.*\" %>\n<%\n  String last = null;\n  Cookie[] cookies = request.getCookies();\n  if (cookies != null) {\n    for (Cookie c : cookies) {\n      if (\"lastTime\".equals(c.getName())) {\n        last = c.getValue();\n      }\n    }\n  }\n  String now = \"\" + System.currentTimeMillis();\n  Cookie c = new Cookie(\"lastTime\", now);\n  c.setMaxAge(30 * 24 * 60 * 60);\n  response.addCookie(c);\n  if (last == null) {\n    out.print(\"欢迎首次访问本站\");\n  } else {\n    SimpleDateFormat f = new SimpleDateFormat(\n        \"yyyy-MM-dd HH:mm:ss\");\n    Date d = new Date(Long.parseLong(last));\n    out.print(\"您上次访问的时间是：\" + f.format(d));\n  }\n%>",
+          "explain": "格式化后的时间中有空格，不能直接作为Cookie的值（Tomcat 9会抛出IllegalArgumentException），所以保存毫秒数，显示时再格式化。读到的是浏览器带来的上一次的值，写出的是这一次的值。" }
+      ]
+    }
+  ]
+}

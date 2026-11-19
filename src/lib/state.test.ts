@@ -118,4 +118,32 @@ describe("填空判分", () => {
     expect(checkFill("主键。", ["主键"])).toBe(true);
     expect(checkFill("-1/2", ["−1/2"])).toBe(true);
   });
+
+  it("答案带英文引号时引号要一致，iPhone 的弯引号也算；不带引号的答案仍忽略引号", () => {
+    expect(checkFill("ch - '0'", ["ch - '0'"])).toBe(true);
+    expect(checkFill("ch-0", ["ch - '0'"])).toBe(false);
+    expect(checkFill("ch - ‘0’", ["ch - '0'"])).toBe(true);
+    expect(checkFill('"r"', ['"r"'])).toBe(true);
+    expect(checkFill("r", ['"r"'])).toBe(false);
+    expect(checkFill("'r'", ['"r"'])).toBe(false);
+    expect(checkFill("“r”", ['"r"'])).toBe(true);
+    expect(checkFill('"%d"', ["%d"])).toBe(true);
+    expect(checkFill("\\0", ["'\\0'", "\\0", "空字符"])).toBe(true);
+    expect(checkFill("'0'", ["'\\0'", "\\0", "空字符"])).toBe(false);
+    expect(checkFill("“三个代表”", ["三个代表"])).toBe(true);
+  });
+
+  it("程序填空（代码里有空）：引号一律要一致；读程序写结果仍宽松", () => {
+    const blank = "if (n > 0 && s[n - 1] == '\\n')\n  ______;";
+    const answers = ["s[n - 1] = '\\0'", "s[n - 1] = 0"];
+    expect(checkFill("s[n-1]=0", answers, blank)).toBe(true);
+    expect(checkFill("s[n-1]='\\0'", answers, blank)).toBe(true);
+    expect(checkFill("s[n-1]='0'", answers, blank)).toBe(false);
+    expect(checkFill("s[n-1]=‘0’", answers, blank)).toBe(false);
+    expect(checkFill('"%d"', ["%d"], 'printf("______", x);')).toBe(false);
+    expect(checkFill(" i < N ", ["i<n"], "for (i = 0; ______; i++)")).toBe(true);
+    const program = "int main(void) { printf(\"50%%\"); }";
+    expect(checkFill("“算术异常”", ["算术异常"], program)).toBe(true);
+    expect(checkFill('"50%"', ["50%"], program)).toBe(true);
+  });
 });

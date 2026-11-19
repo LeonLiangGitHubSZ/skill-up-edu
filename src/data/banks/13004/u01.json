@@ -1,0 +1,358 @@
+{
+  "course": "13004",
+  "unit": 1,
+  "title": "顺序表和单链表",
+  "lessons": [
+    {
+      "id": "13004-u01-l1",
+      "title": "顺序表的建立、插入、删除和查找",
+      "questions": [
+        {
+          "id": "13004-u01-l1-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "顺序表基本操作的实现",
+          "stem": "顺序表的插入函数首部写成 int Insert(SeqList L, int i, int x)，main 中对空表 L 调用 Insert(L, 1, 5) 后输出 L.length，结果仍是 0。原因是？",
+          "options": [
+            "调用时位置 1 不合法，插入没有执行",
+            "函数中不能修改结构体的数组成员",
+            "结构体变量作参数是值传递，函数改的是副本",
+            "length 必须定义成全局变量才能修改"
+          ],
+          "answer": 2,
+          "explain": "形参 L 是实参的一份拷贝，函数返回后就没有了，插入其实成功了（返回 1）。要修改主调函数里的表，形参写成 SeqList *L，调用 Insert(&L, 1, 5)，函数内用 L->length 访问成员。空表插在第 1 个位置是合法的。"
+        },
+        {
+          "id": "13004-u01-l1-q2",
+          "type": "single",
+          "level": "识记",
+          "kp": "C 程序的编译与调试",
+          "stem": "按 C89 标准编译时，for (int i = 0; i < n; i++) 报错 ‘for’ loop initial declarations are only allowed in C99 or C11 mode。最简单的改法是？",
+          "options": [
+            "在循环前定义 int i;，写成 for (i = 0; …)",
+            "把 int i 改成 static int i",
+            "在文件开头加上 #include <stdlib.h>",
+            "把循环变量 i 改名为 j"
+          ],
+          "answer": 0,
+          "explain": "C89 要求变量定义在块的开头，C99 才允许在 for 的括号里定义变量；给 gcc 加上编译参数 -std=c99 也能通过。不确定考场编译器按哪个标准时，把变量定义在函数开头最保险。"
+        },
+        {
+          "id": "13004-u01-l1-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "顺序表的插入",
+          "stem": "顺序表 L 有 length 个元素（第 i 个元素存于 data[i-1]），插入函数中判断插入位置 i 不合法的条件应写成？",
+          "options": [
+            "i < 1 || i > L->length",
+            "i < 0 || i > L->length + 1",
+            "i < 1 && i > L->length + 1",
+            "i < 1 || i > L->length + 1"
+          ],
+          "answer": 3,
+          "explain": "新元素可以插在表尾之后，即第 length+1 个位置，所以上界是 length+1；删除时上界才是 length。用 && 连接的条件永远不成立，等于没做检查。"
+        },
+        {
+          "id": "13004-u01-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "顺序表的插入",
+          "stem": "下面程序想在顺序表（4 个元素）的第 2 个位置插入 9，运行结果是？",
+          "code": "#include <stdio.h>\nint main(void)\n{\n    int a[10] = {1, 2, 3, 4};\n    int n = 4, i = 2, x = 9, j;\n    for (j = i - 1; j < n; j++)\n        a[j + 1] = a[j];\n    a[i - 1] = x;\n    n++;\n    for (j = 0; j < n; j++)\n        printf(\"%d \", a[j]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "options": [
+            "1 9 2 3 4",
+            "1 9 2 2 2",
+            "1 2 9 3 4",
+            "9 1 2 3 4"
+          ],
+          "answer": 1,
+          "explain": "从前往后移，a[1] 的值 2 被依次复制到了后面每个位置，3 和 4 都被覆盖了。插入时要从最后一个元素开始往后移：for (j = n - 1; j >= i - 1; j--) a[j + 1] = a[j];。"
+        },
+        {
+          "id": "13004-u01-l1-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "顺序表的删除",
+          "stem": "下面函数删除顺序表的第 i 个元素（存于 data[i-1]），用 *e 带回被删元素。横线处应填____。",
+          "code": "#define MAXSIZE 100\ntypedef struct {\n    int data[MAXSIZE];\n    int length;\n} SeqList;\n\nint Delete(SeqList *L, int i, int *e)\n{\n    int j;\n    if (i < 1 || i > L->length)\n        return 0;\n    *e = L->data[i - 1];\n    for (j = i; j < L->length; j++)\n        ______;\n    L->length--;\n    return 1;\n}",
+          "answers": [
+            "L->data[j - 1] = L->data[j]",
+            "(*L).data[j - 1] = (*L).data[j]"
+          ],
+          "explain": "被删元素后面的元素依次前移一位：j 从 i 到 length-1，把 data[j] 移到 data[j-1]，前移要从前往后做。最后表长减 1。"
+        },
+        {
+          "id": "13004-u01-l1-q6",
+          "type": "fill",
+          "level": "应用",
+          "kp": "顺序表的按值查找",
+          "stem": "下面程序在顺序表中按值查找，运行结果是____。",
+          "code": "#include <stdio.h>\n#define MAXSIZE 100\ntypedef struct {\n    int data[MAXSIZE];\n    int length;\n} SeqList;\n\nint Locate(SeqList *L, int x)\n{\n    int i = 0;\n    while (i < L->length && L->data[i] != x)\n        i++;\n    return i < L->length ? i + 1 : 0;\n}\n\nint main(void)\n{\n    SeqList L = {{5, 8, 3, 8}, 4};\n    printf(\"%d \", Locate(&L, 8));\n    printf(\"%d\\n\", Locate(&L, 7));\n    return 0;\n}",
+          "answers": [
+            "2 0",
+            "2,0"
+          ],
+          "explain": "找到第一个等于 x 的元素就停下，返回位置（下标加 1），所以有两个 8 时返回 2；找不到时 i 等于 length，返回 0。循环条件先判断 i < L->length，才不会读到表外的元素。"
+        },
+        {
+          "id": "13004-u01-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "顺序表的建立与插入",
+          "stem": "编写程序：先输入 n（0 ≤ n ≤ 20）和 n 个整数，建立顺序表（MAXSIZE 为 20）；再输入 i 和 x，在第 i 个位置插入 x。插入成功时输出插入后的表（数之间用空格分隔），位置不合法或表已满时输出 error。\n样例输入：\n4\n1 2 3 4\n2 9\n样例输出：\n1 9 2 3 4",
+          "answer": "#include <stdio.h>\n#define MAXSIZE 20\ntypedef struct {\n    int data[MAXSIZE];\n    int length;\n} SeqList;\n\nint Insert(SeqList *L, int i, int x)\n{\n    int j;\n    if (i < 1 || i > L->length + 1)\n        return 0;\n    if (L->length >= MAXSIZE)\n        return 0;\n    for (j = L->length - 1; j >= i - 1; j--)\n        L->data[j + 1] = L->data[j];\n    L->data[i - 1] = x;\n    L->length++;\n    return 1;\n}\n\nint main(void)\n{\n    SeqList L;\n    int n, i, x, k;\n    scanf(\"%d\", &n);\n    for (k = 0; k < n; k++)\n        scanf(\"%d\", &L.data[k]);\n    L.length = n;\n    scanf(\"%d%d\", &i, &x);\n    if (!Insert(&L, i, x)) {\n        printf(\"error\\n\");\n        return 0;\n    }\n    for (k = 0; k < L.length; k++)\n        printf(\"%d \", L.data[k]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "能编译运行，输入输出格式与样例一致（2 分）",
+            "位置判断：i < 1 或 i > length+1 时不合法（2 分）",
+            "表满（length >= MAXSIZE）时不插入，输出 error（1 分）",
+            "从最后一个元素起到第 i 个元素，依次后移一位（3 分）",
+            "x 放入 data[i-1]，表长加 1，再输出全表（2 分）"
+          ],
+          "explain": "后移必须从表尾开始，否则会覆盖还没移动的元素。测试时除了样例，还要试空表（n = 0）插在第 1 个位置、插在表尾之后（i = length+1）、i = 0 和表满这几种情况。"
+        },
+        {
+          "id": "13004-u01-l1-q8",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "顺序表的删除",
+          "stem": "下面程序先输入 n 和 n 个整数建立顺序表，再输入 i，删除第 i 个元素后输出表；位置不合法时输出 error。程序中有 3 处错误，找出并改正（不得增删行）。\n样例输入：\n5\n1 2 3 4 5\n2\n样例输出：\n1 3 4 5",
+          "code": "#include <stdio.h>\n#define MAXSIZE 100\ntypedef struct {\n    int data[MAXSIZE];\n    int length;\n} SeqList;\n\nint Delete(SeqList *L, int i)\n{\n    int j;\n    if (i < 1 || i > L->length + 1)\n        return 0;\n    for (j = i; j < L->length; j++)\n        L->data[j] = L->data[j - 1];\n    L.length--;\n    return 1;\n}\n\nint main(void)\n{\n    SeqList L;\n    int n, i, k;\n    scanf(\"%d\", &n);\n    for (k = 0; k < n; k++)\n        scanf(\"%d\", &L.data[k]);\n    L.length = n;\n    scanf(\"%d\", &i);\n    if (!Delete(&L, i)) {\n        printf(\"error\\n\");\n        return 0;\n    }\n    for (k = 0; k < L.length; k++)\n        printf(\"%d \", L.data[k]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#define MAXSIZE 100\ntypedef struct {\n    int data[MAXSIZE];\n    int length;\n} SeqList;\n\nint Delete(SeqList *L, int i)\n{\n    int j;\n    if (i < 1 || i > L->length)\n        return 0;\n    for (j = i; j < L->length; j++)\n        L->data[j - 1] = L->data[j];\n    L->length--;\n    return 1;\n}\n\nint main(void)\n{\n    SeqList L;\n    int n, i, k;\n    scanf(\"%d\", &n);\n    for (k = 0; k < n; k++)\n        scanf(\"%d\", &L.data[k]);\n    L.length = n;\n    scanf(\"%d\", &i);\n    if (!Delete(&L, i)) {\n        printf(\"error\\n\");\n        return 0;\n    }\n    for (k = 0; k < L.length; k++)\n        printf(\"%d \", L.data[k]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "删除位置的上界 i > L->length + 1 改为 i > L->length（3 分）",
+            "前移语句改为 L->data[j - 1] = L->data[j];（4 分）",
+            "L.length--; 改为 L->length--;（L 是指针）（3 分）"
+          ],
+          "explain": "第 3 处是编译错误（gcc 提示 ‘L’ is a pointer; did you mean to use ‘->’?），改完才能运行；前两处要靠测试发现：原来的写法把第 i 个元素的值依次复制到后面，删除位置 n+1 时也不报错（实际删掉的是最后一个元素）。改完后用删除第 1 个、最后一个和位置 n+1 各测一次。"
+        }
+      ]
+    },
+    {
+      "id": "13004-u01-l2",
+      "title": "单链表的建立、插入、删除和查找",
+      "questions": [
+        {
+          "id": "13004-u01-l2-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "单链表结点的动态分配",
+          "stem": "按下面的定义申请一个新结点，正确的语句是？",
+          "code": "typedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;",
+          "options": [
+            "p = (LNode *)malloc(sizeof(LinkList));",
+            "p = (LNode *)malloc(LNode);",
+            "p = (LNode *)malloc(sizeof(LNode));",
+            "p = (LinkList)malloc(sizeof(p));"
+          ],
+          "answer": 2,
+          "explain": "LinkList 和 p 都是指针，sizeof 得到的只是指针的大小（64 位系统上 8 字节），而一个结点要放 data 和 next（通常 16 字节），写 next 时就越界了；新版 gcc 会给出 allocation of insufficient size 警告，老编译器不提示。malloc、free 在 stdlib.h 中声明。"
+        },
+        {
+          "id": "13004-u01-l2-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "尾插法建立单链表",
+          "stem": "用尾插法建立带头结点的单链表（r 始终指向尾结点），读入的数据全部插入后，还必须执行的语句是？",
+          "options": [
+            "r->next = NULL;",
+            "L->next = NULL;",
+            "r = L;",
+            "free(r);"
+          ],
+          "answer": 0,
+          "explain": "新结点的 next 要等下一个结点插入时才赋值，最后一个结点的 next 一直没赋值。malloc 不会把空间清零，不置 NULL 的话遍历会沿着不确定的指针走下去，输出乱数甚至崩溃。L->next = NULL 是建表前初始化时做的。"
+        },
+        {
+          "id": "13004-u01-l2-q3",
+          "type": "fill",
+          "level": "应用",
+          "kp": "单链表的插入",
+          "stem": "下面函数在带头结点的单链表 L 的第 i 个位置插入 x，循环要让 p 停在第 i-1 个结点上（头结点算第 0 个）。横线处应填____。",
+          "code": "typedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;\n\nint Insert(LinkList L, int i, int x)\n{\n    LNode *p = L, *s;\n    int j = 0;\n    while (p != NULL && ______) {\n        p = p->next;\n        j++;\n    }\n    if (p == NULL || i < 1)\n        return 0;\n    s = (LNode *)malloc(sizeof(LNode));\n    s->data = x;\n    s->next = p->next;\n    p->next = s;\n    return 1;\n}",
+          "answers": [
+            "j < i - 1",
+            "j + 1 < i",
+            "i - 1 > j"
+          ],
+          "explain": "j 记录 p 指向第几个结点，从头结点出发，走到第 i-1 个时停下，新结点就插在它后面。i 大于表长加 1 时 p 会走到 NULL，返回 0；i < 1 时循环不执行，也返回 0。"
+        },
+        {
+          "id": "13004-u01-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "单链表的删除",
+          "stem": "带头结点的单链表 L 依次为 1 2 2 3，x 为 2。执行下面的程序段后，从头到尾输出 L，结果是？",
+          "code": "p = L;\nwhile (p->next != NULL) {\n    if (p->next->data == x) {\n        q = p->next;\n        p->next = q->next;\n        free(q);\n    }\n    p = p->next;\n}",
+          "options": [
+            "1 3",
+            "1 2 2 3",
+            "1",
+            "1 2 3"
+          ],
+          "answer": 3,
+          "explain": "删掉一个结点后，p->next 已经是下一个待检查的结点，p 却又后移一步把它跳过了，所以连续的两个 2 只删掉一个。p = p->next 应放在 else 里（只在没删时后移）；否则表尾结点被删时 p 会变成 NULL，再判断 p->next 程序就崩溃了。"
+        },
+        {
+          "id": "13004-u01-l2-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "单链表的初始化",
+          "stem": "函数 void InitList(LinkList *L) 中已执行 *L = (LNode *)malloc(sizeof(LNode));，接着要把头结点的 next 置空，正确的写法是？",
+          "options": [
+            "*L->next = NULL;",
+            "(*L)->next = NULL;",
+            "L->next = NULL;",
+            "*L.next = NULL;"
+          ],
+          "answer": 1,
+          "explain": "-> 的优先级比 * 高，*L->next 会被理解成 *(L->next)，而 L 是指向指针的指针，gcc 报错 ‘L’ is a pointer to pointer。要先用 *L 取得头指针，再用 ->。"
+        },
+        {
+          "id": "13004-u01-l2-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "单链表的销毁",
+          "stem": "释放带头结点单链表 L 的全部结点，循环 while (L != NULL) { … } 的循环体应写成？",
+          "options": [
+            "free(L); L = L->next;",
+            "L = L->next; free(L);",
+            "p = L->next; free(L); L = p;",
+            "p = L; free(p); L = L->next;"
+          ],
+          "answer": 2,
+          "explain": "free 之后那块空间就不能再访问了，所以先用 p 记下后继再释放。先 free 再取 L->next 是访问已释放的空间（新版 gcc 会警告 used after ‘free’）；先后移再释放，会漏掉第一个结点，下一轮还要访问已释放的结点。"
+        },
+        {
+          "id": "13004-u01-l2-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "单链表的建立与删除",
+          "stem": "编写程序：输入若干个整数（以 0 结束，0 不存入），用尾插法建立带头结点的单链表；再输入 x，删除表中所有值为 x 的结点并释放空间，然后输出链表（数之间用空格分隔）；删除后链表为空时输出 empty。\n样例输入：\n1 2 2 3 2 0\n2\n样例输出：\n1 3",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;\nint main(void)\n{\n    LinkList L = (LNode *)malloc(sizeof(LNode));\n    LNode *r = L, *p, *q;\n    int x;\n    while (scanf(\"%d\", &x) == 1 && x != 0) {\n        p = (LNode *)malloc(sizeof(LNode));\n        p->data = x;\n        r->next = p;\n        r = p;\n    }\n    r->next = NULL;\n    scanf(\"%d\", &x);\n    p = L;\n    while (p->next != NULL) {\n        if (p->next->data == x) {\n            q = p->next;\n            p->next = q->next;\n            free(q);\n        } else\n            p = p->next;\n    }\n    if (L->next == NULL)\n        printf(\"empty\");\n    for (p = L->next; p != NULL; p = p->next)\n        printf(\"%d \", p->data);\n    printf(\"\\n\");\n    while (L != NULL) {\n        p = L->next;\n        free(L);\n        L = p;\n    }\n    return 0;\n}",
+          "points": [
+            "能编译运行，输入输出格式与样例一致（2 分）",
+            "尾插法建表：新结点链到 r 之后、r 后移，结束后 r->next = NULL（3 分）",
+            "用 p 指向待查结点的前驱，摘下值为 x 的结点后 free（2 分）",
+            "删除后 p 不后移，连续的 x 也能删掉（2 分）",
+            "表为空时输出 empty（1 分）"
+          ],
+          "explain": "用“前驱 p + 检查 p->next”的写法，删首结点和删其他结点的代码完全一样，这正是头结点的好处。要用连续的 x、x 在表头和表尾、全部是 x、空表这几组数据测试。"
+        }
+      ]
+    },
+    {
+      "id": "13004-u01-l3",
+      "title": "线性表的逆置与合并",
+      "questions": [
+        {
+          "id": "13004-u01-l3-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "顺序表的就地逆置",
+          "stem": "下面程序想把数组 a 就地逆置，运行结果是？",
+          "code": "#include <stdio.h>\nint main(void)\n{\n    int a[5] = {1, 2, 3, 4, 5};\n    int n = 5, i, t;\n    for (i = 0; i < n; i++) {\n        t = a[i];\n        a[i] = a[n - 1 - i];\n        a[n - 1 - i] = t;\n    }\n    for (i = 0; i < n; i++)\n        printf(\"%d \", a[i]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "options": [
+            "1 2 3 4 5",
+            "5 4 3 2 1",
+            "5 4 3 4 5",
+            "1 2 3 2 1"
+          ],
+          "answer": 0,
+          "explain": "i 走到一半时已经逆置好了，后一半的交换又把元素换回原位。循环条件应为 i < n / 2；n 为奇数时，中间的元素不用动。"
+        },
+        {
+          "id": "13004-u01-l3-q2",
+          "type": "fill",
+          "level": "应用",
+          "kp": "单链表的就地逆置",
+          "stem": "下面函数把带头结点的单链表 L 就地逆置：沿链逐个把结点的 next 改为指向它的前一个结点。横线处应填____。",
+          "code": "typedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;\n\nvoid Reverse(LinkList L)\n{\n    LNode *pre = NULL, *p = L->next, *q;\n    while (p != NULL) {\n        q = p->next;\n        ______;\n        pre = p;\n        p = q;\n    }\n    L->next = pre;\n}",
+          "answers": [
+            "p->next = pre"
+          ],
+          "explain": "pre 指向已逆置部分的第一个结点。先用 q 保存 p 的后继，再让 p->next 指向 pre，然后 pre、p 各后移一步；最后 pre 指向原来的尾结点，把它挂到头结点之后。空表时循环不执行，L->next 仍为 NULL。"
+        },
+        {
+          "id": "13004-u01-l3-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "单链表的就地逆置",
+          "stem": "单链表就地逆置时，在修改 p->next 之前要先执行 q = p->next;，原因是？",
+          "options": [
+            "为了释放 p 所指的结点",
+            "q 用来记录逆置后的头结点",
+            "为了统计链表的长度",
+            "改了 p->next 后就找不到原来的后继了"
+          ],
+          "answer": 3,
+          "explain": "p->next 一旦改为指向前驱，原来往后的链就断了；没先保存的话，剩下的结点全部丢失，也没法再释放。"
+        },
+        {
+          "id": "13004-u01-l3-q4",
+          "type": "fill",
+          "level": "领会",
+          "kp": "有序顺序表的合并",
+          "stem": "下面程序把两个递增有序表 a、b 合并成递增有序表 c。横线处应填____。",
+          "code": "#include <stdio.h>\nint main(void)\n{\n    int a[] = {1, 4, 7}, b[] = {2, 3, 8, 9};\n    int c[7], m = 3, n = 4, i = 0, j = 0, k = 0;\n    while (i < m && j < n) {\n        if (a[i] <= b[j])\n            c[k++] = a[i++];\n        else\n            c[k++] = b[j++];\n    }\n    while (i < m)\n        c[k++] = a[i++];\n    while (______)\n        c[k++] = b[j++];\n    for (i = 0; i < k; i++)\n        printf(\"%d \", c[i]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "answers": [
+            "j < n",
+            "j != n",
+            "n > j"
+          ],
+          "explain": "第一个循环结束时总有一个表已经取完，另一个表剩下的元素都不小于 c 中已有的元素，按次序复制到 c 的末尾即可。后面两个 while 最多只有一个会执行。"
+        },
+        {
+          "id": "13004-u01-l3-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "有序链表的合并",
+          "stem": "把两个递增有序的单链表合并成一个递减有序的单链表（利用原结点）：每次摘下两表中较小的结点，用头插法插入结果表。当一个表已经取完时，另一个表剩下的结点应该？",
+          "options": [
+            "整个链到结果表的表尾",
+            "逐个用头插法插入结果表",
+            "整个链到头结点之后",
+            "直接释放，不再使用"
+          ],
+          "answer": 1,
+          "explain": "剩下的结点仍是递增的，而且都不小于已插入的结点，只有逐个头插才能排到前面并变成递减；整段挂到头结点之后，这一段仍是递增的。合并成递增表时才可以整段链接。"
+        },
+        {
+          "id": "13004-u01-l3-q6",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "有序单链表的合并",
+          "stem": "编写程序：输入两个递增有序的整数序列（各以 -1 结束），分别用尾插法建立带头结点的单链表 La、Lb；利用原来的结点把它们合并成一个递增有序的单链表并输出（数之间用空格分隔；两表都为空时输出空行）。\n样例输入：\n1 4 7 -1\n2 3 8 9 -1\n样例输出：\n1 2 3 4 7 8 9",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;\n\nLinkList Create(void)\n{\n    LinkList L = (LNode *)malloc(sizeof(LNode));\n    LNode *r = L, *p;\n    int x;\n    while (scanf(\"%d\", &x) == 1 && x != -1) {\n        p = (LNode *)malloc(sizeof(LNode));\n        p->data = x;\n        r->next = p;\n        r = p;\n    }\n    r->next = NULL;\n    return L;\n}\n\nint main(void)\n{\n    LinkList La = Create(), Lb = Create();\n    LNode *pa = La->next, *pb = Lb->next, *r = La;\n    while (pa != NULL && pb != NULL) {\n        if (pa->data <= pb->data) {\n            r->next = pa; r = pa; pa = pa->next;\n        } else {\n            r->next = pb; r = pb; pb = pb->next;\n        }\n    }\n    r->next = (pa != NULL) ? pa : pb;\n    free(Lb);\n    for (pa = La->next; pa != NULL; pa = pa->next)\n        printf(\"%d \", pa->data);\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "能编译运行，输入输出格式与样例一致（2 分）",
+            "尾插法建立两个带头结点的链表，表尾置 NULL（2 分）",
+            "两表都没取完时比较，把较小的结点链到 r 之后（3 分）",
+            "把没取完的表整段链到 r 之后，释放 Lb 的头结点（2 分）",
+            "有一个表为空等边界情况输出正确（1 分）"
+          ],
+          "explain": "合并不申请新结点，只改指针，时间复杂度 O(m+n)。值相等时先取 La 的结点（用 <= 比较），相等元素保持原来的先后次序。要测一个表为空、两表都为空、有相等元素这几种数据。"
+        },
+        {
+          "id": "13004-u01-l3-q7",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "单链表的就地逆置",
+          "stem": "下面程序输入若干个整数（以 0 结束）建立带头结点的单链表，把它就地逆置后输出。程序中有 3 处错误，找出并改正（不得增删行）。\n样例输入：\n1 2 3 4 0\n样例输出：\n4 3 2 1",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;\n\nint main(void)\n{\n    LinkList L = (LNode *)malloc(sizeof(LNode));\n    LNode *r = L, *p, *q;\n    int x;\n    scanf(\"%d\", &x);\n    while (x != 0) {\n        p = (LNode *)malloc(sizeof(LNode));\n        p->data = x;\n        r->next = p;\n        r = p;\n        scanf(\"%d\", &x);\n    }\n    r = NULL;\n    p = L->next;\n    L->next = NULL;\n    while (p != NULL) {\n        q = p->next;\n        p->next = L;\n        L->next = p;\n        p = q;\n    }\n    for (p = L; p != NULL; p = p->next)\n        printf(\"%d \", p->data);\n    printf(\"\\n\");\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;\n\nint main(void)\n{\n    LinkList L = (LNode *)malloc(sizeof(LNode));\n    LNode *r = L, *p, *q;\n    int x;\n    scanf(\"%d\", &x);\n    while (x != 0) {\n        p = (LNode *)malloc(sizeof(LNode));\n        p->data = x;\n        r->next = p;\n        r = p;\n        scanf(\"%d\", &x);\n    }\n    r->next = NULL;\n    p = L->next;\n    L->next = NULL;\n    while (p != NULL) {\n        q = p->next;\n        p->next = L->next;\n        L->next = p;\n        p = q;\n    }\n    for (p = L->next; p != NULL; p = p->next)\n        printf(\"%d \", p->data);\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "r = NULL; 改为 r->next = NULL;（表尾结点的 next 要置空）（3 分）",
+            "p->next = L; 改为 p->next = L->next;（插到头结点之后）（4 分）",
+            "输出循环的 p = L 改为 p = L->next（头结点不存数据）（3 分）"
+          ],
+          "explain": "逆置用的是头插法：先把头结点摘空，再把原来的结点逐个插到头结点之后。r = NULL 只是把局部指针清空，表尾结点的 next 仍是不确定的值。改完后再用只输入 0（空表）和只有一个结点的数据测一测。"
+        }
+      ]
+    }
+  ]
+}

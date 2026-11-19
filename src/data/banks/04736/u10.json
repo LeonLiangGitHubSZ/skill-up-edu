@@ -1,0 +1,84 @@
+{
+  "course": "04736",
+  "unit": 10,
+  "title": "事务",
+  "lessons": [
+    {
+      "id": "04736-u10-l1",
+      "title": "事务的提交、回滚与保存点",
+      "questions": [
+        {
+          "id": "04736-u10-l1-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "自动提交（autocommit）",
+          "stem": "在 mysql 客户端的默认设置下，对 InnoDB 表执行一条 UPDATE 语句后，没有执行 COMMIT 就直接退出了客户端。这条 UPDATE 的修改？",
+          "options": ["被自动回滚，因为没有执行 COMMIT", "已经生效，因为默认开启了自动提交", "要等下次登录执行 COMMIT 后才生效", "只对当前会话可见，其他用户看不到"],
+          "answer": 1,
+          "explain": "MySQL 默认 autocommit＝1，每条语句执行完就作为一个事务自动提交。要把多条语句放进一个事务，先执行 START TRANSACTION（或 BEGIN），最后 COMMIT 或 ROLLBACK；在事务中途断开连接，未提交的修改会被回滚。"
+        },
+        {
+          "id": "04736-u10-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "保存点（SAVEPOINT）",
+          "stem": "account 表中 A 的余额为 1000。执行下面的语句后，A 的余额是？",
+          "code": "START TRANSACTION;\nUPDATE account SET balance = balance - 100\n  WHERE id = 'A';\nSAVEPOINT s1;\nUPDATE account SET balance = balance - 200\n  WHERE id = 'A';\nROLLBACK TO SAVEPOINT s1;\nUPDATE account SET balance = balance + 50\n  WHERE id = 'A';\nCOMMIT;",
+          "options": ["750", "1000", "950", "900"],
+          "answer": 2,
+          "explain": "ROLLBACK TO SAVEPOINT s1 只撤销保存点之后的操作（减 200），之前的减 100 保留，事务也没有结束；再加 50 后提交，余额为 1000－100＋50＝950。"
+        },
+        {
+          "id": "04736-u10-l1-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "存储引擎与事务",
+          "stem": "表 log_t 使用 MyISAM 存储引擎。执行 START TRANSACTION; INSERT INTO log_t …; ROLLBACK; 之后，插入的那一行？",
+          "options": ["被回滚，表中没有这一行", "要重启服务器后才会消失", "ROLLBACK 报错，事务没有开始", "仍然存在，MyISAM 不支持事务"],
+          "answer": 3,
+          "explain": "MyISAM 不支持事务，修改立即生效，ROLLBACK 只给出警告 1196（Some non-transactional changed tables couldn't be rolled back）。需要事务的表要用 InnoDB 存储引擎，它是 5.5 起的默认引擎。"
+        },
+        {
+          "id": "04736-u10-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "隐式提交",
+          "stem": "执行 START TRANSACTION; INSERT INTO t1 VALUES (1); CREATE TABLE t2 (id INT); ROLLBACK; 之后（t1 是 InnoDB 表），结果是？",
+          "options": ["t1 中的新行和 t2 都保留，CREATE TABLE 先隐式提交了事务", "t1 中的新行被回滚，t2 也被删除", "t1 中的新行被回滚，t2 保留", "整个事务报错，什么都没有执行"],
+          "answer": 0,
+          "explain": "CREATE、ALTER、DROP 等数据定义语句执行前会隐式提交当前事务，所以 INSERT 已经提交，ROLLBACK 时没有可撤销的操作，t2 也已建好。事务中只放 INSERT、UPDATE、DELETE 等数据操作语句。"
+        },
+        {
+          "id": "04736-u10-l1-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "事务隔离级别",
+          "stem": "InnoDB 默认的事务隔离级别是____（写英文或中文均可）。",
+          "answers": ["REPEATABLE READ", "可重复读", "REPEATABLE-READ"],
+          "explain": "查看当前会话的隔离级别：8.0 用 SELECT @@transaction_isolation;，5.7 用 SELECT @@tx_isolation;（5.7.20 起也可以用 transaction_isolation）。修改用 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED; 这样的语句。",
+          "verify": "8.0 的 transaction_isolation 已实测（tx_isolation 在 8.0 中报 1193）；5.7 的 tx_isolation 和 5.7.20 起的 transaction_isolation 是按资料写的。"
+        },
+        {
+          "id": "04736-u10-l1-q6",
+          "type": "fill",
+          "level": "领会",
+          "kp": "关闭自动提交",
+          "stem": "执行 SET ____ = 0; 关闭当前会话的自动提交，之后的修改要执行 COMMIT 才会永久生效。",
+          "answers": ["autocommit", "@@autocommit", "SESSION autocommit"],
+          "explain": "关闭自动提交后，第一条修改语句会自动开始一个事务，直到 COMMIT 或 ROLLBACK 才结束；SET autocommit = 1 恢复自动提交。用 START TRANSACTION 开始的事务结束后，会话回到原来的自动提交状态。"
+        },
+        {
+          "id": "04736-u10-l1-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "用事务实现转账",
+          "stem": "账户表 account(id CHAR(3) 主键, name VARCHAR(20), balance DECIMAL(10,2))，现有 A01 张三 1000 元、A02 李四 500 元。\n(1) 用事务完成从 A01 向 A02 转账 300 元，两条修改都执行后提交；\n(2) 创建存储过程 sp_transfer(IN p_from CHAR(3), IN p_to CHAR(3), IN p_amt DECIMAL(10,2), OUT p_msg VARCHAR(20))：在事务中先扣款，若扣款后余额小于 0（或转出账户不存在）则回滚并返回“转账失败”，否则给对方加款、提交并返回“转账成功”；\n(3) 调用该过程，从 A02 向 A01 转账 5000 元并显示结果。",
+          "points": ["(1) START TRANSACTION; 两条 UPDATE; COMMIT;（1 分）", "(2) 过程中 START TRANSACTION，先扣款再查余额（1 分）", "(2) 余额不足时 ROLLBACK，否则加款后 COMMIT（1 分）", "(3) CALL sp_transfer('A02', 'A01', 5000, @m); SELECT @m;（1 分）"],
+          "answer": "START TRANSACTION;\nUPDATE account SET balance = balance - 300\n  WHERE id = 'A01';\nUPDATE account SET balance = balance + 300\n  WHERE id = 'A02';\nCOMMIT;\nDELIMITER $$\nCREATE PROCEDURE sp_transfer(IN p_from CHAR(3),\n  IN p_to CHAR(3), IN p_amt DECIMAL(10,2),\n  OUT p_msg VARCHAR(20))\nBEGIN\n  DECLARE b DECIMAL(10,2) DEFAULT NULL;\n  START TRANSACTION;\n  UPDATE account SET balance = balance - p_amt\n    WHERE id = p_from;\n  SELECT balance INTO b FROM account\n    WHERE id = p_from;\n  IF b IS NULL OR b < 0 THEN\n    ROLLBACK;\n    SET p_msg = '转账失败';\n  ELSE\n    UPDATE account SET balance = balance + p_amt\n      WHERE id = p_to;\n    COMMIT;\n    SET p_msg = '转账成功';\n  END IF;\nEND $$\nDELIMITER ;\nCALL sp_transfer('A02', 'A01', 5000, @m);\nSELECT @m;",
+          "explain": "按样例数据，(1) 后 A01 为 700、A02 为 800；(3) 扣款后 A02 变成负数，回滚后返回“转账失败”，两人的余额不变。存储过程中可以用 START TRANSACTION、COMMIT、ROLLBACK，存储函数和触发器中不可以。"
+        }
+      ]
+    }
+  ]
+}

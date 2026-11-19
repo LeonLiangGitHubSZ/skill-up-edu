@@ -1,0 +1,272 @@
+{
+  "course": "13004",
+  "unit": 90,
+  "title": "专项：上机模拟题",
+  "lessons": [
+    {
+      "id": "13004-u90-l1",
+      "title": "上机模拟（一）：线性表、栈、队列和串",
+      "questions": [
+        {
+          "id": "13004-u90-l1-q1",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "顺序表的删除",
+          "stem": "顺序表的定义和 main 函数如下（main 先输入表长和各元素，调用 Unique 后输出表）。表中元素递增有序，补全函数 Unique：删除表中多余的重复元素，相同的值只保留一个，要求时间复杂度为 O(n)，不另开数组。\n样例输入：\n8\n1 2 2 2 3 5 5 7\n样例输出：\n1 2 3 5 7",
+          "code": "#include <stdio.h>\n#define MAXSIZE 100\ntypedef struct {\n    int data[MAXSIZE];\n    int length;\n} SeqList;\n\n/* 删除递增有序表 L 中多余的重复元素 */\nvoid Unique(SeqList *L)\n{\n    /* 请补全 */\n}\n\nint main(void)\n{\n    SeqList L;\n    int i;\n    scanf(\"%d\", &L.length);\n    for (i = 0; i < L.length; i++)\n        scanf(\"%d\", &L.data[i]);\n    Unique(&L);\n    for (i = 0; i < L.length; i++)\n        printf(\"%d \", L.data[i]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#define MAXSIZE 100\ntypedef struct {\n    int data[MAXSIZE];\n    int length;\n} SeqList;\n\n/* 删除递增有序表 L 中多余的重复元素 */\nvoid Unique(SeqList *L)\n{\n    int i, k = 0;\n    if (L->length == 0)\n        return;\n    for (i = 1; i < L->length; i++)\n        if (L->data[i] != L->data[k])\n            L->data[++k] = L->data[i];\n    L->length = k + 1;\n}\n\nint main(void)\n{\n    SeqList L;\n    int i;\n    scanf(\"%d\", &L.length);\n    for (i = 0; i < L.length; i++)\n        scanf(\"%d\", &L.data[i]);\n    Unique(&L);\n    for (i = 0; i < L.length; i++)\n        printf(\"%d \", L.data[i]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "能编译运行，样例和空表、单个元素、全部相同等数据输出正确（4 分）",
+            "空表直接返回（2 分）",
+            "用 k 指向已保留的最后一个元素，从第 2 个元素起逐个与 data[k] 比较（6 分）",
+            "不相等时存入 data[++k]，相等时跳过（5 分）",
+            "最后令 length = k + 1（3 分）"
+          ],
+          "explain": "有序表中相同的值一定挨在一起，只要和最后保留的那个比较，每个元素最多移动一次。若每遇到一个重复值就调用删除操作把后面的元素都前移，时间复杂度会变成 O(n²)。"
+        },
+        {
+          "id": "13004-u90-l1-q2",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "单链表的插入",
+          "stem": "单链表的定义和 main 函数如下（main 用尾插法建立递增有序的带头结点单链表，输入以 -1 结束；再输入 x，调用 InsertOrder 后输出链表）。补全函数 InsertOrder：把 x 插入链表，使链表仍递增有序。\n样例输入：\n1 3 5 7 -1\n4\n样例输出：\n1 3 4 5 7",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;\n\n/* 插入 x，使递增有序的单链表 L 仍然有序 */\nvoid InsertOrder(LinkList L, int x)\n{\n    /* 请补全 */\n}\n\nint main(void)\n{\n    LinkList L = (LNode *)malloc(sizeof(LNode));\n    LNode *r = L, *p;\n    int x;\n    while (scanf(\"%d\", &x) == 1 && x != -1) {\n        p = (LNode *)malloc(sizeof(LNode));\n        p->data = x;\n        r->next = p;\n        r = p;\n    }\n    r->next = NULL;\n    scanf(\"%d\", &x);\n    InsertOrder(L, x);\n    for (p = L->next; p != NULL; p = p->next)\n        printf(\"%d \", p->data);\n    printf(\"\\n\");\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;\n\n/* 插入 x，使递增有序的单链表 L 仍然有序 */\nvoid InsertOrder(LinkList L, int x)\n{\n    LNode *p = L, *s;\n    while (p->next != NULL && p->next->data < x)\n        p = p->next;\n    s = (LNode *)malloc(sizeof(LNode));\n    s->data = x;\n    s->next = p->next;\n    p->next = s;\n}\n\nint main(void)\n{\n    LinkList L = (LNode *)malloc(sizeof(LNode));\n    LNode *r = L, *p;\n    int x;\n    while (scanf(\"%d\", &x) == 1 && x != -1) {\n        p = (LNode *)malloc(sizeof(LNode));\n        p->data = x;\n        r->next = p;\n        r = p;\n    }\n    r->next = NULL;\n    scanf(\"%d\", &x);\n    InsertOrder(L, x);\n    for (p = L->next; p != NULL; p = p->next)\n        printf(\"%d \", p->data);\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "能编译运行，样例输出正确（4 分）",
+            "p 从头结点出发，停在最后一个值小于 x 的结点上（插入位置的前驱）（6 分）",
+            "循环条件先判断 p->next != NULL，再访问 p->next->data（3 分）",
+            "申请新结点存入 x，按 s->next = p->next、p->next = s 的次序插入（5 分）",
+            "空表、x 最小（插在表头）、x 最大（插在表尾）都正确（2 分）"
+          ],
+          "explain": "用“前驱 p + 检查 p->next”的写法，插在表头、表中、表尾的代码完全一样。条件写 < x 时，x 插在相等元素的前面；写成 <= x 则插在后面，都能保持有序。"
+        },
+        {
+          "id": "13004-u90-l1-q3",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "栈的应用：中缀表达式转后缀表达式",
+          "stem": "main 函数和求运算符优先级的 Prior 函数如下。补全函数 Convert：利用栈把中缀表达式 e（运算数是单个小写字母，运算符只有 + - * / 和圆括号，保证合法）转换成后缀表达式，存入 post。\n样例输入：\na+b*c-(d+e)/f\n样例输出：\nabc*+de+f/-",
+          "code": "#include <stdio.h>\nint Prior(char op)\n{\n    if (op == '*' || op == '/') return 2;\n    if (op == '+' || op == '-') return 1;\n    return 0;\n}\n/* 把中缀表达式 e 转换成后缀表达式，存入 post */\nvoid Convert(char e[], char post[])\n{\n    /* 请补全 */\n}\nint main(void)\n{\n    char e[100], post[100];\n    scanf(\"%s\", e);\n    Convert(e, post);\n    printf(\"%s\\n\", post);\n    return 0;\n}",
+          "answer": "#include <stdio.h>\nint Prior(char op)\n{\n    if (op == '*' || op == '/') return 2;\n    if (op == '+' || op == '-') return 1;\n    return 0;\n}\n/* 把中缀表达式 e 转换成后缀表达式，存入 post */\nvoid Convert(char e[], char post[])\n{\n    char st[100], c;\n    int top = -1, i, k = 0;\n    for (i = 0; (c = e[i]) != '\\0'; i++) {\n        if (c >= 'a' && c <= 'z')\n            post[k++] = c;\n        else if (c == '(')\n            st[++top] = c;\n        else if (c == ')') {\n            while (st[top] != '(')\n                post[k++] = st[top--];\n            top--;\n        } else {\n            while (top != -1 &&\n                   Prior(st[top]) >= Prior(c))\n                post[k++] = st[top--];\n            st[++top] = c;\n        }\n    }\n    while (top != -1)\n        post[k++] = st[top--];\n    post[k] = '\\0';\n}\nint main(void)\n{\n    char e[100], post[100];\n    scanf(\"%s\", e);\n    Convert(e, post);\n    printf(\"%s\\n\", post);\n    return 0;\n}",
+          "points": [
+            "能编译运行，样例输出正确（4 分）",
+            "运算数直接存入 post，( 直接进栈（3 分）",
+            "读到 ) 时依次弹出运算符直到 (，再把 ( 出栈丢掉（4 分）",
+            "读到运算符时，先弹出栈顶优先级不低于它的运算符，再让它进栈（6 分）",
+            "扫描完后弹出栈中剩下的运算符，post 末尾加 '\\0'（3 分）"
+          ],
+          "explain": "( 的优先级是 0，运算符不会把它弹出；同级运算符要先弹出，才能保证从左往右计算，如 a-b+c 得 ab-c+。还要用 a/b*c、(a+b)*(c-d)/e 这类数据测试。"
+        },
+        {
+          "id": "13004-u90-l1-q4",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "循环队列的入队和出队",
+          "stem": "循环队列的定义和 main 函数如下：MAXSIZE 为 5，少用一个单元，front 指向队头元素，rear 指向队尾元素的下一个位置。main 读入若干操作（以 0 结束）：“1 x”表示 x 入队，队满时输出 full；“2”表示出队并输出队头元素，队空时输出 empty。补全 EnQueue（队满返回 0，成功返回 1）和 DeQueue（队空返回 0，成功时用 *x 带回队头元素并返回 1）。\n样例输入：\n1 10 1 20 2 1 30 2 2 2 0\n样例输出：\n10\n20\n30\nempty",
+          "code": "#include <stdio.h>\n#define MAXSIZE 5\ntypedef struct {\n    int data[MAXSIZE];\n    int front, rear;\n} SqQueue;\n\nint EnQueue(SqQueue *Q, int x)\n{\n    /* 请补全 */\n}\nint DeQueue(SqQueue *Q, int *x)\n{\n    /* 请补全 */\n}\nint main(void)\n{\n    SqQueue Q;\n    int op, x;\n    Q.front = Q.rear = 0;\n    while (scanf(\"%d\", &op) == 1 && op != 0) {\n        if (op == 1) {\n            scanf(\"%d\", &x);\n            if (!EnQueue(&Q, x))\n                printf(\"full\\n\");\n        } else if (DeQueue(&Q, &x))\n            printf(\"%d\\n\", x);\n        else\n            printf(\"empty\\n\");\n    }\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#define MAXSIZE 5\ntypedef struct {\n    int data[MAXSIZE];\n    int front, rear;\n} SqQueue;\n\nint EnQueue(SqQueue *Q, int x)\n{\n    if ((Q->rear + 1) % MAXSIZE == Q->front)\n        return 0;\n    Q->data[Q->rear] = x;\n    Q->rear = (Q->rear + 1) % MAXSIZE;\n    return 1;\n}\nint DeQueue(SqQueue *Q, int *x)\n{\n    if (Q->front == Q->rear)\n        return 0;\n    *x = Q->data[Q->front];\n    Q->front = (Q->front + 1) % MAXSIZE;\n    return 1;\n}\nint main(void)\n{\n    SqQueue Q;\n    int op, x;\n    Q.front = Q.rear = 0;\n    while (scanf(\"%d\", &op) == 1 && op != 0) {\n        if (op == 1) {\n            scanf(\"%d\", &x);\n            if (!EnQueue(&Q, x))\n                printf(\"full\\n\");\n        } else if (DeQueue(&Q, &x))\n            printf(\"%d\\n\", x);\n        else\n            printf(\"empty\\n\");\n    }\n    return 0;\n}",
+          "points": [
+            "能编译运行，样例输出正确（4 分）",
+            "EnQueue：(rear + 1) % MAXSIZE == front 时队满，返回 0（4 分）",
+            "EnQueue：x 存入 data[rear]，rear 加 1 后对 MAXSIZE 取余（4 分）",
+            "DeQueue：front == rear 时队空，返回 0（3 分）",
+            "DeQueue：*x 取 data[front]，front 加 1 后对 MAXSIZE 取余（5 分）"
+          ],
+          "explain": "MAXSIZE 为 5 时最多存 4 个元素。测试时要连续入队 5 次，看能否输出 full；还要让 rear 绕回 0 之后继续入队、出队，检查取余写对了没有。"
+        },
+        {
+          "id": "13004-u90-l1-q5",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "串的模式匹配",
+          "stem": "main 函数如下（输入两个不含空格的串 s 和 t，长度都不超过 100）。补全函数 DeleteSub：从左往右扫描 s，删除 s 中所有与 t 相同的子串（已删掉的部分不再参与匹配），结果仍存放在 s 中。\n样例输入：\nabcbcabc bc\n样例输出：\naa",
+          "code": "#include <stdio.h>\n#include <string.h>\n\n/* 删除 s 中所有与 t 相同的子串 */\nvoid DeleteSub(char s[], char t[])\n{\n    /* 请补全 */\n}\n\nint main(void)\n{\n    char s[101], t[101];\n    scanf(\"%s%s\", s, t);\n    DeleteSub(s, t);\n    printf(\"%s\\n\", s);\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#include <string.h>\n\n/* 删除 s 中所有与 t 相同的子串 */\nvoid DeleteSub(char s[], char t[])\n{\n    int i = 0, k = 0, j, m = strlen(t);\n    while (s[i] != '\\0') {\n        j = 0;\n        while (j < m && s[i + j] == t[j])\n            j++;\n        if (j == m)\n            i += m;\n        else\n            s[k++] = s[i++];\n    }\n    s[k] = '\\0';\n}\n\nint main(void)\n{\n    char s[101], t[101];\n    scanf(\"%s%s\", s, t);\n    DeleteSub(s, t);\n    printf(\"%s\\n\", s);\n    return 0;\n}",
+          "points": [
+            "能编译运行，样例输出正确（4 分）",
+            "从 s 的每个位置 i 起与 t 逐个字符比较（BF 算法的思想）（5 分）",
+            "匹配成功时 i 跳过 t 的长度，这一段不复制（4 分）",
+            "不匹配时把 s[i] 复制到 s[k]，i、k 各加 1（4 分）",
+            "最后 s[k] = '\\0'；t 不出现、s 被全部删光时都正确（3 分）"
+          ],
+          "explain": "复制的位置 k 不会超过扫描的位置 i，所以可以在 s 里原地改写。比较到 s 的末尾时 s[i+j] 是 '\\0'，与 t[j] 不相等，循环自然停止，不会越界。用 aaa 删 aa 测试，结果应为 a。"
+        }
+      ]
+    },
+    {
+      "id": "13004-u90-l2",
+      "title": "上机模拟（二）：二叉树、图、查找和排序",
+      "questions": [
+        {
+          "id": "13004-u90-l2-q1",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "求二叉树的高度和叶子数",
+          "stem": "二叉链表的定义、按扩展先序序列（# 表示空树）建树的 Create 函数和 main 函数如下。补全递归函数 Depth（求二叉树的高度，空树为 0）和 Leaf（求叶子结点的个数）。\n样例输入：\nABD##E##C#F##\n样例输出：\n3 3",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct BiTNode {\n    char data;\n    struct BiTNode *lchild, *rchild;\n} BiTNode, *BiTree;\nBiTree Create(void)\n{\n    BiTree T;\n    char ch = getchar();\n    if (ch == '#')\n        return NULL;\n    T = (BiTNode *)malloc(sizeof(BiTNode));\n    T->data = ch;\n    T->lchild = Create();\n    T->rchild = Create();\n    return T;\n}\nint Depth(BiTree T)    /* 求二叉树的高度 */\n{\n    /* 请补全 */\n}\n\nint Leaf(BiTree T)     /* 求叶子结点个数 */\n{\n    /* 请补全 */\n}\n\nint main(void)\n{\n    BiTree T = Create();\n    printf(\"%d %d\\n\", Depth(T), Leaf(T));\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct BiTNode {\n    char data;\n    struct BiTNode *lchild, *rchild;\n} BiTNode, *BiTree;\nBiTree Create(void)\n{\n    BiTree T;\n    char ch = getchar();\n    if (ch == '#')\n        return NULL;\n    T = (BiTNode *)malloc(sizeof(BiTNode));\n    T->data = ch;\n    T->lchild = Create();\n    T->rchild = Create();\n    return T;\n}\nint Depth(BiTree T)    /* 求二叉树的高度 */\n{\n    int hl, hr;\n    if (T == NULL) return 0;\n    hl = Depth(T->lchild);\n    hr = Depth(T->rchild);\n    return (hl > hr ? hl : hr) + 1;\n}\n\nint Leaf(BiTree T)     /* 求叶子结点个数 */\n{\n    if (T == NULL) return 0;\n    if (!T->lchild && !T->rchild) return 1;\n    return Leaf(T->lchild) + Leaf(T->rchild);\n}\n\nint main(void)\n{\n    BiTree T = Create();\n    printf(\"%d %d\\n\", Depth(T), Leaf(T));\n    return 0;\n}",
+          "points": [
+            "能编译运行，样例输出正确（4 分）",
+            "Depth：空树返回 0（2 分）",
+            "Depth：分别求左右子树的高度，返回较大者加 1（6 分）",
+            "Leaf：空树返回 0，左右孩子都为空时返回 1（4 分）",
+            "Leaf：否则返回左右子树叶子数之和（4 分）"
+          ],
+          "explain": "两个函数都是后序遍历的思想：先求出子树的结果，再得到整棵树的结果。求高度不要写成 Depth(左) > Depth(右) ? Depth(左) + 1 : …，那样会重复递归，层数多时极慢。只输入 # 时应输出 0 0。"
+        },
+        {
+          "id": "13004-u90-l2-q2",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "图的广度优先搜索",
+          "stem": "邻接矩阵 G（全局数组）和 main 函数如下：main 读入无向图的顶点数 n（≤ 20）、边数 e 和 e 条边，调用 BFS(0, dist) 后输出 dist 数组。补全函数 BFS：用广度优先搜索求顶点 s 到各顶点的最短路径长度（经过的边数），不可达的顶点为 -1。\n样例输入：\n6 7\n0 1\n0 2\n1 3\n1 4\n2 4\n3 5\n4 5\n样例输出：\n0 1 1 2 2 3",
+          "code": "#include <stdio.h>\n#define MAXV 20\nint G[MAXV][MAXV], n;\n\n/* 求顶点 s 到各顶点的最短路径长度（边数），\n   存入 dist[]；不可达的顶点 dist 为 -1 */\nvoid BFS(int s, int dist[])\n{\n    /* 请补全 */\n}\n\nint main(void)\n{\n    int e, u, v, dist[MAXV];\n    scanf(\"%d%d\", &n, &e);\n    while (e-- > 0) {\n        scanf(\"%d%d\", &u, &v);\n        G[u][v] = G[v][u] = 1;\n    }\n    BFS(0, dist);\n    for (v = 0; v < n; v++)\n        printf(\"%d \", dist[v]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#define MAXV 20\nint G[MAXV][MAXV], n;\n\n/* 求顶点 s 到各顶点的最短路径长度（边数），\n   存入 dist[]；不可达的顶点 dist 为 -1 */\nvoid BFS(int s, int dist[])\n{\n    int Q[MAXV], front = 0, rear = 0, u, v;\n    for (v = 0; v < n; v++)\n        dist[v] = -1;\n    dist[s] = 0;\n    Q[rear++] = s;\n    while (front != rear) {\n        u = Q[front++];\n        for (v = 0; v < n; v++)\n            if (G[u][v] == 1 && dist[v] == -1) {\n                dist[v] = dist[u] + 1;\n                Q[rear++] = v;\n            }\n    }\n}\n\nint main(void)\n{\n    int e, u, v, dist[MAXV];\n    scanf(\"%d%d\", &n, &e);\n    while (e-- > 0) {\n        scanf(\"%d%d\", &u, &v);\n        G[u][v] = G[v][u] = 1;\n    }\n    BFS(0, dist);\n    for (v = 0; v < n; v++)\n        printf(\"%d \", dist[v]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "能编译运行，样例输出正确（4 分）",
+            "dist 全部初始化为 -1，dist[s] = 0，s 入队（4 分）",
+            "队列不空时出队 u，扫描第 u 行找邻接点（4 分）",
+            "dist[v] 为 -1（未访问）的邻接点：dist[v] = dist[u] + 1，并入队（6 分）",
+            "图不连通时，不可达的顶点保持 -1（2 分）"
+          ],
+          "explain": "广度优先搜索按距离由近到远访问顶点，第一次访问到 v 时经过的边数就是最少的。dist 同时起了 visited 的作用：不为 -1 就表示已经访问过。"
+        },
+        {
+          "id": "13004-u90-l2-q3",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "散列表的链地址法",
+          "stem": "散列表用链地址法处理冲突，结点定义、全局变量和 main 函数如下：表长为 m，H(key) = key % m，main 读入 m、n 和 n 个关键字依次插入，再读入要查找的 key，输出 Search 的结果。补全 Insert（把 key 插到链表 HT[key % m] 的表头）和 Search（返回查找 key 时的比较次数，找不到返回 0）。\n样例输入：\n7 7\n14 21 9 16 30 23 11\n9\n样例输出：\n4",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct HNode {\n    int key;\n    struct HNode *next;\n} HNode;\nHNode *HT[20];    /* 各地址的同义词链表 */\nint m;            /* 表长，H(key) = key % m */\n\nvoid Insert(int key)\n{\n    /* 请补全 */\n}\n\nint Search(int key)\n{\n    /* 请补全 */\n}\n\nint main(void)\n{\n    int n, i, key;\n    scanf(\"%d%d\", &m, &n);\n    for (i = 0; i < n; i++) {\n        scanf(\"%d\", &key);\n        Insert(key);\n    }\n    scanf(\"%d\", &key);\n    printf(\"%d\\n\", Search(key));\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct HNode {\n    int key;\n    struct HNode *next;\n} HNode;\nHNode *HT[20];    /* 各地址的同义词链表 */\nint m;            /* 表长，H(key) = key % m */\n\nvoid Insert(int key)\n{\n    HNode *s = (HNode *)malloc(sizeof(HNode));\n    s->key = key;\n    s->next = HT[key % m];\n    HT[key % m] = s;\n}\n\nint Search(int key)\n{\n    HNode *p = HT[key % m];\n    int cnt = 1;\n    while (p != NULL && p->key != key) {\n        p = p->next;\n        cnt++;\n    }\n    return p != NULL ? cnt : 0;\n}\n\nint main(void)\n{\n    int n, i, key;\n    scanf(\"%d%d\", &m, &n);\n    for (i = 0; i < n; i++) {\n        scanf(\"%d\", &key);\n        Insert(key);\n    }\n    scanf(\"%d\", &key);\n    printf(\"%d\\n\", Search(key));\n    return 0;\n}",
+          "points": [
+            "能编译运行，样例输出正确（4 分）",
+            "Insert：申请结点，next 指向原表头，再让 HT[key % m] 指向新结点（6 分）",
+            "Search：从 HT[key % m] 开始沿链比较，相等则成功（5 分）",
+            "Search：用计数变量记录比较次数，走到 NULL 返回 0（3 分）",
+            "其他地址的链表不受影响，空链表直接返回 0（2 分）"
+          ],
+          "explain": "地址 2 依次插入 9、16、30、23，用头插法后链表是 23→30→16→9，所以查 9 要比较 4 次，最后插入的 23 只要 1 次。链地址法不会产生堆积，删除也方便。"
+        },
+        {
+          "id": "13004-u90-l2-q4",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "归并排序",
+          "stem": "全局数组 a、元素个数 n（≤ 100）和 main 函数如下。补全 Merge（把有序的 a[low..mid] 和 a[mid+1..high] 归并成一个有序段）和递归函数 MergeSort（对 a[low..high] 进行二路归并排序，每完成一次归并，就输出一次整个数组）。\n样例输入：\n5\n5 4 3 2 1\n样例输出：\n4 5 3 2 1\n3 4 5 2 1\n3 4 5 1 2\n1 2 3 4 5",
+          "code": "#include <stdio.h>\nint a[100], n;\n\nvoid Merge(int low, int mid, int high)\n{\n    /* 请补全 */\n}\n\nvoid MergeSort(int low, int high)\n{\n    /* 请补全 */\n}\n\nint main(void)\n{\n    int i;\n    scanf(\"%d\", &n);\n    for (i = 0; i < n; i++)\n        scanf(\"%d\", &a[i]);\n    MergeSort(0, n - 1);\n    return 0;\n}",
+          "answer": "#include <stdio.h>\nint a[100], n;\n\nvoid Merge(int low, int mid, int high)\n{\n    int t[100], i = low, j = mid + 1, k = 0;\n    while (i <= mid && j <= high)\n        t[k++] = a[i] <= a[j] ? a[i++] : a[j++];\n    while (i <= mid)\n        t[k++] = a[i++];\n    while (j <= high)\n        t[k++] = a[j++];\n    for (i = 0; i < k; i++)\n        a[low + i] = t[i];\n}\n\nvoid MergeSort(int low, int high)\n{\n    int mid, i;\n    if (low >= high)\n        return;\n    mid = (low + high) / 2;\n    MergeSort(low, mid);\n    MergeSort(mid + 1, high);\n    Merge(low, mid, high);\n    for (i = 0; i < n; i++)\n        printf(\"%d \", a[i]);\n    printf(\"\\n\");\n}\n\nint main(void)\n{\n    int i;\n    scanf(\"%d\", &n);\n    for (i = 0; i < n; i++)\n        scanf(\"%d\", &a[i]);\n    MergeSort(0, n - 1);\n    return 0;\n}",
+          "points": [
+            "能编译运行，样例输出正确（4 分）",
+            "Merge：两段都没取完时取较小者（相等时取左段，保持稳定）放入临时数组（6 分）",
+            "Merge：把没取完的那段复制过去，再整体复制回 a[low..high]（4 分）",
+            "MergeSort：low >= high 时返回，否则分成两半分别递归排序（4 分）",
+            "两半排好后调用 Merge，并输出整个数组（2 分）"
+          ],
+          "explain": "归并排序要 O(n) 的辅助空间，时间复杂度 O(nlog₂n)，是稳定的。n 不超过 100，临时数组 t 开 100 个单元就够了；如果用 malloc 申请，用完要 free。"
+        },
+        {
+          "id": "13004-u90-l2-q5",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "希尔排序",
+          "stem": "main 函数如下。补全函数 ShellSort：对 a[0..n-1] 进行希尔排序（递增），增量 d 依次取 n/2、n/4、…、1，每组内用直接插入排序；每趟结束后输出整个数组。\n样例输入：\n10\n49 38 65 97 76 13 27 49 55 4\n样例输出：\n13 27 49 55 4 49 38 65 97 76\n4 27 13 49 38 55 49 65 97 76\n4 13 27 38 49 49 55 65 76 97",
+          "code": "#include <stdio.h>\n\n/* 希尔排序：增量 d 依次取 n/2、n/4、…、1，\n   每趟结束后输出整个数组 */\nvoid ShellSort(int a[], int n)\n{\n    /* 请补全 */\n}\n\nint main(void)\n{\n    int a[100], n, i;\n    scanf(\"%d\", &n);\n    for (i = 0; i < n; i++)\n        scanf(\"%d\", &a[i]);\n    ShellSort(a, n);\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n\n/* 希尔排序：增量 d 依次取 n/2、n/4、…、1，\n   每趟结束后输出整个数组 */\nvoid ShellSort(int a[], int n)\n{\n    int d, i, j, x, k;\n    for (d = n / 2; d >= 1; d /= 2) {\n        for (i = d; i < n; i++) {\n            x = a[i];\n            j = i - d;\n            while (j >= 0 && a[j] > x) {\n                a[j + d] = a[j];\n                j -= d;\n            }\n            a[j + d] = x;\n        }\n        for (k = 0; k < n; k++)\n            printf(\"%d \", a[k]);\n        printf(\"\\n\");\n    }\n}\n\nint main(void)\n{\n    int a[100], n, i;\n    scanf(\"%d\", &n);\n    for (i = 0; i < n; i++)\n        scanf(\"%d\", &a[i]);\n    ShellSort(a, n);\n    return 0;\n}",
+          "points": [
+            "能编译运行，样例输出正确（4 分）",
+            "外层循环：d 从 n/2 开始，每趟减半，直到 1（4 分）",
+            "把 a[i] 插入所在组的有序部分（与 a[i-d]、a[i-2d]… 比较）（8 分）",
+            "x 放入 a[j+d]（2 分）",
+            "每趟结束输出一次（2 分）"
+          ],
+          "explain": "把直接插入排序中的“1”都换成 d，就是一趟希尔排序；最后一趟 d = 1 就是普通的直接插入排序。相等的元素分在不同的组里各自移动，相对次序可能改变，所以希尔排序不稳定。"
+        }
+      ]
+    },
+    {
+      "id": "13004-u90-l3",
+      "title": "上机模拟（三）：程序填空",
+      "questions": [
+        {
+          "id": "13004-u90-l3-q1",
+          "type": "fill",
+          "level": "应用",
+          "kp": "单链表的删除",
+          "stem": "下面程序输入一个递增有序的整数序列（以 -1 结束），建立带头结点的单链表，删除其中值相同的多余结点后输出。例如输入 1 2 2 3 3 3 5 -1，输出 1 2 3 5。横线处应填____。",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;\n\nint main(void)\n{\n    LinkList L = (LNode *)malloc(sizeof(LNode));\n    LNode *r = L, *p, *q;\n    int x;\n    while (scanf(\"%d\", &x) == 1 && x != -1) {\n        p = (LNode *)malloc(sizeof(LNode));\n        p->data = x;\n        r->next = p;\n        r = p;\n    }\n    r->next = NULL;\n    p = L->next;\n    while (p != NULL && p->next != NULL) {\n        q = p->next;\n        if (q->data == p->data) {\n            ______;\n            free(q);\n        } else\n            p = q;\n    }\n    for (p = L->next; p != NULL; p = p->next)\n        printf(\"%d \", p->data);\n    printf(\"\\n\");\n    return 0;\n}",
+          "answers": [
+            "p->next = q->next",
+            "p->next = p->next->next"
+          ],
+          "explain": "q 是 p 的后继，值与 p 相同时，让 p 的 next 跳过 q，把 q 从链上摘下，再释放 q；这时 p 不动，继续和新的后继比较。值不同时 p 才后移。"
+        },
+        {
+          "id": "13004-u90-l3-q2",
+          "type": "fill",
+          "level": "应用",
+          "kp": "栈的应用",
+          "stem": "下面程序用栈判断输入的字符串是否为回文（正读和反读都一样）：前一半字符进栈，再与后一半字符逐个比较，长度为奇数时跳过中间的字符。横线处应填____。",
+          "code": "#include <stdio.h>\n#include <string.h>\nint main(void)\n{\n    char s[101], st[101];\n    int top = -1, i, n;\n    scanf(\"%s\", s);\n    n = strlen(s);\n    for (i = 0; i < n / 2; i++)\n        st[++top] = s[i];\n    i = ______;\n    while (i < n && s[i] == st[top]) {\n        top--;\n        i++;\n    }\n    puts(i == n ? \"YES\" : \"NO\");\n    return 0;\n}",
+          "answers": [
+            "(n + 1) / 2",
+            "(1 + n) / 2",
+            "n - n / 2",
+            "n / 2 + n % 2"
+          ],
+          "explain": "进栈的是前 n/2 个字符，后一半从下标 (n+1)/2 开始：n 为偶数时就是 n/2，为奇数时正好跳过中间那个。写成 n / 2，奇数长度的 abcba 会拿中间的 c 去比较，被误判为 NO。"
+        },
+        {
+          "id": "13004-u90-l3-q3",
+          "type": "fill",
+          "level": "应用",
+          "kp": "二叉树遍历算法的应用",
+          "stem": "下面程序按扩展先序序列（# 表示空树）建立二叉树，交换每个结点的左右子树后输出先序序列。例如输入 ABD##E##C#F##，输出 ACFBED。横线处应填____。",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct BiTNode {\n    char data;\n    struct BiTNode *lchild, *rchild;\n} BiTNode, *BiTree;\n\nBiTree Create(void)\n{\n    BiTree T;\n    char ch = getchar();\n    if (ch == '#')\n        return NULL;\n    T = (BiTNode *)malloc(sizeof(BiTNode));\n    T->data = ch;\n    T->lchild = Create();\n    T->rchild = Create();\n    return T;\n}\n\nvoid Swap(BiTree T)    /* 交换左右子树 */\n{\n    BiTree t;\n    if (T == NULL)\n        return;\n    t = T->lchild;\n    T->lchild = T->rchild;\n    ______;\n    Swap(T->lchild);\n    Swap(T->rchild);\n}\n\nvoid PreOrder(BiTree T)\n{\n    if (T == NULL)\n        return;\n    putchar(T->data);\n    PreOrder(T->lchild);\n    PreOrder(T->rchild);\n}\n\nint main(void)\n{\n    BiTree T = Create();\n    Swap(T);\n    PreOrder(T);\n    putchar('\\n');\n    return 0;\n}",
+          "answers": [
+            "T->rchild = t"
+          ],
+          "explain": "交换两个指针要借助临时变量 t：先保存左子树，左指针改指右子树，再让右指针指向保存的左子树，然后分别对左右子树递归交换。先序（先交换再递归）、后序都可以。"
+        },
+        {
+          "id": "13004-u90-l3-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "Dijkstra 算法",
+          "stem": "下面程序用 Dijkstra 算法求顶点 0 到其余各顶点的最短路径，path[v] 记录最短路径上 v 的前一个顶点，每行输出一个顶点的最短路径长度和路径，如“7 0->2->1”。横线处应填____。",
+          "code": "#include <stdio.h>\n#define MAXV 20\n#define INF 32767\nint G[MAXV][MAXV], path[MAXV];\n\nvoid PrintPath(int v)  /* 输出 0 到 v 的路径 */\n{\n    if (v == 0) {\n        printf(\"0\");\n        return;\n    }\n    ______;\n    printf(\"->%d\", v);\n}\n\nint main(void)\n{\n    int n, e, u = 0, v, w, i, min;\n    int dist[MAXV], s[MAXV] = {0};\n    scanf(\"%d%d\", &n, &e);\n    for (u = 0; u < n; u++)\n        for (v = 0; v < n; v++)\n            G[u][v] = INF;\n    while (e-- > 0) {\n        scanf(\"%d%d%d\", &u, &v, &w);\n        G[u][v] = w;\n    }\n    for (v = 0; v < n; v++) {\n        dist[v] = G[0][v];\n        path[v] = 0;\n    }\n    s[0] = 1;\n    for (i = 1; i < n; i++) {\n        min = INF;\n        for (v = 0; v < n; v++)\n            if (!s[v] && dist[v] < min) {\n                min = dist[v];\n                u = v;\n            }\n        s[u] = 1;\n        for (v = 0; v < n; v++) {\n            w = min + G[u][v];\n            if (!s[v] && w < dist[v]) {\n                dist[v] = w;\n                path[v] = u;\n            }\n        }\n    }\n    for (v = 1; v < n; v++) {\n        printf(\"%d \", dist[v]);\n        PrintPath(v);\n        printf(\"\\n\");\n    }\n    return 0;\n}",
+          "answers": [
+            "PrintPath(path[v])"
+          ],
+          "explain": "path 是从终点往回记的，要先递归输出到前驱 path[v] 为止的路径，再输出“->v”；递归到 0 时输出 0 并返回。把递归调用放在 printf 之后，会先输出终点，次序就反了。"
+        },
+        {
+          "id": "13004-u90-l3-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "折半插入排序",
+          "stem": "下面程序用折半插入排序对输入的 n 个整数递增排序：先用折半查找确定 a[i] 的插入位置，再把元素后移、插入。横线处应填____。",
+          "code": "#include <stdio.h>\nint main(void)\n{\n    int a[100], n, i, j, x, low, high, mid;\n    scanf(\"%d\", &n);\n    for (i = 0; i < n; i++)\n        scanf(\"%d\", &a[i]);\n    for (i = 1; i < n; i++) {\n        x = a[i];\n        low = 0;\n        high = i - 1;\n        while (low <= high) {\n            mid = (low + high) / 2;\n            if (x < a[mid])\n                high = mid - 1;\n            else\n                low = mid + 1;\n        }\n        for (j = i - 1; j >= low; j--)\n            a[j + 1] = a[j];\n        ______;\n    }\n    for (i = 0; i < n; i++)\n        printf(\"%d \", a[i]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "answers": [
+            "a[low] = x",
+            "a[high + 1] = x",
+            "a[j + 1] = x"
+          ],
+          "explain": "折半查找结束时 low = high + 1，low 就是 x 的插入位置；后移循环结束时 j = low - 1，所以这三种写法效果相同。x 等于 a[mid] 时令 low = mid + 1，插在相等元素的后面，排序是稳定的。",
+          "verify": "核对教材是否讲折半插入排序（它是直接插入排序的改进）。"
+        }
+      ]
+    }
+  ]
+}

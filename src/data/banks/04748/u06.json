@@ -1,0 +1,355 @@
+{
+  "course": "04748",
+  "unit": 6,
+  "title": "图形用户界面与事件处理",
+  "lessons": [
+    {
+      "id": "04748-u06-l1",
+      "title": "窗口、布局管理器与常用组件",
+      "questions": [
+        {
+          "id": "04748-u06-l1-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "布局管理（BorderLayout）",
+          "stem": "在 JFrame 窗口中依次执行 add(b1); add(b2); add(b3); 加入三个按钮（没有调用 setLayout），运行后只看到 b3 铺满整个窗口。原因是？",
+          "options": [
+            "默认是 BorderLayout，三个按钮都放在中部，只显示最后一个",
+            "JFrame 中最多只能放一个组件",
+            "没有调用 setVisible(true) 显示 b1、b2",
+            "默认是 FlowLayout，窗口太小放不下"
+          ],
+          "answer": 0,
+          "explain": "JFrame（的内容面板）默认使用 BorderLayout，add(组件) 不指定区域时放在 CENTER，一个区域只能显示一个组件，所以只看到最后加入的 b3。可以先 setLayout(new FlowLayout())，或者写 add(b1, BorderLayout.NORTH) 指定区域。"
+        },
+        {
+          "id": "04748-u06-l1-q2",
+          "type": "single",
+          "level": "识记",
+          "kp": "常用布局管理器（默认布局）",
+          "stem": "下列容器中，默认布局管理器是 FlowLayout 的是？",
+          "options": [
+            "JFrame 的内容面板",
+            "Frame",
+            "JPanel",
+            "Dialog"
+          ],
+          "answer": 2,
+          "explain": "Panel、JPanel 和 Applet 默认用 FlowLayout，组件从左到右依次排列，一行放不下就换行；Frame、Dialog 以及 JFrame、JDialog 的内容面板默认用 BorderLayout。"
+        },
+        {
+          "id": "04748-u06-l1-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "常用布局管理器（GridLayout）",
+          "stem": "执行 p.setLayout(new GridLayout(2, 3)); 后，向面板 p 中依次加入 6 个按钮。这些按钮的排列方式是？",
+          "options": [
+            "3 行 2 列，从左到右、从上到下依次排列",
+            "2 行 3 列，从左到右、从上到下依次排列",
+            "2 行 3 列，从上到下、从左到右依次排列",
+            "排成一行，按钮之间相隔 2～3 像素"
+          ],
+          "answer": 1,
+          "explain": "GridLayout(行数, 列数) 把容器分成大小相同的网格，组件按加入的顺序从左到右填满一行，再填下一行。GridLayout(2, 3, 5, 5) 的后两个参数是水平和垂直间距。"
+        },
+        {
+          "id": "04748-u06-l1-q4",
+          "type": "fill",
+          "level": "识记",
+          "kp": "容器（JFrame 的关闭操作）",
+          "stem": "单击 JFrame 窗口的关闭按钮，默认只是隐藏窗口，程序并不结束。要在关闭窗口时结束程序，应调用 setDefaultCloseOperation(JFrame.____);",
+          "answers": [
+            "EXIT_ON_CLOSE"
+          ],
+          "explain": "JFrame 默认的关闭操作是 HIDE_ON_CLOSE（隐藏窗口）。AWT 的 Frame 单击关闭按钮默认什么也不做，要用 addWindowListener() 注册监听器（常继承 WindowAdapter），在 windowClosing() 中调用 System.exit(0)。"
+        },
+        {
+          "id": "04748-u06-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "容器（窗口的显示）",
+          "stem": "程序中用 JFrame f = new JFrame(\"我的窗口\"); 创建了窗口，又调用了 f.setSize(300, 200); 和 f.add(按钮);，运行后屏幕上看不到窗口。最可能漏写的语句是？",
+          "options": [
+            "f.pack();",
+            "f.setLayout(new FlowLayout());",
+            "f.repaint();",
+            "f.setVisible(true);"
+          ],
+          "answer": 3,
+          "explain": "新创建的窗口默认是不可见的，必须调用 setVisible(true) 才会显示，通常放在加好组件、设好大小之后。pack() 只是按组件的首选大小调整窗口大小，不会显示窗口。"
+        },
+        {
+          "id": "04748-u06-l1-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "常规组件（文本框、密码框）",
+          "stem": "窗口中有文本框 tf（JTextField）和密码框 pf（JPasswordField）。下列取得输入内容的写法中，正确的是？",
+          "options": [
+            "int n = tf.getText();",
+            "String p = new String(pf.getPassword());",
+            "String p = pf.getPassword();",
+            "String s = tf.getValue();"
+          ],
+          "answer": 1,
+          "explain": "getText() 返回 String，要得到整数得用 Integer.parseInt(tf.getText()) 转换；JPasswordField 的 getPassword() 返回 char[]，用 new String(…) 转成字符串后再用 equals() 比较。JTextField 没有 getValue() 方法。"
+        },
+        {
+          "id": "04748-u06-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "常用布局管理器；常规组件",
+          "stem": "编写程序 Keypad：创建标题为“计算器”的窗口，北部（BorderLayout.NORTH）放一个文本框；中部放一个面板，面板用 4 行 4 列的 GridLayout，依次放 16 个按钮：7 8 9 + 4 5 6 - 1 2 3 * 0 . = /。关闭窗口时结束程序。（本题只做界面，不处理按钮事件。）",
+          "points": [
+            "继承 JFrame（或创建 JFrame 对象），设置标题和大小，最后 setVisible(true)（2 分）",
+            "文本框用 add(…, BorderLayout.NORTH) 放在北部（2 分）",
+            "面板设置为 GridLayout(4, 4)，按顺序加入 16 个按钮（2 分）",
+            "面板放在中部，并设置 setDefaultCloseOperation(EXIT_ON_CLOSE)（2 分）"
+          ],
+          "answer": "import java.awt.*;\nimport javax.swing.*;\npublic class Keypad extends JFrame {\n  public Keypad() {\n    super(\"计算器\");\n    JTextField display = new JTextField();\n    add(display, BorderLayout.NORTH);\n    JPanel p = new JPanel();\n    p.setLayout(new GridLayout(4, 4, 5, 5));\n    String keys = \"789+456-123*0.=/\";\n    for (int i = 0; i < keys.length(); i++) {\n      String k = keys.substring(i, i + 1);\n      p.add(new JButton(k));\n    }\n    add(p, BorderLayout.CENTER);\n    setSize(260, 260);\n    setDefaultCloseOperation(EXIT_ON_CLOSE);\n    setVisible(true);\n  }\n  public static void main(String[] args) {\n    new Keypad();\n  }\n}",
+          "explain": "把 16 个按钮的文字放在一个字符串里，用循环逐个取出创建按钮，比写 16 条 add 语句简洁。JDK 5 起可以直接调用 JFrame 的 add()，它会把组件加到内容面板；旧写法是 getContentPane().add(…)。"
+        }
+      ]
+    },
+    {
+      "id": "04748-u06-l2",
+      "title": "事件处理：监听器、内部类与匿名类",
+      "questions": [
+        {
+          "id": "04748-u06-l2-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "事件处理（导入事件包）",
+          "stem": "程序只导入了 javax.swing.* 和 java.awt.*，类 MyWin 声明为 implements ActionListener，编译时报“找不到符号 类 ActionListener”。应补充的语句是？",
+          "options": [
+            "import java.awt.Event;",
+            "import javax.swing.event.*;",
+            "import java.awt.*.*;",
+            "import java.awt.event.*;"
+          ],
+          "answer": 3,
+          "explain": "import java.awt.*; 只导入 java.awt 包中的类，不包括子包；ActionListener、ActionEvent、WindowAdapter 等都在子包 java.awt.event 中，必须另外导入。javax.swing.event 中是 Swing 特有的监听器，如 ListSelectionListener。"
+        },
+        {
+          "id": "04748-u06-l2-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "事件处理（事件源）",
+          "stem": "按钮 ok 和 cancel 用 addActionListener(this) 注册了同一个监听器。在 actionPerformed(ActionEvent e) 中判断单击的是不是 ok，正确的写法是？",
+          "options": [
+            "if (e.getSource() == ok) { … }",
+            "if (e.getButton() == ok) { … }",
+            "if (e == ok) { … }",
+            "if (ok.isSelected()) { … }"
+          ],
+          "answer": 0,
+          "explain": "getSource() 返回产生事件的组件（事件源），可以直接与按钮变量比较；也可以用 e.getActionCommand() 取得按钮上的文字来判断。ActionEvent 没有 getButton() 方法（那是 MouseEvent 的）；按钮的 isSelected() 表示选中状态，不表示被单击。"
+        },
+        {
+          "id": "04748-u06-l2-q3",
+          "type": "fill",
+          "level": "应用",
+          "kp": "匿名内部类",
+          "stem": "下面用匿名内部类为按钮 btn 注册监听器，横线处应填____。",
+          "code": "btn.addActionListener(new ______() {\n  public void actionPerformed(ActionEvent e) {\n    label.setText(\"已单击\");\n  }\n});",
+          "answers": [
+            "ActionListener",
+            "java.awt.event.ActionListener"
+          ],
+          "explain": "匿名内部类的写法是 new 接口名() { 实现接口的方法 }，同时完成“定义一个实现 ActionListener 的类”和“创建它的对象”。ActionListener 只有一个方法，Java 8 起也可以写成 Lambda 表达式：btn.addActionListener(e -> label.setText(\"已单击\"));。"
+        },
+        {
+          "id": "04748-u06-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "内部类（访问局部变量）",
+          "stem": "下面的程序想统计按钮被单击的次数，编译时报“从内部类引用的本地变量必须是最终变量或实际上的最终变量”。正确的改法是？",
+          "code": "public static void main(String[] args) {\n  JButton btn = new JButton(\"点我\");\n  int count = 0;\n  btn.addActionListener(new ActionListener() {\n    public void actionPerformed(ActionEvent e) {\n      count++;\n    }\n  });\n  // ……\n}",
+          "options": [
+            "把 count 声明为 final int count = 0;",
+            "把 count++ 改为 count = count + 1;",
+            "把 count 改为类的成员变量，如 static int count = 0;",
+            "把 ActionListener 改为 ActionEvent"
+          ],
+          "answer": 2,
+          "explain": "内部类（包括匿名类和 Lambda）可以读取所在方法的局部变量，但这个变量必须是 final 或“实际上的 final”（赋值后不再修改，Java 8 起可以不写 final；更早的版本必须写）。要在事件处理中修改的数据，应定义为成员变量。声明为 final 后 count++ 同样编译出错。"
+        },
+        {
+          "id": "04748-u06-l2-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "匿名内部类（this 的含义）",
+          "stem": "在 JFrame 的子类 MyWin 的构造方法中，用匿名内部类为按钮注册监听器，在 actionPerformed() 中写 JOptionPane.showMessageDialog(this, \"你好\"); 时编译出错。原因和改法是？",
+          "options": [
+            "匿名内部类中不能弹出对话框，应改用 System.out.println",
+            "匿名内部类不能访问外部类的成员，应改用成员内部类",
+            "这里的 this 指匿名监听器对象，应改为 MyWin.this",
+            "this 只能在静态方法中使用，应改为 super"
+          ],
+          "answer": 2,
+          "explain": "在匿名内部类中，this 指这个匿名类的对象（一个 ActionListener），不是窗口，不能作为 showMessageDialog() 的第一个参数（要求 Component），javac 报“<匿名ActionListener>无法转换为Component”。引用外部的窗口对象要写“外部类名.this”；写 null 也可以，对话框显示在屏幕中央。"
+        },
+        {
+          "id": "04748-u06-l2-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "事件处理（动作命令）",
+          "stem": "按钮 b = new JButton(\"确定\");，单击它时在 actionPerformed(ActionEvent e) 中执行 System.out.println(e.getActionCommand());，输出的是？",
+          "options": [
+            "确定",
+            "b",
+            "ActionEvent",
+            "null"
+          ],
+          "answer": 0,
+          "explain": "按钮的动作命令默认就是按钮上的文字，也可以用 setActionCommand() 另外设置。多个按钮共用一个监听器时，可以用它区分按钮，如计算器的数字键。"
+        },
+        {
+          "id": "04748-u06-l2-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "常规组件；事件处理；匿名内部类",
+          "stem": "编写程序 TempConv：窗口中有一个文本框、一个“转换”按钮和一个标签。在文本框中输入摄氏温度，单击按钮后，标签显示对应的华氏温度（F = C × 9 / 5 + 32，保留 1 位小数）；输入的不是数字时，标签显示“请输入数字”。要求用匿名内部类处理按钮事件。\n示例：输入 36.5，单击“转换”，标签显示“华氏 97.7 度”。",
+          "points": [
+            "创建文本框、按钮和标签，设置 FlowLayout 后加入窗口（2 分）",
+            "用匿名内部类 new ActionListener() { … } 为按钮注册监听器（2 分）",
+            "在 actionPerformed 中用 getText() 取得输入，用 Double.parseDouble() 转换并计算（2 分）",
+            "捕获 NumberFormatException，提示“请输入数字”；结果用 setText() 显示（2 分）"
+          ],
+          "answer": "import java.awt.*;\nimport java.awt.event.*;\nimport javax.swing.*;\npublic class TempConv extends JFrame {\n  JTextField input = new JTextField(8);\n  JButton btn = new JButton(\"转换\");\n  JLabel result = new JLabel(\"华氏温度\");\n  public TempConv() {\n    super(\"温度转换\");\n    setLayout(new FlowLayout());\n    add(input);\n    add(btn);\n    add(result);\n    btn.addActionListener(new ActionListener() {\n      public void actionPerformed(ActionEvent e) {\n        try {\n          String s = input.getText().trim();\n          double c = Double.parseDouble(s);\n          double f = c * 9 / 5 + 32;\n          String t = String.format(\"%.1f\", f);\n          result.setText(\"华氏 \" + t + \" 度\");\n        } catch (NumberFormatException ex) {\n          result.setText(\"请输入数字\");\n        }\n      }\n    });\n    setSize(320, 100);\n    setDefaultCloseOperation(EXIT_ON_CLOSE);\n    setVisible(true);\n  }\n  public static void main(String[] args) {\n    new TempConv();\n  }\n}",
+          "explain": "c * 9 / 5 中 c 是 double，整个表达式按 double 计算；如果写成 9 / 5 * c，9 / 5 先按整数相除得 1，结果就错了。catch 的参数不能再叫 e，因为外层方法的参数已经叫 e。"
+        },
+        {
+          "id": "04748-u06-l2-q8",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "内部类；事件处理；常用布局管理器",
+          "stem": "编写程序 ColorWin：窗口上方有“红色”“绿色”“蓝色”三个按钮，单击某个按钮，窗口中部面板的背景就变成相应的颜色，窗口标题显示这个颜色名。要求用一个成员内部类实现 ActionListener，三个按钮共用这个监听器。",
+          "points": [
+            "上方面板放三个按钮，放在 BorderLayout.NORTH；中部放一个面板（2 分）",
+            "定义成员内部类实现 ActionListener，创建一个对象注册给三个按钮（2 分）",
+            "用 getActionCommand()（或 getSource()）判断是哪个按钮（2 分）",
+            "用 setBackground(Color.RED) 等改变面板颜色，用 setTitle() 改标题（2 分）"
+          ],
+          "answer": "import java.awt.*;\nimport java.awt.event.*;\nimport javax.swing.*;\npublic class ColorWin extends JFrame {\n  JPanel board = new JPanel();\n  public ColorWin() {\n    super(\"颜色\");\n    JPanel top = new JPanel();\n    String[] names = {\"红色\", \"绿色\", \"蓝色\"};\n    ColorHandler h = new ColorHandler();\n    for (int i = 0; i < names.length; i++) {\n      JButton b = new JButton(names[i]);\n      b.addActionListener(h);\n      top.add(b);\n    }\n    add(top, BorderLayout.NORTH);\n    add(board, BorderLayout.CENTER);\n    setSize(300, 200);\n    setDefaultCloseOperation(EXIT_ON_CLOSE);\n    setVisible(true);\n  }\n  class ColorHandler implements ActionListener {\n    public void actionPerformed(ActionEvent e) {\n      String cmd = e.getActionCommand();\n      Color c = Color.BLUE;\n      if (cmd.equals(\"红色\")) c = Color.RED;\n      else if (cmd.equals(\"绿色\")) c = Color.GREEN;\n      board.setBackground(c);\n      setTitle(cmd);\n    }\n  }\n  public static void main(String[] args) {\n    new ColorWin();\n  }\n}",
+          "explain": "成员内部类可以直接使用外部类的成员，如 board 和 setTitle()，这是它比单独写一个监听器类方便的地方。也可以让 ColorWin 自己 implements ActionListener，用 addActionListener(this) 注册。"
+        }
+      ]
+    },
+    {
+      "id": "04748-u06-l3",
+      "title": "选择组件、菜单、鼠标与窗口事件、Applet",
+      "questions": [
+        {
+          "id": "04748-u06-l3-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "常规组件（复选框的事件）",
+          "stem": "复选框 JCheckBox 的选中状态改变时要立刻做出响应，应实现的监听器接口和方法是？",
+          "options": [
+            "ActionListener 的 itemStateChanged()",
+            "ItemListener 的 actionPerformed()",
+            "ChangeListener 的 itemChanged()",
+            "ItemListener 的 itemStateChanged()"
+          ],
+          "answer": 3,
+          "explain": "复选框、单选按钮、组合框的选中状态改变时产生 ItemEvent，由 ItemListener 的 itemStateChanged() 处理，用 addItemListener() 注册。处理时用 isSelected() 判断复选框是否选中，用 getSelectedItem() 取得组合框的选中项。"
+        },
+        {
+          "id": "04748-u06-l3-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "常规组件（单选按钮）",
+          "stem": "窗口中有“男”“女”两个 JRadioButton，运行后发现两个按钮可以同时选中。原因是？",
+          "options": [
+            "没有把两个单选按钮放进同一个 JPanel",
+            "没有把两个单选按钮加入同一个 ButtonGroup",
+            "应该用 JCheckBox 代替 JRadioButton",
+            "没有为单选按钮注册 ItemListener"
+          ],
+          "answer": 1,
+          "explain": "单选按钮要加入同一个 ButtonGroup 对象才能互斥：ButtonGroup g = new ButtonGroup(); g.add(male); g.add(female);。ButtonGroup 只负责分组，不是容器，按钮仍要加入面板才能显示。"
+        },
+        {
+          "id": "04748-u06-l3-q3",
+          "type": "fill",
+          "level": "识记",
+          "kp": "菜单和菜单项",
+          "stem": "创建菜单栏 JMenuBar bar 并加好菜单后，要把它放到 JFrame 窗口的顶部，应调用窗口的____方法。",
+          "answers": [
+            "setJMenuBar",
+            "setJMenuBar()",
+            "setJMenuBar(bar)"
+          ],
+          "explain": "菜单的层次是：JMenuBar（菜单栏）→ JMenu（菜单）→ JMenuItem（菜单项）。菜单栏用 setJMenuBar(bar) 放到窗口顶部，不用 add()；单击菜单项产生 ActionEvent，和按钮一样用 addActionListener() 注册监听器。"
+        },
+        {
+          "id": "04748-u06-l3-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "事件处理（适配器类）",
+          "stem": "下面用匿名内部类处理鼠标单击的代码编译出错。最简单的改法是？",
+          "code": "panel.addMouseListener(new MouseListener() {\n  public void mouseClicked(MouseEvent e) {\n    label.setText(e.getX() + \",\" + e.getY());\n  }\n});",
+          "options": [
+            "把 mouseClicked 改为 actionPerformed",
+            "把 addMouseListener 改为 addActionListener",
+            "在 mouseClicked 前加 static",
+            "把 MouseListener 改为 MouseAdapter"
+          ],
+          "answer": 3,
+          "explain": "MouseListener 接口有 5 个方法（mouseClicked、mousePressed、mouseReleased、mouseEntered、mouseExited），只实现一个会报“…未覆盖MouseListener中的抽象方法mouseExited(MouseEvent)”。MouseAdapter 已用空方法实现了全部方法，继承它只需覆盖要用的方法；WindowAdapter、KeyAdapter 同理。"
+        },
+        {
+          "id": "04748-u06-l3-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "Applet 类的主要方法和 Applet 生命周期",
+          "stem": "Applet 第一次被加载运行时，浏览器（或 appletviewer）依次调用 Applet 的哪些方法？",
+          "options": [
+            "start()、init()、paint()",
+            "init()、start()、paint()",
+            "main()、init()、start()",
+            "init()、paint()、start()"
+          ],
+          "answer": 1,
+          "explain": "Applet 没有 main 方法：加载时先调用一次 init() 做初始化，再调用 start() 开始运行，需要绘制时调用 paint(Graphics g)；离开页面时调用 stop()，关闭时调用 destroy()。调用 repaint() 会让系统重新绘制，即再调用 paint()。"
+        },
+        {
+          "id": "04748-u06-l3-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "HTML 与 Applet 的配合使用",
+          "stem": "已编译得到 Hello.class（继承 Applet）。在 HTML 文件中用 <applet> 标记嵌入它时，指定 Applet 类文件的属性是？",
+          "options": [
+            "src=\"Hello.class\"",
+            "class=\"Hello.class\"",
+            "code=\"Hello.class\"",
+            "href=\"Hello.class\""
+          ],
+          "answer": 2,
+          "explain": "完整写法如 <applet code=\"Hello.class\" width=\"300\" height=\"200\"></applet>：code 指定类文件，width、height 指定显示区域的大小；还可以用 <param name=\"…\" value=\"…\"> 传参数，在 Applet 中用 getParameter() 读取。JDK 8 可以用 appletviewer Hello.html 运行。",
+          "verify": "考核用的 JDK 版本和能否运行 Applet 以南航通知为准：appletviewer 从 JDK 9 起过时、JDK 11 起删除，现在的浏览器也不再支持 Applet。"
+        },
+        {
+          "id": "04748-u06-l3-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "Applet 的应用；HTML 与 Applet 的配合使用",
+          "stem": "编写 Applet 程序 Welcome：在 (20, 40) 处显示“欢迎学习 Java”，在 (20, 70) 处显示“考生：姓名”，姓名在 init() 方法中从 HTML 参数 name 读取，没有这个参数时显示“考生：匿名”。再写出运行它的 HTML 文件（宽 300、高 120，参数 name 的值为“张三”）。",
+          "points": [
+            "类继承 Applet（或 JApplet），导入 java.applet 和 java.awt 包中的类（2 分）",
+            "在 init() 中用 getParameter(\"name\") 读取参数，参数不存在（返回 null）时用“匿名”（2 分）",
+            "在 paint(Graphics g) 中用 g.drawString(文字, x, y) 显示两行文字（2 分）",
+            "HTML 中用 <applet code=… width=… height=…> 嵌入，用 <param> 传参数（2 分）"
+          ],
+          "answer": "import java.applet.Applet;\nimport java.awt.Graphics;\npublic class Welcome extends Applet {\n  String name;\n  public void init() {\n    name = getParameter(\"name\");\n    if (name == null) name = \"匿名\";\n  }\n  public void paint(Graphics g) {\n    g.drawString(\"欢迎学习 Java\", 20, 40);\n    g.drawString(\"考生：\" + name, 20, 70);\n  }\n}\n/* Welcome.html：\n<applet code=\"Welcome.class\" width=\"300\"\n        height=\"120\">\n  <param name=\"name\" value=\"张三\">\n</applet>\n*/",
+          "explain": "Applet 由浏览器或 appletviewer 创建和调用，不需要 main 方法；drawString 的坐标是文字基线左端的位置。用 JDK 9 及以上版本编译时会提示 Applet 已过时（JDK 17 显示为警告），不影响生成 class 文件。",
+          "verify": "考核环境能否运行 Applet、是否要求写 HTML 文件，以南航通知为准。"
+        }
+      ]
+    }
+  ]
+}

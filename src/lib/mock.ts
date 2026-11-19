@@ -158,6 +158,62 @@ export const PAPERS: Record<string, PaperSpec> = {
       { label: "写作", type: "short", forms: ["写作"], count: 1, points: 15 },
     ],
   },
+  "13014": {
+    minutes: 90,
+    note: "实践课，南航没有公开考核大纲：按上机的程序填空、程序改错、程序设计推测，题量和分值是估计的，以南航通知为准。",
+    sections: [
+      { label: "程序填空题", type: "fill", code: "blank", count: 5, points: 6 },
+      { label: "程序改错题", type: "short", forms: ["程序改错"], count: 2, points: 15 },
+      { label: "程序设计题", type: "short", forms: ["程序设计"], count: 2, points: 20 },
+    ],
+  },
+  "04748": {
+    minutes: 120,
+    note: "实践课，南航没有公开考核大纲：按上机的程序改错和控制台、面向对象、界面编程各 1 道推测，分值是估计的，以南航通知为准。",
+    sections: [
+      { label: "程序改错题", type: "short", forms: ["程序改错"], count: 1, points: 15 },
+      { label: "控制台编程题", type: "short", lessons: ["04748-u90-l1"], count: 1, points: 25 },
+      { label: "面向对象编程题", type: "short", lessons: ["04748-u90-l2"], count: 1, points: 30 },
+      { label: "界面编程题", type: "short", lessons: ["04748-u90-l3"], count: 1, points: 30 },
+    ],
+  },
+  "02334": {
+    minutes: 120,
+    note: "实践课，南航没有公开考核大纲：按给定小系统做分析设计、测试用例和项目计划推测，也可能是交课程设计报告加答辩，以南航通知为准。",
+    sections: [
+      { label: "单项选择题", type: "single", count: 10, points: 2 },
+      { label: "填空题", type: "fill", count: 5, points: 2 },
+      { label: "设计题", type: "short", lessons: ["02334-u01-l1", "02334-u02-l1", "02334-u02-l2", "02334-u03-l1", "02334-u03-l2", "02334-u04-l1", "02334-u04-l2", "02334-u05-l1", "02334-u05-l2", "02334-u05-l3", "02334-u06-l1", "02334-u06-l2", "02334-u07-l1"], count: 3, points: 10 },
+      { label: "综合设计题", type: "short", lessons: ["02334-u90-l1", "02334-u90-l2", "02334-u90-l3"], count: 2, points: 20 },
+    ],
+  },
+  "13004": {
+    minutes: 120,
+    note: "实践课，南航没有公开考核大纲：按上机的程序填空、程序改错、程序设计推测，分值是估计的，以南航通知为准。",
+    sections: [
+      { label: "程序填空题", type: ["fill", "single"], code: "blank", count: 5, points: 4 },
+      { label: "程序改错题", type: "short", forms: ["程序改错"], count: 2, points: 10 },
+      { label: "程序设计题", type: "short", forms: ["程序设计"], lessons: ["13004-u90-l1", "13004-u90-l2"], count: 3, points: 20 },
+    ],
+  },
+  "00899": {
+    minutes: 120,
+    note: "实践课，南航没有公开考核大纲：按上机完成一个小功能模块（5 个任务，后面的任务要用到前面建的表和类）加 2 道单项上机题推测，分值是估计的，以南航通知为准。",
+    sections: [
+      { label: "综合上机题", type: "short", lessons: ["00899-u90-l1", "00899-u90-l2", "00899-u90-l3", "00899-u90-l4"], whole: true, count: 5, points: 16 },
+      { label: "单项上机题", type: "short", lessons: ["00899-u01-l1", "00899-u01-l2", "00899-u02-l1", "00899-u03-l1", "00899-u03-l2", "00899-u04-l1", "00899-u04-l2", "00899-u04-l3", "00899-u05-l1", "00899-u06-l1", "00899-u07-l1", "00899-u08-l1", "00899-u08-l2", "00899-u08-l3", "00899-u09-l1", "00899-u09-l2", "00899-u10-l1", "00899-u10-l2"], count: 2, points: 10 },
+    ],
+  },
+  "04736": {
+    minutes: 120,
+    note: "实践课，南航没有公开考核大纲：按上机操作、4 道 SQL 大题、按小问给分推测，以南航通知为准。",
+    sections: [
+      { label: "建库建表与数据更新", type: "short", lessons: ["04736-u90-l1"], count: 1, points: 25 },
+      { label: "数据查询", type: "short", lessons: ["04736-u90-l2"], count: 1, points: 30 },
+      { label: "视图、索引与存储程序", type: "short", lessons: ["04736-u90-l3"], count: 1, points: 25 },
+      { label: "触发器、权限、事务与备份", type: "short", lessons: ["04736-u90-l4"], count: 1, points: 20 },
+    ],
+  },
   "04751": {
     minutes: 150,
     note: "题型按南航大纲（单选、判断改错、简答、论述）；各题型的题量和分值是估计的。",
@@ -269,7 +325,7 @@ export function judgeItem(item: PaperItem, answer: Answer | undefined, rating?: 
     return chosen.length === q.answer.length && chosen.every((v, k) => v === q.answer[k]) ? "right" : "wrong";
   }
   if (q.type === "judge") return answer === q.answer ? "right" : "wrong";
-  return typeof answer === "string" && checkFill(answer, q.answers) ? "right" : "wrong";
+  return typeof answer === "string" && checkFill(answer, q.answers, q.code) ? "right" : "wrong";
 }
 
 export const itemScore = (item: PaperItem, r: Result) => (r === "right" ? item.points : r === "partial" ? item.points / 2 : 0);

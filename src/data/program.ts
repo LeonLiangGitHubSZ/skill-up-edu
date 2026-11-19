@@ -142,8 +142,9 @@ export const CRITICAL_SLOT_COURSES = ["00023", "13003", "13013", "15040"];
 /**
  * 有题库（或正在写题库）的课程，以及最早能考的考期。
  * startStudying = 新用户默认标成“备考”；其余课程要在路线页手动标成“备考”才计入每天的目标。
+ * 实践课由主考学校南航另行安排考核，没有考期（显示“考期待定”，每天的进度按 30 天学完来排）。
  */
-export const STUDY_PLAN: { code: string; session: string; startStudying?: boolean }[] = [
+export const STUDY_PLAN: { code: string; session?: string; startStudying?: boolean }[] = [
   { code: "04751", session: "2027-01", startStudying: true },
   { code: "04735", session: "2027-01", startStudying: true },
   { code: "00898", session: "2027-01", startStudying: true },
@@ -159,13 +160,19 @@ export const STUDY_PLAN: { code: string; session: string; startStudying?: boolea
   { code: "00023", session: "2027-04" },
   { code: "04747", session: "2027-04" },
   { code: "02333", session: "2027-04" },
+  { code: "13014" },
+  { code: "13004" },
+  { code: "04736" },
+  { code: "04748" },
+  { code: "00899" },
+  { code: "02334" },
 ];
 
 export const sessionById = (id: string) => SESSIONS.find((s) => s.id === id);
 
 /** 某门课在某考期的开考时间（本地时间）；考期未公布具体日期时返回 null */
-export function examStart(code: string, sessionId: string): Date | null {
-  const session = sessionById(sessionId);
+export function examStart(code: string, sessionId: string | undefined): Date | null {
+  const session = sessionId ? sessionById(sessionId) : undefined;
   const slot = session?.slots[code];
   if (!session?.days || !slot) return null;
   const [dayIndex, h, m] = SLOT_START[slot];

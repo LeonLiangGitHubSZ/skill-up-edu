@@ -1,0 +1,265 @@
+{
+  "course": "04736",
+  "unit": 90,
+  "title": "专项：上机模拟题",
+  "lessons": [
+    {
+      "id": "04736-u90-l1",
+      "title": "建库建表与数据更新",
+      "questions": [
+        {
+          "id": "04736-u90-l1-q1",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "建库建表与完整性约束",
+          "stem": "在 MySQL 中完成下列操作：\n(1) 创建数据库 db_library（字符集 utf8mb4），并设为当前数据库；\n(2) 创建读者表 reader：rno 读者号 CHAR(4)，主键；rname 姓名 VARCHAR(20)，不能为空；dept 单位 VARCHAR(30)；\n(3) 创建图书表 book：bno 书号 CHAR(6)，主键；bname 书名 VARCHAR(50)，不能为空；price 价格 DECIMAL(6,2)，必须大于 0；stock 库存 INT，默认为 1；\n(4) 创建借阅表 borrow(rno, bno, bdate, rdate)：bdate 借书日期不能为空，rdate 为还书日期；主键为 (rno, bno, bdate)；rno 参照 reader，删除读者时级联删除其借阅记录；bno 参照 book；\n(5) 插入读者 R001 王芳（信息学院）、图书 B00001《数据库系统原理》45 元（库存取默认值），以及王芳 2026-11-01 借这本书的记录。",
+          "points": ["(1) CREATE DATABASE … CHARACTER SET utf8mb4; USE（1 分）", "(2)(3) 主键、NOT NULL、CHECK (price > 0)、DEFAULT 1（2 分）", "(4) PRIMARY KEY (rno, bno, bdate)，两个外键（1 分）", "(4) rno 的外键带 ON DELETE CASCADE（1 分）", "(5) 先插 reader、book，再插 borrow；不给 stock（1 分）"],
+          "answer": "CREATE DATABASE db_library\n  CHARACTER SET utf8mb4;\nUSE db_library;\nCREATE TABLE reader (\n  rno   CHAR(4) PRIMARY KEY,\n  rname VARCHAR(20) NOT NULL,\n  dept  VARCHAR(30)\n);\nCREATE TABLE book (\n  bno   CHAR(6) PRIMARY KEY,\n  bname VARCHAR(50) NOT NULL,\n  price DECIMAL(6,2) CHECK (price > 0),\n  stock INT DEFAULT 1\n);\nCREATE TABLE borrow (\n  rno   CHAR(4),\n  bno   CHAR(6),\n  bdate DATE NOT NULL,\n  rdate DATE,\n  PRIMARY KEY (rno, bno, bdate),\n  FOREIGN KEY (rno) REFERENCES reader(rno)\n    ON DELETE CASCADE,\n  FOREIGN KEY (bno) REFERENCES book(bno)\n);\nINSERT INTO reader\n  VALUES ('R001', '王芳', '信息学院');\nINSERT INTO book(bno, bname, price)\n  VALUES ('B00001', '数据库系统原理', 45);\nINSERT INTO borrow(rno, bno, bdate)\n  VALUES ('R001', 'B00001', '2026-11-01');",
+          "explain": "插入要先父表后子表，否则违反外键报 1452；book 插入时列出列名、省略 stock，库存取默认值 1，borrow 省略 rdate，还书日期为 NULL。CHECK 约束在 5.7 中会被忽略，8.0.16 起才检查。"
+        },
+        {
+          "id": "04736-u90-l1-q2",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "数据的插入、修改与删除",
+          "stem": "商品库 db_shop 中已用下面的语句建好表并插入了数据。用 SQL 语句完成：\n(1) 新增商品 G005“移动电源”，数码类，99 元，库存不填（取默认值）；\n(2) 为 G004 新增一条订单：数量 10，日期为当天（订单号自动生成）；\n(3) 把“家居”类商品的价格上调 5%；\n(4) 给 goods 增加一列 status CHAR(2)，默认值为“在售”，再把从未被订购过的商品的 status 改为“滞销”；\n(5) 创建表 orders_2025，结构与 orders 相同，把 2026 年以前的订单移到这张表中（复制后从 orders 中删除）。",
+          "code": "CREATE TABLE goods (\n  gno      CHAR(4) PRIMARY KEY,\n  gname    VARCHAR(30) NOT NULL,\n  category VARCHAR(10),\n  price    DECIMAL(8,2),\n  stock    INT DEFAULT 0\n);\nCREATE TABLE orders (\n  ono   INT AUTO_INCREMENT PRIMARY KEY,\n  gno   CHAR(4) NOT NULL,\n  qty   INT,\n  odate DATE,\n  FOREIGN KEY (gno) REFERENCES goods(gno)\n);\nINSERT INTO goods VALUES\n('G001','鼠标','数码',59,100),\n('G002','键盘','数码',129,50),\n('G003','台灯','家居',89,30),\n('G004','水杯','家居',25,200);\nINSERT INTO orders(gno, qty, odate) VALUES\n('G001',2,'2025-12-30'),('G002',1,'2026-01-05'),\n('G001',5,'2026-03-08'),('G003',1,'2026-03-09');",
+          "points": ["(1) 列出列名、省略 stock（1 分）", "(2) VALUES ('G004', 10, CURDATE())，不给 ono（1 分）", "(3) SET price = price * 1.05 WHERE category = '家居'（1 分）", "(4) ADD status … DEFAULT '在售'；UPDATE … NOT IN (…)（1 分）", "(5) CREATE TABLE … LIKE；INSERT … SELECT；再 DELETE（2 分）"],
+          "answer": "INSERT INTO goods(gno, gname, category, price)\n  VALUES ('G005', '移动电源', '数码', 99);\nINSERT INTO orders(gno, qty, odate)\n  VALUES ('G004', 10, CURDATE());\nUPDATE goods SET price = price * 1.05\n  WHERE category = '家居';\nALTER TABLE goods\n  ADD status CHAR(2) DEFAULT '在售';\nUPDATE goods SET status = '滞销'\n  WHERE gno NOT IN (SELECT gno FROM orders);\nCREATE TABLE orders_2025 LIKE orders;\nINSERT INTO orders_2025\n  SELECT * FROM orders\n  WHERE odate < '2026-01-01';\nDELETE FROM orders WHERE odate < '2026-01-01';",
+          "explain": "按样例数据，(4) 只有 G005 被标为“滞销”，(5) 移走 1 条 2025-12-30 的订单。CREATE TABLE … LIKE 复制列定义和索引，但不复制外键；先复制再删除，顺序不能反。"
+        },
+        {
+          "id": "04736-u90-l1-q3",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "参照动作与带子查询的修改",
+          "stem": "在已有的数据库 db_company 中完成：\n(1) 创建部门表 dept：dno CHAR(3)，主键；dname VARCHAR(20)，不能为空且不能重复；\n(2) 创建职工表 emp：eno CHAR(4)，主键；ename VARCHAR(20)，不能为空；sex CHAR(1)，只能是“男”或“女”；salary DECIMAL(8,2)，默认 3000；dno CHAR(3)，参照 dept，部门被删除时职工的部门号置为空；\n(3) 插入部门 D01 研发部、D02 市场部，职工 E001 张伟（男，8000，D01）和 E002 李娜（女，工资取默认值，D02）；\n(4) 把市场部职工的工资提高 10%；\n(5) 删除部门 D02，再查询 emp，验证李娜的部门号已变为空。",
+          "points": ["(1) dname NOT NULL UNIQUE（1 分）", "(2) CHECK (sex IN ('男', '女'))，DEFAULT 3000（1 分）", "(2) FOREIGN KEY (dno) … ON DELETE SET NULL（1 分）", "(3) 李娜那一行省略 salary，取默认值（1 分）", "(4) UPDATE … WHERE dno IN (按部门名查部门号)（1 分）", "(5) DELETE FROM dept …；SELECT 验证（1 分）"],
+          "answer": "USE db_company;\nCREATE TABLE dept (\n  dno   CHAR(3) PRIMARY KEY,\n  dname VARCHAR(20) NOT NULL UNIQUE\n);\nCREATE TABLE emp (\n  eno    CHAR(4) PRIMARY KEY,\n  ename  VARCHAR(20) NOT NULL,\n  sex    CHAR(1) CHECK (sex IN ('男', '女')),\n  salary DECIMAL(8,2) DEFAULT 3000,\n  dno    CHAR(3),\n  FOREIGN KEY (dno) REFERENCES dept(dno)\n    ON DELETE SET NULL\n);\nINSERT INTO dept VALUES ('D01', '研发部'),\n                        ('D02', '市场部');\nINSERT INTO emp VALUES\n  ('E001', '张伟', '男', 8000, 'D01');\nINSERT INTO emp(eno, ename, sex, dno)\n  VALUES ('E002', '李娜', '女', 'D02');\nUPDATE emp SET salary = salary * 1.1\n  WHERE dno IN (SELECT dno FROM dept\n                WHERE dname = '市场部');\nDELETE FROM dept WHERE dno = 'D02';\nSELECT * FROM emp;",
+          "explain": "执行后李娜的工资为 3300.00，删除 D02 后她的 dno 变为 NULL。ON DELETE SET NULL 要求外键列允许为空；5.7 中 sex 上的 CHECK 约束不起作用，可以改用 ENUM('男', '女') 类型。"
+        },
+        {
+          "id": "04736-u90-l1-q4",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "修改表结构与维护数据",
+          "stem": "学生选课库 db_school 中已用下面的语句建好表、插入了数据（建表时没有定义外键）。用 SQL 语句完成：\n(1) 为 sc 增加外键 fk_sc_s（sno 参照 student）和 fk_sc_c（cno 参照 course）；\n(2) 给 student 增加一列 email VARCHAR(40)，并加上唯一约束 uk_email；\n(3) 把 course 的 credit 列改为 TINYINT，不能为空，默认值为 2；\n(4) 把“数据库原理”课程中不及格学生的成绩改为 60；\n(5) 删除没有任何选课记录的学生。",
+          "code": "CREATE TABLE student (\n  sno   CHAR(5) PRIMARY KEY,\n  sname VARCHAR(20) NOT NULL,\n  sdept VARCHAR(20)\n);\nCREATE TABLE course (\n  cno    CHAR(3) PRIMARY KEY,\n  cname  VARCHAR(30) NOT NULL,\n  credit INT\n);\nCREATE TABLE sc (\n  sno   CHAR(5),\n  cno   CHAR(3),\n  grade INT,\n  PRIMARY KEY (sno, cno)\n);\nINSERT INTO student VALUES\n('S01','张明','计算机'),('S02','李丽','计算机'),\n('S03','王强','数学'),('S04','赵敏','数学');\nINSERT INTO course VALUES\n('C01','数据库原理',4),('C02','数据结构',4),\n('C03','高等数学',5);\nINSERT INTO sc VALUES\n('S01','C01',92),('S02','C01',55),\n('S03','C01',48),('S03','C03',80);",
+          "points": ["(1) ALTER TABLE sc ADD CONSTRAINT … FOREIGN KEY … REFERENCES（2 分）", "(2) ADD email …，ADD CONSTRAINT uk_email UNIQUE (email)（1 分）", "(3) MODIFY credit TINYINT NOT NULL DEFAULT 2（1 分）", "(4) grade < 60 AND cno = (按课程名查课程号)（1 分）", "(5) DELETE … WHERE sno NOT IN (SELECT sno FROM sc)（1 分）"],
+          "answer": "ALTER TABLE sc\n  ADD CONSTRAINT fk_sc_s FOREIGN KEY (sno)\n    REFERENCES student(sno),\n  ADD CONSTRAINT fk_sc_c FOREIGN KEY (cno)\n    REFERENCES course(cno);\nALTER TABLE student ADD email VARCHAR(40),\n  ADD CONSTRAINT uk_email UNIQUE (email);\nALTER TABLE course\n  MODIFY credit TINYINT NOT NULL DEFAULT 2;\nUPDATE sc SET grade = 60\n  WHERE grade < 60\n    AND cno = (SELECT cno FROM course\n               WHERE cname = '数据库原理');\nDELETE FROM student\n  WHERE sno NOT IN (SELECT sno FROM sc);",
+          "explain": "按样例数据，(4) 修改 S02、S03 两行，(5) 删除赵敏。加外键前，sc 中已有的数据必须都能在被参照表中找到，否则 ALTER 失败（报 1452）；一条 ALTER TABLE 中可以用逗号分隔写多项修改。"
+        },
+        {
+          "id": "04736-u90-l1-q5",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "自增列、默认值与联合主键",
+          "stem": "完成下列操作：\n(1) 创建数据库 db_club 并设为当前数据库；\n(2) 创建会员表 member：mid 会员号，整数，自动编号，主键；mname 姓名 VARCHAR(20)，不能为空；phone 手机号 CHAR(11)，不能重复；join_date 入会日期 DATE；\n(3) 创建活动表 activity：aid CHAR(4)，主键；aname VARCHAR(40)，不能为空；quota 名额 INT，必须大于 0；\n(4) 创建报名表 signup：mid、aid 为联合主键，分别参照 member 和 activity；stime 报名时间 DATETIME，默认为当前时间；\n(5) 插入会员周杰（13900001111，2026-09-01）、活动 A001“秋季登山”（名额 30），以及周杰报名 A001 的记录（报名时间取默认值），然后查询 signup。",
+          "points": ["(2) mid INT AUTO_INCREMENT PRIMARY KEY，phone UNIQUE（1 分）", "(3) quota INT CHECK (quota > 0)（1 分）", "(4) PRIMARY KEY (mid, aid)，两个外键（1 分）", "(4) stime DATETIME DEFAULT CURRENT_TIMESTAMP（1 分）", "(5) 先插父表再插 signup，不给 stime（1 分）"],
+          "answer": "CREATE DATABASE db_club;\nUSE db_club;\nCREATE TABLE member (\n  mid       INT AUTO_INCREMENT PRIMARY KEY,\n  mname     VARCHAR(20) NOT NULL,\n  phone     CHAR(11) UNIQUE,\n  join_date DATE\n);\nCREATE TABLE activity (\n  aid   CHAR(4) PRIMARY KEY,\n  aname VARCHAR(40) NOT NULL,\n  quota INT CHECK (quota > 0)\n);\nCREATE TABLE signup (\n  mid   INT,\n  aid   CHAR(4),\n  stime DATETIME DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (mid, aid),\n  FOREIGN KEY (mid) REFERENCES member(mid),\n  FOREIGN KEY (aid) REFERENCES activity(aid)\n);\nINSERT INTO member(mname, phone, join_date)\n  VALUES ('周杰', '13900001111', '2026-09-01');\nINSERT INTO activity\n  VALUES ('A001', '秋季登山', 30);\nINSERT INTO signup(mid, aid)\n  SELECT mid, 'A001' FROM member\n  WHERE phone = '13900001111';\nSELECT * FROM signup;",
+          "explain": "DATETIME 列用 DEFAULT CURRENT_TIMESTAMP 取当前时间，5.6.5 起支持，5.7 和 8.0 都能用。会员号是系统生成的，(5) 用 INSERT … SELECT 按手机号查出会员号再插入，不必自己猜编号（本例中是 1）。"
+        }
+      ]
+    },
+    {
+      "id": "04736-u90-l2",
+      "title": "数据查询",
+      "questions": [
+        {
+          "id": "04736-u90-l2-q1",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "单表、连接与分组查询",
+          "stem": "学生选课库 db_school 中 student(sno, sname, ssex, sage, sdept)、course(cno, cname, credit)、sc(sno, cno, grade) 的数据如下。写出完成下列查询的 SQL 语句：\n(1) 查询年龄小于 20 岁的女生的学号、姓名和所在系；\n(2) 查询每个系的学生人数和平均年龄，按人数从多到少排列；\n(3) 查询选修了“数据库原理”且成绩在 85 分以上的学生的姓名和成绩；\n(4) 查询每个学生的姓名和选课门数，没有选课的学生显示 0；\n(5) 查询平均成绩高于全体选课记录平均成绩的学生的学号和平均成绩。",
+          "code": "INSERT INTO student VALUES\n('S01','张明','男',19,'计算机'),\n('S02','李丽','女',20,'计算机'),\n('S03','王强','男',21,'数学'),\n('S04','赵敏','女',19,'数学'),\n('S05','刘洋','男',22,'物理');\nINSERT INTO course VALUES\n('C01','数据库原理',4),('C02','数据结构',4),\n('C03','操作系统',3),('C04','高等数学',5);\nINSERT INTO sc VALUES\n('S01','C01',92),('S01','C02',85),\n('S01','C04',70),('S02','C01',88),\n('S02','C02',62),('S03','C01',58),\n('S03','C04',90),('S04','C04',75);",
+          "points": ["(1) ssex = '女' AND sage < 20（1 分）", "(2) GROUP BY sdept，COUNT(*)、AVG(sage)，ORDER BY … DESC（1 分）", "(3) 三表连接，cname = '数据库原理' AND grade > 85（1 分）", "(4) student LEFT JOIN sc，COUNT(sc.cno)（1 分）", "(5) HAVING AVG(grade) > (SELECT AVG(grade) FROM sc)（1 分）"],
+          "answer": "SELECT sno, sname, sdept FROM student\n  WHERE ssex = '女' AND sage < 20;\nSELECT sdept, COUNT(*) AS 人数,\n       AVG(sage) AS 平均年龄\n  FROM student GROUP BY sdept\n  ORDER BY 人数 DESC;\nSELECT s.sname, sc.grade\n  FROM student s\n  JOIN sc ON s.sno = sc.sno\n  JOIN course c ON sc.cno = c.cno\n  WHERE c.cname = '数据库原理'\n    AND sc.grade > 85;\nSELECT s.sname, COUNT(sc.cno) AS 门数\n  FROM student s LEFT JOIN sc\n    ON s.sno = sc.sno\n  GROUP BY s.sno, s.sname;\nSELECT sno, AVG(grade) AS 平均成绩 FROM sc\n  GROUP BY sno\n  HAVING AVG(grade) > (SELECT AVG(grade)\n                       FROM sc);",
+          "explain": "按样例数据：(1) 赵敏；(3) 张明 92、李丽 88；(4) 刘洋为 0；(5) 全体平均分 77.5，只有张明（约 82.3）符合。(4) 必须用外连接并按 sc.cno 计数，写成 COUNT(*) 会把刘洋算成 1。"
+        },
+        {
+          "id": "04736-u90-l2-q2",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "连接查询、分组统计与子查询",
+          "stem": "商品订单库中有 goods(gno, gname, category, price)、customer(cid, cname, city)、orders(ono, cid, gno, qty, odate)，数据如下。写出完成下列查询的 SQL 语句：\n(1) 查询 2026 年 10 月的订单的订单号、顾客姓名、商品名和数量，按日期排序；\n(2) 统计每种商品的销售总量和销售额（单价×数量），只显示销售额超过 200 元的商品；\n(3) 查询从未被订购过的商品的名称；\n(4) 查询南京的顾客购买过的商品名称（不重复）；\n(5) 查询消费总额最高的顾客的姓名和消费总额。",
+          "code": "INSERT INTO goods VALUES\n('G1','鼠标','数码',59),('G2','键盘','数码',129),\n('G3','台灯','家居',89),('G4','水杯','家居',25),\n('G5','耳机','数码',199);\nINSERT INTO customer VALUES\n('C1','张三','南京'),('C2','李四','苏州'),\n('C3','王五','南京');\nINSERT INTO orders VALUES\n(1,'C1','G1',2,'2026-10-01'),\n(2,'C1','G3',1,'2026-10-03'),\n(3,'C2','G2',1,'2026-10-03'),\n(4,'C2','G1',3,'2026-10-08'),\n(5,'C1','G2',2,'2026-11-02');",
+          "points": ["(1) 三表连接，10 月的日期条件，ORDER BY odate（1 分）", "(2) SUM(qty)、SUM(price * qty)，GROUP BY，HAVING（1 分）", "(3) NOT IN 或 NOT EXISTS 子查询（1 分）", "(4) 连接 customer，city = '南京'，DISTINCT（1 分）", "(5) 按顾客分组求总额，ORDER BY … DESC LIMIT 1（1 分）"],
+          "answer": "SELECT o.ono, c.cname, g.gname, o.qty\n  FROM orders o\n  JOIN customer c ON o.cid = c.cid\n  JOIN goods g ON o.gno = g.gno\n  WHERE o.odate BETWEEN '2026-10-01'\n                    AND '2026-10-31'\n  ORDER BY o.odate;\nSELECT g.gno, g.gname, SUM(o.qty) AS 总量,\n       SUM(g.price * o.qty) AS 销售额\n  FROM goods g JOIN orders o ON g.gno = o.gno\n  GROUP BY g.gno, g.gname\n  HAVING SUM(g.price * o.qty) > 200;\nSELECT gname FROM goods\n  WHERE gno NOT IN (SELECT gno FROM orders);\nSELECT DISTINCT g.gname\n  FROM orders o\n  JOIN customer c ON o.cid = c.cid\n  JOIN goods g ON o.gno = g.gno\n  WHERE c.city = '南京';\nSELECT c.cname, SUM(g.price * o.qty) AS 总额\n  FROM customer c\n  JOIN orders o ON c.cid = o.cid\n  JOIN goods g ON o.gno = g.gno\n  GROUP BY c.cid, c.cname\n  ORDER BY 总额 DESC LIMIT 1;",
+          "explain": "按样例数据：(2) 鼠标 295 元、键盘 387 元；(3) 水杯、耳机；(4) 鼠标、台灯、键盘；(5) 张三 465 元。(5) 若可能并列第一，应改用 HAVING SUM(…) >= ALL (各顾客的总额)。"
+        },
+        {
+          "id": "04736-u90-l2-q3",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "自连接、外连接与相关子查询",
+          "stem": "公司库中有 dept(dno, dname, city) 和 emp(eno, ename, salary, mgr, dno)，mgr 是直接上级的工号，数据如下。写出完成下列查询的 SQL 语句：\n(1) 查询每个职工的姓名及其直接上级的姓名，没有上级的职工也要列出；\n(2) 查询每个部门的部门名、人数和平均工资，没有职工的部门人数显示 0；\n(3) 查询工资高于本部门平均工资的职工的姓名、工资和部门号；\n(4) 查询工资比自己的直接上级还高的职工的姓名；\n(5) 查询在“南京”的部门工作、工资在 10000 元以上的职工的姓名。",
+          "code": "INSERT INTO dept VALUES\n('D1','研发部','南京'),('D2','市场部','上海'),\n('D3','财务部','南京');\nINSERT INTO emp VALUES\n('E1','赵总',20000,NULL,'D1'),\n('E2','钱工',12000,'E1','D1'),\n('E3','孙工',9000,'E2','D1'),\n('E4','李经理',11000,'E1','D2'),\n('E5','周员',6000,'E4','D2'),\n('E6','吴员',13000,'E4','D2');",
+          "points": ["(1) emp 与自身左外连接，e.mgr = m.eno（1 分）", "(2) dept LEFT JOIN emp，COUNT(e.eno)（1 分）", "(3) 相关子查询 e2.dno = e1.dno 求本部门平均（1 分）", "(4) 自连接后比较 e.salary > m.salary（1 分）", "(5) dno IN (SELECT dno FROM dept WHERE city = '南京')（1 分）"],
+          "answer": "SELECT e.ename, m.ename AS 上级\n  FROM emp e LEFT JOIN emp m\n    ON e.mgr = m.eno;\nSELECT d.dname, COUNT(e.eno) AS 人数,\n       AVG(e.salary) AS 平均工资\n  FROM dept d LEFT JOIN emp e\n    ON d.dno = e.dno\n  GROUP BY d.dno, d.dname;\nSELECT ename, salary, dno FROM emp e1\n  WHERE salary > (SELECT AVG(salary)\n                  FROM emp e2\n                  WHERE e2.dno = e1.dno);\nSELECT e.ename\n  FROM emp e JOIN emp m ON e.mgr = m.eno\n  WHERE e.salary > m.salary;\nSELECT ename FROM emp\n  WHERE salary > 10000\n    AND dno IN (SELECT dno FROM dept\n                WHERE city = '南京');",
+          "explain": "按样例数据：(2) 财务部人数为 0、平均工资为 NULL；(3) 赵总、李经理、吴员；(4) 只有吴员；(5) 赵总、钱工。(3) 的子查询引用了外层的 e1.dno，对每个职工按他所在的部门重新计算平均工资。"
+        },
+        {
+          "id": "04736-u90-l2-q4",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "空值判断、EXISTS 与日期函数",
+          "stem": "图书借阅库中有 reader(rno, rname, dept)、book(bno, bname, author, price)、borrow(rno, bno, bdate, rdate)，rdate 为空表示还没有归还，数据如下。写出完成下列查询的 SQL 语句：\n(1) 查询未归还的借阅记录的读者姓名、书名和借书日期；\n(2) 统计借过书的读者每人的借书次数（显示读者号和次数），按次数从多到少排列；\n(3) 查询借过“黄靖”所写的书的读者姓名（不重复）；\n(4) 用 NOT EXISTS 查询从来没有被借过的图书的书名；\n(5) 查询借阅天数超过 15 天的已还记录，显示读者号、书号和天数（用 DATEDIFF 计算）。",
+          "code": "INSERT INTO reader VALUES\n('R1','王芳','信息学院'),('R2','陈刚','机电学院'),\n('R3','林静','信息学院');\nINSERT INTO book VALUES\n('B1','数据库系统原理','黄靖',45),\n('B2','数据结构','严蔚敏',39),\n('B3','操作系统','汤子瀛',42),\n('B4','MySQL实战','黄靖',59);\nINSERT INTO borrow VALUES\n('R1','B1','2026-09-01','2026-09-20'),\n('R1','B2','2026-10-08',NULL),\n('R2','B1','2026-10-10',NULL),\n('R2','B4','2026-10-15','2026-11-01'),\n('R1','B4','2026-11-05',NULL);",
+          "points": ["(1) 三表连接，WHERE rdate IS NULL（1 分）", "(2) GROUP BY rno，COUNT(*)，ORDER BY … DESC（1 分）", "(3) 连接 book，author = '黄靖'，DISTINCT（1 分）", "(4) NOT EXISTS (… WHERE br.bno = b.bno)（1 分）", "(5) DATEDIFF(rdate, bdate) > 15（1 分）"],
+          "answer": "SELECT r.rname, b.bname, br.bdate\n  FROM borrow br\n  JOIN reader r ON br.rno = r.rno\n  JOIN book b ON br.bno = b.bno\n  WHERE br.rdate IS NULL;\nSELECT rno, COUNT(*) AS 次数 FROM borrow\n  GROUP BY rno ORDER BY 次数 DESC;\nSELECT DISTINCT r.rname\n  FROM reader r\n  JOIN borrow br ON r.rno = br.rno\n  JOIN book b ON br.bno = b.bno\n  WHERE b.author = '黄靖';\nSELECT bname FROM book b\n  WHERE NOT EXISTS (SELECT * FROM borrow br\n                    WHERE br.bno = b.bno);\nSELECT rno, bno,\n       DATEDIFF(rdate, bdate) AS 天数\n  FROM borrow\n  WHERE DATEDIFF(rdate, bdate) > 15;",
+          "explain": "按样例数据：(1) 3 行；(2) R1 3 次、R2 2 次；(3) 王芳、陈刚；(4) 操作系统；(5) R1 借 B1 19 天、R2 借 B4 17 天。DATEDIFF(d1, d2) 返回 d1 减 d2 的天数；未还记录的 rdate 为 NULL，DATEDIFF 的结果也是 NULL，不会满足 > 15。"
+        },
+        {
+          "id": "04736-u90-l2-q5",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "CASE 表达式、条件计数与 UNION",
+          "stem": "课程表 course(cno, cname) 和选课表 sc(sno, cno, grade) 的数据如下，grade 为空表示缺考。写出完成下列查询的 SQL 语句：\n(1) 查询 C01 课程每个学生的学号、成绩和等级（85 分及以上为“优”，60～84 分为“及格”，其余为“不及格”），按成绩从高到低排列；\n(2) 统计每门课程的课程名、参考人数（有成绩的人数）和及格人数；\n(3) 查询每门课程最高分的学生的学号、课程号和成绩；\n(4) 用 UNION 查询成绩不及格或缺考的选课记录（学号、课程号）。",
+          "code": "INSERT INTO course VALUES\n('C01','数据库原理'),('C02','数据结构');\nINSERT INTO sc VALUES\n('S01','C01',92),('S02','C01',76),\n('S03','C01',58),('S04','C01',85),\n('S01','C02',66),('S02','C02',49),\n('S03','C02',95),('S04','C02',NULL);",
+          "points": ["(1) CASE WHEN … THEN … ELSE … END AS 等级（1 分）", "(1) WHERE cno = 'C01' ORDER BY grade DESC（1 分）", "(2) COUNT(grade)，SUM(CASE WHEN grade >= 60 THEN 1 ELSE 0 END)（1 分）", "(3) grade = (SELECT MAX(grade) … WHERE b.cno = a.cno)（1 分）", "(4) grade < 60 与 grade IS NULL 两个查询用 UNION 合并（1 分）"],
+          "answer": "SELECT sno, grade,\n       CASE WHEN grade >= 85 THEN '优'\n            WHEN grade >= 60 THEN '及格'\n            ELSE '不及格' END AS 等级\n  FROM sc WHERE cno = 'C01'\n  ORDER BY grade DESC;\nSELECT c.cname, COUNT(sc.grade) AS 参考人数,\n       SUM(CASE WHEN sc.grade >= 60 THEN 1\n                ELSE 0 END) AS 及格人数\n  FROM course c JOIN sc ON c.cno = sc.cno\n  GROUP BY c.cno, c.cname;\nSELECT sno, cno, grade FROM sc a\n  WHERE grade = (SELECT MAX(grade) FROM sc b\n                 WHERE b.cno = a.cno);\nSELECT sno, cno FROM sc WHERE grade < 60\nUNION\nSELECT sno, cno FROM sc WHERE grade IS NULL;",
+          "explain": "按样例数据：(2) 数据库原理参考 4 人、及格 3 人，数据结构参考 3 人、及格 2 人；(3) S01 的 C01（92）和 S03 的 C02（95）；(4) 3 行。SELECT 中的 CASE 表达式以 END 结束，存储过程里的 CASE 语句才以 END CASE 结束。"
+        }
+      ]
+    },
+    {
+      "id": "04736-u90-l3",
+      "title": "视图、索引、存储过程与函数",
+      "questions": [
+        {
+          "id": "04736-u90-l3-q1",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "视图、索引与带输出参数的存储过程",
+          "stem": "学生选课库中 student(sno, sname, ssex, sage, sdept)、course(cno, cname, credit)、sc(sno, cno, grade) 的数据如下。完成：\n(1) 创建视图 v_score(sno, sname, cname, grade)，显示每条选课记录的学号、姓名、课程名和成绩；\n(2) 通过视图查询张明各门课的课程名和成绩；\n(3) 在 sc 的 cno 列上创建索引 idx_cno；\n(4) 创建存储过程 sp_dept_avg(IN p_dept VARCHAR(20), OUT p_avg DECIMAL(5,1))，求某个系学生的平均成绩；调用它查询计算机系的平均成绩并显示。",
+          "code": "INSERT INTO student VALUES\n('S01','张明','男',19,'计算机'),\n('S02','李丽','女',20,'计算机'),\n('S03','王强','男',21,'数学'),\n('S04','赵敏','女',19,'数学'),\n('S05','刘洋','男',22,'物理');\nINSERT INTO course VALUES\n('C01','数据库原理',4),('C02','数据结构',4),\n('C03','操作系统',3),('C04','高等数学',5);\nINSERT INTO sc VALUES\n('S01','C01',92),('S01','C02',85),\n('S01','C04',70),('S02','C01',88),\n('S02','C02',62),('S03','C01',58),\n('S03','C04',90),('S04','C04',75);",
+          "points": ["(1) CREATE VIEW v_score(…) AS 三表连接（1 分）", "(2) SELECT … FROM v_score WHERE sname = '张明'（1 分）", "(3) CREATE INDEX idx_cno ON sc(cno)（1 分）", "(4) IN、OUT 参数，SELECT AVG(…) INTO p_avg（1 分）", "(4) CALL sp_dept_avg('计算机', @a); SELECT @a;（1 分）"],
+          "answer": "CREATE VIEW v_score(sno, sname, cname, grade) AS\n  SELECT s.sno, s.sname, c.cname, sc.grade\n  FROM student s\n  JOIN sc ON s.sno = sc.sno\n  JOIN course c ON sc.cno = c.cno;\nSELECT cname, grade FROM v_score\n  WHERE sname = '张明';\nCREATE INDEX idx_cno ON sc(cno);\nDELIMITER $$\nCREATE PROCEDURE sp_dept_avg(\n  IN p_dept VARCHAR(20), OUT p_avg DECIMAL(5,1))\nBEGIN\n  SELECT AVG(sc.grade) INTO p_avg\n    FROM student s JOIN sc ON s.sno = sc.sno\n    WHERE s.sdept = p_dept;\nEND $$\nDELIMITER ;\nCALL sp_dept_avg('计算机', @a);\nSELECT @a;",
+          "explain": "按样例数据，(2) 返回张明的 3 门课，(4) 计算机系 5 条成绩的平均值为 79.4。OUT 参数可以直接作为 SELECT … INTO 的目标；多表连接的视图可以正常查询，但通过它修改数据有限制。"
+        },
+        {
+          "id": "04736-u90-l3-q2",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "存储函数与带条件判断的存储过程",
+          "stem": "商品库中有 goods(gno CHAR(2) 主键, gname VARCHAR(20), price DECIMAL(8,2), stock INT) 和 orders(ono INT 自增主键, gno CHAR(2), qty INT, odate DATE)，数据如下。完成：\n(1) 创建存储函数 fn_amount(p_ono INT)，返回某个订单的金额（单价×数量）；\n(2) 用 fn_amount 查询所有订单的订单号、商品编号和金额；\n(3) 创建存储过程 sp_order(IN p_gno CHAR(2), IN p_qty INT, OUT p_msg VARCHAR(20))：库存足够时插入订单（日期为当天）并扣减库存，返回“下单成功”，否则返回“库存不足”；\n(4) 调用 sp_order 分别订购 3 件 G2 和 5 件 G1，显示两次的结果并查看 goods。",
+          "code": "INSERT INTO goods VALUES\n('G1','鼠标',59,10),('G2','键盘',129,2),\n('G3','台灯',89,0);\nINSERT INTO orders(gno, qty, odate) VALUES\n('G1',2,'2026-11-01'),('G2',1,'2026-11-02');",
+          "points": ["(1) RETURNS DECIMAL(10,2) READS SQL DATA（1 分）", "(1) 连接 goods 求 price * qty，RETURN 结果（1 分）", "(3) SELECT stock INTO 局部变量，IF … >= p_qty（1 分）", "(3) INSERT 订单、UPDATE 库存，设置 p_msg（1 分）", "(4) 两次 CALL，再 SELECT @m1, @m2 和 goods（1 分）"],
+          "answer": "DELIMITER $$\nCREATE FUNCTION fn_amount(p_ono INT)\n  RETURNS DECIMAL(10,2)\n  READS SQL DATA\nBEGIN\n  DECLARE amt DECIMAL(10,2);\n  SELECT g.price * o.qty INTO amt\n    FROM orders o JOIN goods g ON o.gno = g.gno\n    WHERE o.ono = p_ono;\n  RETURN amt;\nEND $$\nCREATE PROCEDURE sp_order(IN p_gno CHAR(2),\n  IN p_qty INT, OUT p_msg VARCHAR(20))\nBEGIN\n  DECLARE s INT DEFAULT 0;\n  SELECT stock INTO s FROM goods\n    WHERE gno = p_gno;\n  IF s >= p_qty THEN\n    INSERT INTO orders(gno, qty, odate)\n      VALUES (p_gno, p_qty, CURDATE());\n    UPDATE goods SET stock = stock - p_qty\n      WHERE gno = p_gno;\n    SET p_msg = '下单成功';\n  ELSE\n    SET p_msg = '库存不足';\n  END IF;\nEND $$\nDELIMITER ;\nSELECT ono, gno, fn_amount(ono) AS 金额\n  FROM orders;\nCALL sp_order('G2', 3, @m1);\nCALL sp_order('G1', 5, @m2);\nSELECT @m1, @m2;\nSELECT * FROM goods;",
+          "explain": "按样例数据，(2) 两个订单的金额为 118.00 和 129.00；(4) G2 只有 2 件，返回“库存不足”，G1 下单成功，库存变为 5。商品不存在时 s 保持 0，同样返回“库存不足”；插入订单和扣减库存最好放在同一个事务中。"
+        },
+        {
+          "id": "04736-u90-l3-q3",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "游标与存储函数",
+          "stem": "职工表 emp(eno CHAR(2) 主键, ename VARCHAR(20), salary DECIMAL(8,2), dno CHAR(2)) 的数据如下。完成：\n(1) 创建存储函数 fn_dept_avg(p_dno CHAR(2))，返回某个部门的平均工资；\n(2) 创建存储过程 sp_raise(OUT p_n INT)：用游标逐行处理职工，工资低于 5000 的加 500，5000～9999 的加 300，10000 及以上的不变，用 p_n 返回加薪的人数；\n(3) 调用 sp_raise 并显示加薪人数，再用 fn_dept_avg 查询 D2 部门的平均工资。",
+          "code": "INSERT INTO emp VALUES\n('E1','赵总',20000,'D1'),('E2','钱工',12000,'D1'),\n('E3','孙工',4800,'D1'),('E4','李经理',11000,'D2'),\n('E5','周员',4500,'D2'),('E6','吴员',7000,'D2');",
+          "points": ["(1) RETURNS … READS SQL DATA，RETURN (SELECT AVG(salary) …)（1 分）", "(2) 依次声明变量、游标、NOT FOUND 处理程序（1 分）", "(2) LOOP 中 FETCH，读完时 LEAVE（1 分）", "(2) IF … ELSEIF 分档 UPDATE，并累计人数（1 分）", "(3) CALL sp_raise(@n); SELECT @n, fn_dept_avg('D2');（1 分）"],
+          "answer": "DELIMITER $$\nCREATE FUNCTION fn_dept_avg(p_dno CHAR(2))\n  RETURNS DECIMAL(10,2)\n  READS SQL DATA\nBEGIN\n  RETURN (SELECT AVG(salary) FROM emp\n          WHERE dno = p_dno);\nEND $$\nCREATE PROCEDURE sp_raise(OUT p_n INT)\nBEGIN\n  DECLARE v_eno CHAR(2);\n  DECLARE v_sal DECIMAL(8,2);\n  DECLARE done INT DEFAULT 0;\n  DECLARE cur CURSOR FOR\n    SELECT eno, salary FROM emp;\n  DECLARE CONTINUE HANDLER FOR NOT FOUND\n    SET done = 1;\n  SET p_n = 0;\n  OPEN cur;\n  lp: LOOP\n    FETCH cur INTO v_eno, v_sal;\n    IF done = 1 THEN LEAVE lp; END IF;\n    IF v_sal < 5000 THEN\n      UPDATE emp SET salary = salary + 500\n        WHERE eno = v_eno;\n      SET p_n = p_n + 1;\n    ELSEIF v_sal < 10000 THEN\n      UPDATE emp SET salary = salary + 300\n        WHERE eno = v_eno;\n      SET p_n = p_n + 1;\n    END IF;\n  END LOOP lp;\n  CLOSE cur;\nEND $$\nDELIMITER ;\nCALL sp_raise(@n);\nSELECT @n, fn_dept_avg('D2');",
+          "explain": "按样例数据，孙工、周员、吴员 3 人加薪，@n 为 3，D2 加薪后的平均工资为 7766.67。FETCH 之后马上判断 done，读完时及时 LEAVE；这种分档加薪也可以用一条 UPDATE … SET salary = salary + CASE … END 完成。"
+        },
+        {
+          "id": "04736-u90-l3-q4",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "视图、存储函数与存储过程综合",
+          "stem": "图书借阅库中有 book(bno CHAR(2) 主键, bname VARCHAR(50), stock INT) 和 borrow(rno CHAR(2), bno CHAR(2), bdate DATE, rdate DATE)，borrow 的主键为 (rno, bno, bdate)，rdate 为空表示未还，数据如下。完成：\n(1) 创建视图 v_unreturned，列出所有未还记录的读者号、书名和借书日期；\n(2) 创建存储函数 fn_out(p_rno CHAR(2))，返回某个读者未还的图书数量；\n(3) 创建存储过程 sp_return(IN p_rno CHAR(2), IN p_bno CHAR(2))：把该读者这本书未还的记录的还书日期设为当天，并把该书的库存加 1；\n(4) 调用 sp_return 办理 R1 归还 B1，然后查询 v_unreturned 和 R1 的未还数量。",
+          "code": "INSERT INTO book VALUES\n('B1','数据库系统原理',2),('B2','数据结构',1),\n('B3','操作系统',3);\nINSERT INTO borrow VALUES\n('R1','B1','2026-10-08',NULL),\n('R2','B1','2026-10-10',NULL),\n('R1','B2','2026-09-01','2026-09-20');",
+          "points": ["(1) CREATE VIEW … 连接 book，WHERE rdate IS NULL（1 分）", "(2) RETURNS INT READS SQL DATA，RETURN (SELECT COUNT(*) …)（1 分）", "(3) SET rdate = CURDATE() … AND rdate IS NULL（1 分）", "(3) ROW_COUNT() > 0 时才把库存加 1（1 分）", "(4) CALL 后查询视图和 fn_out('R1')（1 分）"],
+          "answer": "CREATE VIEW v_unreturned AS\n  SELECT br.rno, b.bname, br.bdate\n  FROM borrow br JOIN book b ON br.bno = b.bno\n  WHERE br.rdate IS NULL;\nDELIMITER $$\nCREATE FUNCTION fn_out(p_rno CHAR(2))\n  RETURNS INT\n  READS SQL DATA\nBEGIN\n  RETURN (SELECT COUNT(*) FROM borrow\n          WHERE rno = p_rno AND rdate IS NULL);\nEND $$\nCREATE PROCEDURE sp_return(IN p_rno CHAR(2),\n  IN p_bno CHAR(2))\nBEGIN\n  UPDATE borrow SET rdate = CURDATE()\n    WHERE rno = p_rno AND bno = p_bno\n      AND rdate IS NULL;\n  IF ROW_COUNT() > 0 THEN\n    UPDATE book SET stock = stock + 1\n      WHERE bno = p_bno;\n  END IF;\nEND $$\nDELIMITER ;\nCALL sp_return('R1', 'B1');\nSELECT * FROM v_unreturned;\nSELECT fn_out('R1');",
+          "explain": "按样例数据，归还后 v_unreturned 只剩 R2 借的《数据库系统原理》，fn_out('R1') 为 0，B1 的库存变为 3。用 ROW_COUNT() 判断，是为了在记录不存在或已经还过时不重复加库存。"
+        },
+        {
+          "id": "04736-u90-l3-q5",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "WHILE、REPEAT 循环与索引",
+          "stem": "完成下列操作：\n(1) 创建表 t_num(id 自增主键, n INT, sq INT)；\n(2) 创建存储过程 sp_fill(IN p_k INT)：用 WHILE 循环插入 n＝1～p_k 共 p_k 行，sq 为 n 的平方；\n(3) 创建存储过程 sp_sum_odd(IN p_k INT, OUT p_s INT)：用 REPEAT 循环求 1～p_k 中所有奇数的和；\n(4) 调用 sp_fill(10)，在 sq 列上创建索引 idx_sq，查询 sq 在 20～70 之间的行；\n(5) 调用 sp_sum_odd(9, @s) 并显示结果。",
+          "points": ["(1) id INT AUTO_INCREMENT PRIMARY KEY（1 分）", "(2) WHILE i <= p_k DO … END WHILE，循环变量递增（1 分）", "(3) REPEAT … UNTIL i > p_k END REPEAT，i 每次加 2（1 分）", "(4) CALL；CREATE INDEX；BETWEEN 20 AND 70（1 分）", "(5) CALL sp_sum_odd(9, @s); SELECT @s;（1 分）"],
+          "answer": "CREATE TABLE t_num (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  n  INT,\n  sq INT\n);\nDELIMITER $$\nCREATE PROCEDURE sp_fill(IN p_k INT)\nBEGIN\n  DECLARE i INT DEFAULT 1;\n  WHILE i <= p_k DO\n    INSERT INTO t_num(n, sq) VALUES (i, i * i);\n    SET i = i + 1;\n  END WHILE;\nEND $$\nCREATE PROCEDURE sp_sum_odd(IN p_k INT,\n  OUT p_s INT)\nBEGIN\n  DECLARE i INT DEFAULT 1;\n  SET p_s = 0;\n  REPEAT\n    SET p_s = p_s + i;\n    SET i = i + 2;\n  UNTIL i > p_k\n  END REPEAT;\nEND $$\nDELIMITER ;\nCALL sp_fill(10);\nCREATE INDEX idx_sq ON t_num(sq);\nSELECT * FROM t_num WHERE sq BETWEEN 20 AND 70;\nCALL sp_sum_odd(9, @s);\nSELECT @s;",
+          "explain": "按样例操作，(4) 返回 n 为 5～8 的 4 行，(5) 结果为 1＋3＋5＋7＋9＝25。REPEAT 至少执行一次，p_k 小于 1 时也会先加上 1，这种情况用 WHILE 更合适；UNTIL 后面的条件不加分号。"
+        }
+      ]
+    },
+    {
+      "id": "04736-u90-l4",
+      "title": "触发器、用户权限、事务与备份",
+      "questions": [
+        {
+          "id": "04736-u90-l4-q1",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "用触发器维护库存",
+          "stem": "商品库中已用下面的语句建好 goods 和 orders 表并插入了数据。完成：\n(1) 创建触发器 tr_o_ins：插入订单后，相应商品的库存减去订购数量；\n(2) 创建触发器 tr_o_del：删除订单后，把库存加回；\n(3) 创建触发器 tr_o_upd：修改订单的数量后，按新旧数量之差调整库存（订单的商品编号不会被修改）；\n(4) 依次执行：为 G1 下单 10 件、为 G2 下单 5 件，把 G1 的那张订单改为 4 件，删除 G2 的那张订单，最后查询 goods。",
+          "code": "CREATE TABLE goods (\n  gno   CHAR(2) PRIMARY KEY,\n  gname VARCHAR(20),\n  stock INT\n);\nCREATE TABLE orders (\n  ono INT AUTO_INCREMENT PRIMARY KEY,\n  gno CHAR(2),\n  qty INT\n);\nINSERT INTO goods VALUES\n('G1','鼠标',100),('G2','键盘',50);",
+          "points": ["(1) AFTER INSERT ON orders，stock - NEW.qty（1 分）", "(2) AFTER DELETE ON orders，stock + OLD.qty（1 分）", "(3) AFTER UPDATE ON orders，stock + OLD.qty - NEW.qty（1 分）", "(4) 按顺序执行四条语句，查询 goods 验证（1 分）"],
+          "answer": "CREATE TRIGGER tr_o_ins AFTER INSERT ON orders\nFOR EACH ROW\n  UPDATE goods SET stock = stock - NEW.qty\n  WHERE gno = NEW.gno;\nCREATE TRIGGER tr_o_del AFTER DELETE ON orders\nFOR EACH ROW\n  UPDATE goods SET stock = stock + OLD.qty\n  WHERE gno = OLD.gno;\nCREATE TRIGGER tr_o_upd AFTER UPDATE ON orders\nFOR EACH ROW\n  UPDATE goods\n  SET stock = stock + OLD.qty - NEW.qty\n  WHERE gno = NEW.gno;\nINSERT INTO orders(gno, qty) VALUES ('G1', 10);\nINSERT INTO orders(gno, qty) VALUES ('G2', 5);\nUPDATE orders SET qty = 4 WHERE gno = 'G1';\nDELETE FROM orders WHERE gno = 'G2';\nSELECT * FROM goods;",
+          "explain": "执行后 G1 的库存为 96（100－10＋10－4），G2 回到 50。每个触发动作都只有一条语句，不必写 BEGIN … END，也不用改结束符；若订单的商品编号也可能被修改，就要分别调整新、旧两种商品的库存。"
+        },
+        {
+          "id": "04736-u90-l4-q2",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "视图授权与列级权限",
+          "stem": "数据库 db_school 中有 student(sno, sname, ssex, sage, sdept) 和 sc(sno, cno, grade)。完成：\n(1) 创建视图 v_cs_stu，只包含计算机系学生的学号、姓名和性别；\n(2) 创建用户 cs_admin（只能从本机登录，密码 Cs#2026），授予他查询 v_cs_stu 的权限，以及查询 sc 表、修改 sc 表 grade 列的权限；\n(3) 创建用户 auditor（可从任意主机登录，密码 Au#2026），授予他查询 db_school 中所有表的权限，并允许他把该权限转授他人；\n(4) 查看 cs_admin 的权限，然后收回他修改 grade 列的权限；\n(5) 删除用户 auditor。",
+          "points": ["(1) CREATE VIEW … WHERE sdept = '计算机'（1 分）", "(2) CREATE USER；GRANT SELECT ON db_school.v_cs_stu（1 分）", "(2) GRANT SELECT, UPDATE(grade) ON db_school.sc（1 分）", "(3) GRANT SELECT ON db_school.* … WITH GRANT OPTION（1 分）", "(4) SHOW GRANTS；REVOKE UPDATE(grade) … FROM（1 分）", "(5) DROP USER 'auditor'@'%'（1 分）"],
+          "answer": "CREATE VIEW v_cs_stu AS\n  SELECT sno, sname, ssex FROM student\n  WHERE sdept = '计算机';\nCREATE USER 'cs_admin'@'localhost'\n  IDENTIFIED BY 'Cs#2026';\nGRANT SELECT ON db_school.v_cs_stu\n  TO 'cs_admin'@'localhost';\nGRANT SELECT, UPDATE(grade) ON db_school.sc\n  TO 'cs_admin'@'localhost';\nCREATE USER 'auditor'@'%' IDENTIFIED BY 'Au#2026';\nGRANT SELECT ON db_school.*\n  TO 'auditor'@'%' WITH GRANT OPTION;\nSHOW GRANTS FOR 'cs_admin'@'localhost';\nREVOKE UPDATE(grade) ON db_school.sc\n  FROM 'cs_admin'@'localhost';\nDROP USER 'auditor'@'%';",
+          "explain": "视图可以像表一样单独授权：cs_admin 能查询 v_cs_stu，却不能直接查询 student 表，这是用视图保护数据的常用做法。收回列级权限时也要写出列名，即 REVOKE UPDATE(grade) …。"
+        },
+        {
+          "id": "04736-u90-l4-q3",
+          "type": "short",
+          "form": "综合应用",
+          "level": "应用",
+          "kp": "事务与触发器综合",
+          "stem": "银行库中已用下面的语句建好账户表并插入了数据。完成：\n(1) 创建流水表 trans_log(id 自增主键, acc CHAR(3), amount DECIMAL(10,2), op_time DATETIME)；\n(2) 创建触发器 tr_bal：account 的余额被修改后，把账号、变化金额（新余额减旧余额）和当前时间记入 trans_log；\n(3) 在一个事务中从 A01 转 300 元给 A02，然后提交；\n(4) 再开始一个事务，从 A02 扣 1000 元准备转给 A01，查询发现 A02 的余额变为负数后回滚；\n(5) 查询 account 和 trans_log。",
+          "code": "CREATE TABLE account (\n  id      CHAR(3) PRIMARY KEY,\n  name    VARCHAR(20),\n  balance DECIMAL(10,2)\n);\nINSERT INTO account VALUES\n('A01','张三',1000),('A02','李四',200);",
+          "points": ["(1) trans_log 自增主键，各列类型合理（1 分）", "(2) AFTER UPDATE ON account，NEW.balance - OLD.balance（1 分）", "(3) START TRANSACTION; 两条 UPDATE; COMMIT;（1 分）", "(4) START TRANSACTION; 扣款后查询余额; ROLLBACK;（1 分）", "(5) 余额为 700、500，流水只有 2 条（1 分）"],
+          "answer": "CREATE TABLE trans_log (\n  id      INT AUTO_INCREMENT PRIMARY KEY,\n  acc     CHAR(3),\n  amount  DECIMAL(10,2),\n  op_time DATETIME\n);\nCREATE TRIGGER tr_bal AFTER UPDATE ON account\nFOR EACH ROW\n  INSERT INTO trans_log(acc, amount, op_time)\n  VALUES (NEW.id, NEW.balance - OLD.balance,\n          NOW());\nSTART TRANSACTION;\nUPDATE account SET balance = balance - 300\n  WHERE id = 'A01';\nUPDATE account SET balance = balance + 300\n  WHERE id = 'A02';\nCOMMIT;\nSTART TRANSACTION;\nUPDATE account SET balance = balance - 1000\n  WHERE id = 'A02';\nSELECT balance FROM account WHERE id = 'A02';\nROLLBACK;\nSELECT * FROM account;\nSELECT * FROM trans_log;",
+          "explain": "最后 A01 为 700、A02 为 500，trans_log 中只有第一次转账的 2 条流水：触发器所做的修改与激活它的语句属于同一个事务，ROLLBACK 时一起被撤销。account 和 trans_log 都必须是 InnoDB 表。"
+        },
+        {
+          "id": "04736-u90-l4-q4",
+          "type": "short",
+          "form": "综合应用",
+          "level": "应用",
+          "kp": "备份、恢复与数据导入导出",
+          "stem": "数据库 db_shop 中有 goods 和 orders 两张表，目录 D:/bak/ 是 secure_file_priv 允许的目录。写出完成下列操作的命令或语句：\n(1) 用 mysqldump 备份整个 db_shop 到 D:/bak/shop.sql，要求文件中包含建库语句；\n(2) 只备份 db_shop 中的 goods 表到 D:/bak/g.sql；\n(3) 登录 mysql，把 goods 中库存为 0 的商品导出到 D:/bak/zero.csv，字段用逗号分隔，字符串用双引号括起；\n(4) 删除数据库 db_shop，再用 (1) 的备份文件恢复；\n(5) 新建与 goods 结构相同的表 goods_zero，把 zero.csv 中的数据导入其中。",
+          "points": ["(1) mysqldump … -B（--databases）db_shop > 文件（1 分）", "(2) mysqldump … db_shop goods > 文件（1 分）", "(3) INTO OUTFILE … TERMINATED BY ',' OPTIONALLY ENCLOSED BY（1 分）", "(4) DROP DATABASE 后直接 SOURCE 备份文件（1 分）", "(5) CREATE TABLE … LIKE goods；LOAD DATA 的 FIELDS 子句与导出一致（1 分）"],
+          "answer": "mysqldump -u root -p -B db_shop > D:/bak/shop.sql\nmysqldump -u root -p db_shop goods > D:/bak/g.sql\nmysql -u root -p\nSELECT * FROM db_shop.goods WHERE stock = 0\n  INTO OUTFILE 'D:/bak/zero.csv'\n  FIELDS TERMINATED BY ','\n  OPTIONALLY ENCLOSED BY '\"';\nDROP DATABASE db_shop;\nSOURCE D:/bak/shop.sql\nUSE db_shop;\nCREATE TABLE goods_zero LIKE goods;\nLOAD DATA INFILE 'D:/bak/zero.csv'\n  INTO TABLE goods_zero\n  FIELDS TERMINATED BY ','\n  OPTIONALLY ENCLOSED BY '\"';",
+          "explain": "前三行在命令提示符中执行，其余在 mysql> 下执行。-B 就是 --databases，备份文件中有 CREATE DATABASE 和 USE，所以 (4) 删库后直接 SOURCE 即可；(2) 只备份了表，恢复时要先选好数据库。"
+        },
+        {
+          "id": "04736-u90-l4-q5",
+          "type": "short",
+          "form": "综合应用",
+          "level": "应用",
+          "kp": "触发器、用户权限综合",
+          "stem": "数据库 db_school 中的 sc(sno CHAR(5), cno CHAR(3), grade INT) 已有下面的数据。完成：\n(1) 创建成绩修改日志表 grade_log(sno, cno, old_g, new_g, who, op_time)，who 记录实际执行修改的登录用户；\n(2) 创建触发器 tr_grade：sc 的成绩被修改、且新旧值不同时写一条日志；\n(3) 创建用户 'ta'@'localhost'（密码 Ta#2026），只允许他查询 sc 和修改 sc 的 grade 列；\n(4) 以 ta 登录，把 S01 的 C01 成绩改为 95；\n(5) 回到 root，查询 grade_log，然后删除用户 ta。",
+          "code": "INSERT INTO sc VALUES\n('S01','C01',80),('S02','C01',70);",
+          "points": ["(1) grade_log 各列类型合理，who 足够长（1 分）", "(2) AFTER UPDATE ON sc，NEW.grade <> OLD.grade 时写日志（1 分）", "(2) 用 USER() 记录登录用户，NOW() 记录时间（1 分）", "(3) CREATE USER；GRANT SELECT, UPDATE(grade) ON db_school.sc（1 分）", "(4)(5) ta 执行 UPDATE；root 查询日志并 DROP USER（1 分）"],
+          "answer": "USE db_school;\nCREATE TABLE grade_log (\n  sno     CHAR(5),\n  cno     CHAR(3),\n  old_g   INT,\n  new_g   INT,\n  who     VARCHAR(50),\n  op_time DATETIME\n);\nDELIMITER $$\nCREATE TRIGGER tr_grade AFTER UPDATE ON sc\nFOR EACH ROW\nBEGIN\n  IF NEW.grade <> OLD.grade THEN\n    INSERT INTO grade_log VALUES (OLD.sno,\n      OLD.cno, OLD.grade, NEW.grade,\n      USER(), NOW());\n  END IF;\nEND $$\nDELIMITER ;\nCREATE USER 'ta'@'localhost'\n  IDENTIFIED BY 'Ta#2026';\nGRANT SELECT, UPDATE(grade) ON db_school.sc\n  TO 'ta'@'localhost';\n-- 以 ta 登录（mysql -u ta -p）后执行：\nUPDATE db_school.sc SET grade = 95\n  WHERE sno = 'S01' AND cno = 'C01';\n-- 回到 root 执行：\nSELECT * FROM db_school.grade_log;\nDROP USER 'ta'@'localhost';",
+          "explain": "执行后 grade_log 中有一行：S01、C01、80、95、ta@localhost。ta 没有 grade_log 的权限也能写入日志，因为触发器按定义者（root）的权限执行；同理，触发器里的 CURRENT_USER() 返回的是定义者，记录登录用户要用 USER()。"
+        }
+      ]
+    }
+  ]
+}

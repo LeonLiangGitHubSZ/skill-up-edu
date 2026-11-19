@@ -1,0 +1,272 @@
+{
+  "course": "04736",
+  "unit": 2,
+  "title": "建库建表与完整性约束",
+  "lessons": [
+    {
+      "id": "04736-u02-l1",
+      "title": "创建数据库、数据类型与建表",
+      "questions": [
+        {
+          "id": "04736-u02-l1-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "创建数据库（IF NOT EXISTS）",
+          "stem": "数据库 db_school 已经存在，执行 CREATE DATABASE IF NOT EXISTS db_school; 的结果是？",
+          "options": ["不报错，只产生 1 条警告，原库不变", "报错 1007，提示数据库已存在", "删除原库后重新创建一个空库", "再创建一个同名的数据库"],
+          "answer": 0,
+          "explain": "IF NOT EXISTS 让语句在库已存在时什么也不做，只给出一条 Note 级的警告；不加时报 ERROR 1007 Can't create database … database exists。DROP DATABASE IF EXISTS 则是在库不存在时不报错。"
+        },
+        {
+          "id": "04736-u02-l1-q2",
+          "type": "fill",
+          "level": "识记",
+          "kp": "查看警告（SHOW WARNINGS）",
+          "stem": "执行 DROP TABLE IF EXISTS t_old; 时 t_old 并不存在，客户端显示 Query OK, 0 rows affected, 1 warning。要查看这条警告的内容，执行 SHOW ____;",
+          "answers": ["WARNINGS", "SHOW WARNINGS"],
+          "explain": "SHOW WARNINGS 显示上一条语句产生的警告，这里是 Note 1051 Unknown table。非严格模式下数据被截断、被改写等情况只给警告，也要用它查看。"
+        },
+        {
+          "id": "04736-u02-l1-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "数据类型的选择",
+          "stem": "学生表要存 11 位手机号（如 13812345678），只用于显示和查找，不参与计算。最合适的数据类型是？",
+          "options": ["INT", "CHAR(11)", "DECIMAL(11,2)", "FLOAT"],
+          "answer": 1,
+          "explain": "INT 最大只能存 2147483647，插入 13812345678 会报 1264 Out of range；DECIMAL(11,2) 的整数部分只有 9 位，同样超出范围；FLOAT 只有约 7 位有效数字，存进去的号码会变。手机号不做算术运算，用定长字符串 CHAR(11) 最合适。"
+        },
+        {
+          "id": "04736-u02-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "数值类型：DECIMAL",
+          "stem": "表 goods 的 price 列定义为 DECIMAL(5,2)。在默认的严格模式下执行下面的语句，结果是？",
+          "code": "INSERT INTO goods(gno, price)\nVALUES ('G01', 1234.5);",
+          "options": ["插入成功，price 为 1234.50", "插入成功，price 被截为 999.99", "报错 1264：Out of range value for column 'price'", "插入成功，price 为 1234"],
+          "answer": 2,
+          "explain": "DECIMAL(5,2) 共 5 位数字，其中 2 位小数，整数部分最多 3 位，范围是 -999.99～999.99。严格模式（5.7 和 8.0 默认都开启）下超出范围直接报错；非严格模式下才会截成 999.99 并给出警告。"
+        },
+        {
+          "id": "04736-u02-l1-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "字符串类型：CHAR 与 VARCHAR",
+          "stem": "关于 MySQL 中的 CHAR(10) 和 VARCHAR(10)（字符集为 utf8mb4），下列说法正确的是？",
+          "options": ["两者都最多只能存 10 个字节", "CHAR(10) 存入 'ab' 后查询，结果末尾带 8 个空格", "VARCHAR(10) 最多只能存 3 个汉字", "CHAR 是定长字符串，VARCHAR 按实际内容的长度存储"],
+          "answer": 3,
+          "explain": "括号里的数字是字符数而不是字节数，VARCHAR(10) 可以存 10 个汉字。CHAR 是定长字符串，取出时会去掉末尾的空格，所以查询 'ab' 得到的仍是 'ab'。"
+        },
+        {
+          "id": "04736-u02-l1-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "查看建表语句",
+          "stem": "要查看 student 表完整的建表语句（含存储引擎、默认字符集和约束名），执行 SHOW ____ TABLE student;",
+          "answers": ["CREATE"],
+          "explain": "SHOW CREATE TABLE 显示建表语句，语句末尾用 \\G 代替分号可以竖着显示，便于阅读；DESC student 只列出各列的名字、类型、能否为空、键和默认值。"
+        },
+        {
+          "id": "04736-u02-l1-q7",
+          "type": "single",
+          "level": "领会",
+          "kp": "查看表结构（DESC）",
+          "stem": "执行 DESC student; 后，某一列在结果中 Null 为 NO、Key 为 PRI。这说明该列？",
+          "options": ["是主键（或主键的一部分），不能为空", "有唯一索引，允许出现空值", "是外键，参照了别的表", "有普通索引，值可以重复"],
+          "answer": 0,
+          "explain": "Key 列中 PRI 表示主键列，UNI 表示唯一索引列，MUL 表示普通索引的第一列（值可以重复，外键列一般显示为 MUL）。主键列一定是 NOT NULL。"
+        },
+        {
+          "id": "04736-u02-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "创建数据库与表",
+          "stem": "用 SQL 语句完成：\n(1) 创建数据库 db_school，默认字符集为 utf8mb4，并设为当前数据库；\n(2) 创建学生表 student：sno 学号 CHAR(5)，主键；sname 姓名 VARCHAR(20)，不能为空；ssex 性别 CHAR(1)；birth 出生日期 DATE；sdept 所在系 VARCHAR(20)；phone 手机号 CHAR(11)；\n(3) 插入一行：S01，张明，男，2005-03-12，计算机，13812345678；\n(4) 查看 student 表的结构。",
+          "points": ["(1) 建库时指定 CHARACTER SET utf8mb4，再 USE（1 分）", "(2) 各列类型正确，sno PRIMARY KEY，sname NOT NULL（2 分）", "(3) INSERT … VALUES，日期写成 '2005-03-12'（1 分）", "(4) DESC student;（1 分）"],
+          "answer": "CREATE DATABASE db_school\n  CHARACTER SET utf8mb4;\nUSE db_school;\nCREATE TABLE student (\n  sno   CHAR(5) PRIMARY KEY,\n  sname VARCHAR(20) NOT NULL,\n  ssex  CHAR(1),\n  birth DATE,\n  sdept VARCHAR(20),\n  phone CHAR(11)\n);\nINSERT INTO student VALUES ('S01', '张明', '男',\n  '2005-03-12', '计算机', '13812345678');\nDESC student;",
+          "explain": "日期常量写成 'YYYY-MM-DD' 格式的字符串，手机号是字符串也要加引号。列定义之间用逗号分隔，最后一列后面不能再有逗号，否则报 1064 语法错误。"
+        }
+      ]
+    },
+    {
+      "id": "04736-u02-l2",
+      "title": "主键、唯一、非空、默认值、CHECK 与自增",
+      "questions": [
+        {
+          "id": "04736-u02-l2-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "主键约束",
+          "stem": "student 表的主键是 sno，表中已有学号为 S01 的学生。执行下面的语句，结果是？",
+          "code": "INSERT INTO student(sno, sname)\nVALUES ('S01', '王芳');",
+          "options": ["插入成功，表中有两个 S01", "报错 1062 Duplicate entry 'S01'，插入失败", "原来的 S01 被新行替换", "插入成功，但 sname 被置为 NULL"],
+          "answer": 1,
+          "explain": "主键值不能重复，违反时报 ERROR 1062 Duplicate entry 'S01' for key 'student.PRIMARY'（5.7 显示为 key 'PRIMARY'）。想“有则替换”可以用 REPLACE INTO，想“重复就跳过”可以用 INSERT IGNORE。"
+        },
+        {
+          "id": "04736-u02-l2-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "主键约束：多列主键",
+          "stem": "选课表 sc(sno, cno, grade) 中，一个学生可以选多门课，一门课也可以被多个学生选。主键 (sno, cno) 应该怎样定义？",
+          "options": ["在 sno、cno 两列后面各写一个 PRIMARY KEY", "只在 cno 列的后面写 PRIMARY KEY", "在所有列定义之后写 PRIMARY KEY (sno, cno)", "在所有列定义之后写 PRIMARY KEY sno, cno"],
+          "answer": 2,
+          "explain": "多列组成的主键只能写成表级约束 PRIMARY KEY (sno, cno)。在两列后面各写 PRIMARY KEY 会报 1068 Multiple primary key defined；只在 cno 后面写，cno 就单独成了主键，一门课只能被一个学生选。"
+        },
+        {
+          "id": "04736-u02-l2-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "AUTO_INCREMENT",
+          "stem": "执行下面的语句后，最后插入的那一行的 id 是多少？",
+          "code": "CREATE TABLE t (\n  id   INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(10)\n);\nINSERT INTO t(name) VALUES ('a'), ('b'), ('c');\nDELETE FROM t WHERE id = 3;\nINSERT INTO t(name) VALUES ('d');",
+          "options": ["3", "1", "2", "4"],
+          "answer": 3,
+          "explain": "自增计数器只增不减，删掉最大的那行后，下一行仍取 4；要让编号从 1 重新开始，可以用 TRUNCATE TABLE 清空表。另外，MySQL 5.7 重启服务器后会按表中现有的最大值重新计算计数器（这里会得到 3），8.0 会把计数器持久保存。"
+        },
+        {
+          "id": "04736-u02-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "默认值约束",
+          "stem": "表 m 的 sex 列定义为 CHAR(1) DEFAULT '男'，允许为空。执行下面两条语句后，这两行的 sex 分别是？",
+          "code": "INSERT INTO m(id, name) VALUES (1, '张三');\nINSERT INTO m(id, name, sex)\n  VALUES (2, '李四', NULL);",
+          "options": ["'男' 和 NULL", "'男' 和 '男'", "NULL 和 NULL", "'男'，第二条语句报错"],
+          "answer": 0,
+          "explain": "插入时没有给出的列才取默认值；明确写了 NULL 就存 NULL。想让第二行也取默认值，可以省略该列，或者写 DEFAULT 关键字：VALUES (2, '李四', DEFAULT)。"
+        },
+        {
+          "id": "04736-u02-l2-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "非空约束",
+          "stem": "表 emp 的 ename 列定义为 VARCHAR(20) NOT NULL，没有默认值。执行 INSERT INTO emp(eno) VALUES ('E01'); 报错 ERROR 1364: Field 'ename' doesn't have a default value。原因是？",
+          "options": ["'E01' 与已有记录的 eno 重复", "ename 不能为空又没有默认值，插入时却没给它值", "INSERT 语句必须给出所有列的值", "ename 列的类型与 'E01' 不匹配"],
+          "answer": 1,
+          "explain": "省略的列要取默认值，NOT NULL 又没有默认值的列在严格模式下必须给值，否则报 1364。若写成 INSERT INTO emp(eno, ename) VALUES ('E01', NULL)，明确插入空值，报的则是 1048 Column 'ename' cannot be null。"
+        },
+        {
+          "id": "04736-u02-l2-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "CHECK 约束",
+          "stem": "在 MySQL 8.0.16 及以上版本中执行下面的语句，结果是？",
+          "code": "CREATE TABLE sc (\n  sno   CHAR(5),\n  cno   CHAR(3),\n  grade INT CHECK (grade BETWEEN 0 AND 100),\n  PRIMARY KEY (sno, cno)\n);\nINSERT INTO sc VALUES ('S01', 'C01', 120);",
+          "options": ["插入成功，grade 为 120", "插入成功，grade 被改为 100", "INSERT 报错 3819，违反了 CHECK 约束", "建表就报错，MySQL 不支持 CHECK"],
+          "answer": 2,
+          "explain": "8.0.16 起 MySQL 真正检查 CHECK 约束，违反时报 3819 Check constraint 'sc_chk_1' is violated。MySQL 5.7 能解析 CHECK 子句但不检查，同一条 INSERT 会插入成功；在 5.7 上限制取值可以用触发器或 ENUM 类型。"
+        },
+        {
+          "id": "04736-u02-l2-q7",
+          "type": "fill",
+          "level": "识记",
+          "kp": "唯一约束",
+          "stem": "要求会员表中 email 的值不能重复（允许不填），应为 email 列定义____约束。",
+          "answers": ["UNIQUE", "唯一", "唯一性", "候选键", "UNIQUE KEY"],
+          "explain": "UNIQUE（候选键）约束保证非空的值不重复，但允许多行为 NULL；一个表可以有多个 UNIQUE 约束，主键只能有一个。违反时同样报 1062 Duplicate entry。"
+        },
+        {
+          "id": "04736-u02-l2-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "带约束的建表",
+          "stem": "在数据库 db_shop 中创建会员表 member，要求：\n(1) mid 会员号，整数，自动编号，主键；\n(2) mname 姓名 VARCHAR(20)，不能为空；phone 手机号 CHAR(11)，不能重复；\n(3) level 等级 VARCHAR(4)，默认为“普通”；points 积分，整数，默认为 0，且不能小于 0；\n(4) 插入两个会员：张三（手机 13900000001）；李四（手机 13900000002，等级“金卡”，积分 500），会员号由系统生成。然后查询全表。",
+          "points": ["(1) mid INT AUTO_INCREMENT PRIMARY KEY（1 分）", "(2) mname NOT NULL，phone UNIQUE（1 分）", "(3) DEFAULT '普通'、DEFAULT 0 和 CHECK (points >= 0)（1 分）", "(4) INSERT 时列出列名、不给 mid，再 SELECT *（1 分）"],
+          "answer": "USE db_shop;\nCREATE TABLE member (\n  mid    INT AUTO_INCREMENT PRIMARY KEY,\n  mname  VARCHAR(20) NOT NULL,\n  phone  CHAR(11) UNIQUE,\n  level  VARCHAR(4) DEFAULT '普通',\n  points INT DEFAULT 0 CHECK (points >= 0)\n);\nINSERT INTO member(mname, phone)\n  VALUES ('张三', '13900000001');\nINSERT INTO member(mname, phone, level, points)\n  VALUES ('李四', '13900000002', '金卡', 500);\nSELECT * FROM member;",
+          "explain": "执行后两行的 mid 是 1 和 2，张三取默认值：等级“普通”、积分 0。CHECK 从 8.0.16 起才生效，5.7 会忽略它；AUTO_INCREMENT 列必须是键（通常就是主键），否则报 1075。"
+        }
+      ]
+    },
+    {
+      "id": "04736-u02-l3",
+      "title": "外键约束与表结构的修改、删除",
+      "questions": [
+        {
+          "id": "04736-u02-l3-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "外键约束：插入参照表",
+          "stem": "sc 表的 sno 是参照 student(sno) 的外键，student 中没有学号 S09。执行 INSERT INTO sc VALUES ('S09', 'C01', 60); 的结果是？",
+          "options": ["插入成功，并自动在 student 中添加 S09", "插入成功，sno 被置为 NULL", "报错 1062：Duplicate entry 'S09'", "报错 1452：Cannot add or update a child row"],
+          "answer": 3,
+          "explain": "参照表（子表）中的外键值必须在被参照表（父表）中存在，否则报 1452，提示 a foreign key constraint fails。应先在 student 中插入 S09，再插入选课记录。"
+        },
+        {
+          "id": "04736-u02-l3-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "外键约束：删除被参照表中的行",
+          "stem": "sc 的外键 cno 参照 course(cno)，没有写 ON DELETE 子句。课程 C01 已有学生选修，执行 DELETE FROM course WHERE cno = 'C01'; 报错 1451。要删除这门课，正确的做法是？",
+          "options": ["先删除 sc 中 C01 的选课记录，再删除课程", "在 DELETE 后加关键字 FORCE 强制删除", "先删除课程，再删除 sc 中的选课记录", "把 DELETE 语句换成 TRUNCATE TABLE"],
+          "answer": 0,
+          "explain": "不写参照动作时默认是 RESTRICT（拒绝）：被参照的行不能删除，主键值也不能修改。先删子表 sc 中的相关记录，再删父表中的课程；希望自动删除，就在定义外键时加 ON DELETE CASCADE。"
+        },
+        {
+          "id": "04736-u02-l3-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "参照动作：CASCADE 与 SET NULL",
+          "stem": "sc 的外键定义为 FOREIGN KEY (sno) REFERENCES student(sno) ON DELETE CASCADE。学生 S01 有 3 条选课记录，执行 DELETE FROM student WHERE sno = 'S01'; 的结果是？",
+          "options": ["报错 1451，S01 不能删除", "S01 及其 3 条选课记录都被删除", "只删 S01，3 条选课记录的 sno 变为 NULL", "只删 S01，3 条选课记录保持不变"],
+          "answer": 1,
+          "explain": "ON DELETE CASCADE 是级联删除：删除父表的行时，子表中参照它的行一起删除。ON DELETE SET NULL 才会把子表的外键置为 NULL，这要求该列允许为空，而 sc 的 sno 是主键的一部分，不能用 SET NULL。"
+        },
+        {
+          "id": "04736-u02-l3-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "修改列（CHANGE、MODIFY）",
+          "stem": "要把 student 表的 sdept 列改名为 dept，类型 VARCHAR(20) 不变。下列语句在 MySQL 5.7 和 8.0 上都能正确执行的是？",
+          "options": ["ALTER TABLE student RENAME COLUMN sdept TO dept;", "ALTER TABLE student MODIFY sdept dept VARCHAR(20);", "ALTER TABLE student CHANGE sdept dept VARCHAR(20);", "ALTER TABLE student CHANGE sdept dept;"],
+          "answer": 2,
+          "explain": "CHANGE 能同时改列名和定义，但必须写出完整的列定义；MODIFY 只改定义，不能改名；RENAME COLUMN … TO … 是 8.0 才有的写法，5.7 会报语法错误。CHANGE 和 MODIFY 都用新定义整体替换原定义，原来的 NOT NULL、DEFAULT 要重新写上。"
+        },
+        {
+          "id": "04736-u02-l3-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "增加列（ADD … AFTER）",
+          "stem": "在 student 表的 sname 列之后增加一列 email：ALTER TABLE student ADD email VARCHAR(50) ____ sname;",
+          "answers": ["AFTER"],
+          "explain": "新增的列默认放在最后；写 AFTER 列名 放到指定列之后，写 FIRST 放到第一列。删除列用 ALTER TABLE student DROP email;。"
+        },
+        {
+          "id": "04736-u02-l3-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "删除表",
+          "stem": "sc 表的外键参照 student 表。要删除这两张表，正确的做法是？",
+          "options": ["先 DROP TABLE student，再 DROP TABLE sc", "只执行 DROP TABLE student，sc 会自动删除", "执行 DROP TABLE student CASCADE; 即可", "先 DROP TABLE sc，再 DROP TABLE student"],
+          "answer": 3,
+          "explain": "被外键参照的表不能单独删除（8.0 报 3730，5.7 报 1217），要先删参照它的子表，或者先删掉外键约束。MySQL 允许在 DROP TABLE 末尾写 CASCADE，但它不起任何作用。",
+          "verify": "8.0 的 3730 已实测；5.7 报 1217（Cannot delete or update a parent row）是按资料写的，没有在 5.7 上运行过。"
+        },
+        {
+          "id": "04736-u02-l3-q7",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "外键约束的定义",
+          "stem": "db_school 中已有 student（主键 sno CHAR(5)）和 course（主键 cno CHAR(3)）。创建选课表 sc(sno, cno, grade)：\n(1) 主键为 (sno, cno)，grade 为整数；\n(2) 外键 fk_sc_stu：sno 参照 student，删除学生时自动删除其选课记录；\n(3) 外键 fk_sc_cou：cno 参照 course，有人选修的课程不允许删除；\n(4) 用 SHOW CREATE TABLE 查看建好的表。",
+          "points": ["(1) PRIMARY KEY (sno, cno) 写成表级约束（1 分）", "(2) CONSTRAINT fk_sc_stu … ON DELETE CASCADE（1 分）", "(3) CONSTRAINT fk_sc_cou … ON DELETE RESTRICT 或省略（1 分）", "(4) SHOW CREATE TABLE sc;（1 分）"],
+          "answer": "CREATE TABLE sc (\n  sno   CHAR(5),\n  cno   CHAR(3),\n  grade INT,\n  PRIMARY KEY (sno, cno),\n  CONSTRAINT fk_sc_stu FOREIGN KEY (sno)\n    REFERENCES student(sno) ON DELETE CASCADE,\n  CONSTRAINT fk_sc_cou FOREIGN KEY (cno)\n    REFERENCES course(cno) ON DELETE RESTRICT\n);\nSHOW CREATE TABLE sc;",
+          "explain": "外键列的类型要与被参照列一致，被参照列必须是主键或有索引，否则建表报错（5.7 报 1215，8.0 报 3780 或 1822）。表要用 InnoDB 引擎（5.7、8.0 的默认引擎），MyISAM 表上的外键不起作用。",
+          "verify": "8.0 的 3780、1822 已实测；5.7 报 1215（Cannot add foreign key constraint）是按资料写的，没有在 5.7 上运行过。"
+        },
+        {
+          "id": "04736-u02-l3-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "修改表结构",
+          "stem": "已有图书表 book(bno CHAR(6) 主键, bname VARCHAR(40), price DECIMAL(6,2), press VARCHAR(30))。用 SQL 语句完成：\n(1) 在 bname 之后增加一列 author VARCHAR(20)；\n(2) 把 price 改为 DECIMAL(8,2)，且不能为空；\n(3) 把 press 列改名为 publisher，类型改为 VARCHAR(40)；\n(4) 给 bname 列加上唯一约束 uk_bname；\n(5) 把表名改为 tb_book。",
+          "points": ["(1) ADD author VARCHAR(20) AFTER bname（1 分）", "(2) MODIFY price DECIMAL(8,2) NOT NULL（1 分）", "(3) CHANGE press publisher VARCHAR(40)（1 分）", "(4) ADD CONSTRAINT uk_bname UNIQUE (bname)（1 分）", "(5) RENAME TO tb_book（或 RENAME TABLE）（1 分）"],
+          "answer": "ALTER TABLE book\n  ADD author VARCHAR(20) AFTER bname;\nALTER TABLE book\n  MODIFY price DECIMAL(8,2) NOT NULL;\nALTER TABLE book\n  CHANGE press publisher VARCHAR(40);\nALTER TABLE book\n  ADD CONSTRAINT uk_bname UNIQUE (bname);\nALTER TABLE book RENAME TO tb_book;",
+          "explain": "改列名用 CHANGE 旧名 新名 定义，只改类型用 MODIFY。若 price 中已有空值，(2) 在严格模式下会执行失败（8.0 报 1265 Data truncated for column 'price'），要先把空值改掉。改表名也可以写 RENAME TABLE book TO tb_book;。"
+        }
+      ]
+    }
+  ]
+}

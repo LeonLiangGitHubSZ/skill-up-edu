@@ -1,0 +1,92 @@
+{
+  "course": "04736",
+  "unit": 9,
+  "title": "用户与权限管理",
+  "lessons": [
+    {
+      "id": "04736-u09-l1",
+      "title": "创建用户、授予与收回权限",
+      "questions": [
+        {
+          "id": "04736-u09-l1-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "创建用户与授权（版本差异）",
+          "stem": "在 MySQL 8.0 中执行 GRANT SELECT ON db_school.* TO 'li'@'localhost' IDENTIFIED BY '123';，报 1064 语法错误。正确的做法是？",
+          "options": ["先 CREATE USER 'li'@'localhost' IDENTIFIED BY '123';，再 GRANT", "把 IDENTIFIED BY 改成 PASSWORD BY", "在 GRANT 之前先执行 SET PASSWORD", "把 'li'@'localhost' 改成 'li'"],
+          "answer": 0,
+          "explain": "8.0 起 GRANT 不能再带 IDENTIFIED BY，也不能自动创建不存在的用户（报 1410），必须先 CREATE USER 再 GRANT。5.7 中这种写法还能用，但已不推荐；先建用户、再授权的写法在两个版本上都能运行。"
+        },
+        {
+          "id": "04736-u09-l1-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "用户名与主机名",
+          "stem": "执行 CREATE USER 'li'@'localhost' IDENTIFIED BY '123'; 之后，再执行 DROP USER 'li';，结果是？",
+          "options": ["成功删除 'li'@'localhost'", "报错 1396，'li' 表示 'li'@'%'，这个账户不存在", "删除所有名为 li 的账户", "只删除 li 的密码，账户保留"],
+          "answer": 1,
+          "explain": "MySQL 的账户由用户名和主机名共同确定，只写用户名时主机名默认为 '%'。'li'@'localhost' 和 'li'@'%' 是两个不同的账户，删除时必须写 DROP USER 'li'@'localhost';。"
+        },
+        {
+          "id": "04736-u09-l1-q3",
+          "type": "single",
+          "level": "识记",
+          "kp": "查看用户的权限",
+          "stem": "要查看账户 'li'@'localhost' 拥有哪些权限，应执行？",
+          "options": ["SHOW PRIVILEGES FOR 'li'@'localhost';", "SELECT * FROM mysql.grants WHERE user = 'li';", "SHOW GRANTS FOR 'li'@'localhost';", "DESC USER 'li'@'localhost';"],
+          "answer": 2,
+          "explain": "SHOW GRANTS FOR 账户 以 GRANT 语句的形式列出它的全部权限，刚建好的用户只有 USAGE（即没有任何权限）；不写 FOR 时显示当前用户自己的权限。SHOW PRIVILEGES 列出的是服务器支持的权限种类。"
+        },
+        {
+          "id": "04736-u09-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "列级权限",
+          "stem": "执行 GRANT SELECT(sno, sname) ON db_school.student TO 'li'@'localhost'; 后，li 登录并执行 SELECT * FROM db_school.student;，结果是？",
+          "options": ["查出 student 的全部列", "只显示 sno 和 sname 两列", "返回空集", "报错，li 对 student 的其他列没有查询权限"],
+          "answer": 3,
+          "explain": "列级权限只允许访问指定的列：SELECT * 要读 student 的全部列，会被拒绝（报 SELECT command denied to user 'li'@'localhost'），写成 SELECT sno, sname FROM db_school.student 才行。表级授权写 ON db_school.student，库级写 ON db_school.*。"
+        },
+        {
+          "id": "04736-u09-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "收回权限（REVOKE）",
+          "stem": "'li'@'localhost' 拥有 db_school.* 上的 SELECT 和 INSERT 权限。只收回其中的 INSERT 权限，正确的语句是？",
+          "options": ["REVOKE INSERT ON db_school.* FROM 'li'@'localhost';", "REVOKE INSERT ON db_school.* TO 'li'@'localhost';", "DROP INSERT ON db_school.* FROM 'li'@'localhost';", "GRANT NO INSERT ON db_school.* TO 'li'@'localhost';"],
+          "answer": 0,
+          "explain": "格式为 REVOKE 权限 ON 对象 FROM 账户：GRANT 用 TO，REVOKE 用 FROM。收回时的级别要与授予时一致，在 db_school.* 上授予的权限，不能用 ON db_school.student 单独收回某一张表的（报 1147）。"
+        },
+        {
+          "id": "04736-u09-l1-q6",
+          "type": "fill",
+          "level": "识记",
+          "kp": "权限的转授（WITH GRANT OPTION）",
+          "stem": "授予权限时，要允许被授权的用户把这些权限再授予其他用户，应在 GRANT 语句末尾加上 WITH ____ OPTION。",
+          "answers": ["GRANT"],
+          "explain": "例如 GRANT SELECT ON db_school.sc TO 'li'@'localhost' WITH GRANT OPTION;。收回转授的能力用 REVOKE GRANT OPTION ON db_school.sc FROM 'li'@'localhost';。"
+        },
+        {
+          "id": "04736-u09-l1-q7",
+          "type": "fill",
+          "level": "领会",
+          "kp": "修改用户密码",
+          "stem": "把 'li'@'localhost' 的密码改为 new123，在 5.7 和 8.0 上都能用的语句是：____ USER 'li'@'localhost' IDENTIFIED BY 'new123';",
+          "answers": ["ALTER"],
+          "explain": "ALTER USER … IDENTIFIED BY 从 5.7.6 起可用，8.0 推荐这种写法；旧资料中的 SET PASSWORD FOR … = PASSWORD('…') 在 8.0 中已不能用（PASSWORD() 函数被删除了）。修改用户名用 RENAME USER 旧账户 TO 新账户。"
+        },
+        {
+          "id": "04736-u09-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "用户与权限管理综合",
+          "stem": "数据库 db_school 中有 student、course、sc 三张表。用 SQL 语句完成：\n(1) 创建用户 teacher，只能从本机登录，密码为 T@2026；创建用户 guest，可以从任意主机登录，密码为 G@2026；\n(2) 授予 teacher 对 sc 表的查询、插入权限和修改 grade 列的权限，并允许他把这些权限转授给别人；\n(3) 授予 guest 查询 db_school 中所有表的权限；\n(4) 查看 teacher 的权限；收回 guest 的全部权限，然后删除 guest。",
+          "points": ["(1) CREATE USER 'teacher'@'localhost'、'guest'@'%' … IDENTIFIED BY（1 分）", "(2) GRANT SELECT, INSERT, UPDATE(grade) ON db_school.sc（1 分）", "(2) 末尾加 WITH GRANT OPTION（1 分）", "(3) GRANT SELECT ON db_school.* TO 'guest'@'%'（1 分）", "(4) SHOW GRANTS FOR …；REVOKE …；DROP USER 'guest'@'%'（1 分）"],
+          "answer": "CREATE USER 'teacher'@'localhost'\n  IDENTIFIED BY 'T@2026';\nCREATE USER 'guest'@'%' IDENTIFIED BY 'G@2026';\nGRANT SELECT, INSERT, UPDATE(grade)\n  ON db_school.sc TO 'teacher'@'localhost'\n  WITH GRANT OPTION;\nGRANT SELECT ON db_school.* TO 'guest'@'%';\nSHOW GRANTS FOR 'teacher'@'localhost';\nREVOKE ALL PRIVILEGES, GRANT OPTION\n  FROM 'guest'@'%';\nDROP USER 'guest'@'%';",
+          "explain": "库级权限写 db_school.*，表级写 db_school.sc，列级在权限名后面加列名，如 UPDATE(grade)。REVOKE ALL PRIVILEGES, GRANT OPTION FROM 账户 收回该账户的全部权限；DROP USER 删除账户时也会一并删除它的权限。8.0 中必须先 CREATE USER 再 GRANT。"
+        }
+      ]
+    }
+  ]
+}

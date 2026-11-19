@@ -1,0 +1,341 @@
+{
+  "course": "13004",
+  "unit": 2,
+  "title": "栈和队列",
+  "lessons": [
+    {
+      "id": "13004-u02-l1",
+      "title": "顺序栈、链栈与进制转换",
+      "questions": [
+        {
+          "id": "13004-u02-l1-q1",
+          "type": "fill",
+          "level": "应用",
+          "kp": "顺序栈的出栈",
+          "stem": "顺序栈的 top 初值为 0，即 top 指向栈顶元素的下一个位置。函数参数为 SqStack *S，栈不空时出栈，把栈顶元素取到 x 中，应写成 x = ____;",
+          "answers": [
+            "S->data[--S->top]",
+            "S->data[--(S->top)]",
+            "(*S).data[--(*S).top]"
+          ],
+          "explain": "这种约定下栈顶元素在 data[top-1]，要先把 top 减 1 再取；进栈写成 S->data[S->top++] = x;，栈空的条件是 top == 0。top 初值为 -1 时，进栈先加 1 再存，出栈先取再减 1。",
+          "verify": "核对教材顺序栈 top 的初值约定（-1 还是 0）。"
+        },
+        {
+          "id": "13004-u02-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "链栈的进栈",
+          "stem": "链栈不带头结点，栈顶指针 top 初值为 NULL。进栈函数 void Push(SNode *top, int x) 把新结点 s 插在 top 前面并执行 top = s;。main 中调用 Push(top, 5) 后，top？",
+          "options": [
+            "指向值为 5 的新结点",
+            "仍为 NULL，新结点没有接到 main 的栈上",
+            "指向一个已经释放的结点",
+            "编译时报类型不匹配的错误"
+          ],
+          "answer": 1,
+          "explain": "指针变量本身也是按值传递的，函数里改的只是形参 top。可以把形参写成 SNode **top（调用 Push(&top, 5)，函数里用 *top），或者让函数返回新的栈顶：top = Push(top, 5);。"
+        },
+        {
+          "id": "13004-u02-l1-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "栈的应用：进制转换",
+          "stem": "下面程序用栈把十进制数转换成二进制。输入 0 时，输出是？",
+          "code": "#include <stdio.h>\nint main(void)\n{\n    int st[32], top = -1, n;\n    scanf(\"%d\", &n);\n    while (n > 0) {\n        st[++top] = n % 2;\n        n /= 2;\n    }\n    while (top != -1)\n        printf(\"%d\", st[top--]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "options": [
+            "0",
+            "00",
+            "程序陷入死循环",
+            "只输出一个换行，没有数字"
+          ],
+          "answer": 3,
+          "explain": "n 为 0 时第一个 while 一次也不执行，栈是空的，什么数字也不输出。改成 do { … } while (n > 0); 先做一次取余再判断，输入 0 时就能输出 0。边界数据 0 一定要测。"
+        },
+        {
+          "id": "13004-u02-l1-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "栈的应用：进制转换",
+          "stem": "进制转换中余数 r 的范围是 0～15，要输出成十六进制数字（10～15 输出 A～F），下列写法正确的是？",
+          "options": [
+            "putchar(\"0123456789ABCDEF\"[r]);",
+            "putchar(r + '0');",
+            "putchar(r + 'A');",
+            "printf(\"%c\", r);"
+          ],
+          "answer": 0,
+          "explain": "字符串常量可以像数组一样按下标取字符。r + '0' 只对 0～9 正确，r = 10 时得到的是 ':'；r + 'A' 把 0 变成了 A；printf(\"%c\", r) 输出的是编码为 r 的控制字符。"
+        },
+        {
+          "id": "13004-u02-l1-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "栈的应用：进制转换",
+          "stem": "下面程序用栈把 2026 转换成八进制数，运行结果是____。",
+          "code": "#include <stdio.h>\nint main(void)\n{\n    int st[32], top = -1, n = 2026, d = 8;\n    do {\n        st[++top] = n % d;\n        n /= d;\n    } while (n > 0);\n    while (top != -1)\n        printf(\"%d\", st[top--]);\n    printf(\"\\n\");\n    return 0;\n}",
+          "answers": [
+            "3752"
+          ],
+          "explain": "2026 除以 8 的余数依次是 2、5、7、3（最后商为 0），先得到的是最低位，出栈时倒过来输出 3752。可以验算：3×512 + 7×64 + 5×8 + 2 = 2026。"
+        },
+        {
+          "id": "13004-u02-l1-q6",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "顺序栈的应用：进制转换",
+          "stem": "编写程序：用顺序栈把一个十进制非负整数 n（int 范围内）转换成 d 进制（2 ≤ d ≤ 16）输出，10～15 用 A～F 表示。输入 n 和 d，输出转换结果。\n样例输入：\n2026 16\n样例输出：\n7EA",
+          "answer": "#include <stdio.h>\n#define MAXSIZE 40\ntypedef struct {\n    int data[MAXSIZE];\n    int top;\n} SqStack;\n\nvoid Push(SqStack *S, int x)\n{\n    S->data[++S->top] = x;\n}\n\nint Pop(SqStack *S)\n{\n    return S->data[S->top--];\n}\n\nint main(void)\n{\n    SqStack S;\n    int n, d;\n    S.top = -1;\n    scanf(\"%d%d\", &n, &d);\n    do {\n        Push(&S, n % d);\n        n /= d;\n    } while (n > 0);\n    while (S.top != -1)\n        putchar(\"0123456789ABCDEF\"[Pop(&S)]);\n    putchar('\\n');\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "顺序栈的定义和进栈、出栈操作正确，top 初值为 -1（3 分）",
+            "反复把 n % d 进栈、n /= d，直到 n 为 0（2 分）",
+            "依次出栈输出，余数 10～15 输出 A～F（2 分）",
+            "n = 0 时输出 0（1 分）"
+          ],
+          "explain": "先得到的余数是最低位，要最后输出，正好符合栈的后进先出。int 最大值只有 31 位二进制，栈开 40 个单元足够，所以 Push 里没有判栈满。要测 n = 0、d = 2 和 n 取 int 最大值 2147483647 的情况。"
+        },
+        {
+          "id": "13004-u02-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "链栈的进栈和出栈",
+          "stem": "编写程序：用不带头结点的链栈处理一串整数（以 -1 结束）：读到正整数就进栈；读到 0 就出栈，并输出出栈的元素，栈空时输出 empty。每个输出占一行，程序结束前释放链栈的全部结点。\n样例输入：\n3 5 0 7 0 0 0 -1\n样例输出：\n5\n7\n3\nempty",
+          "answer": "#include <stdio.h>\n#include <stdlib.h>\ntypedef struct SNode {\n    int data;\n    struct SNode *next;\n} SNode;\nSNode *Push(SNode *top, int x)\n{\n    SNode *s = (SNode *)malloc(sizeof(SNode));\n    s->data = x;\n    s->next = top;\n    return s;\n}\n\nSNode *Pop(SNode *top, int *x)\n{\n    SNode *p = top->next;\n    *x = top->data;\n    free(top);\n    return p;\n}\n\nint main(void)\n{\n    SNode *top = NULL;\n    int x;\n    while (scanf(\"%d\", &x) == 1 && x != -1) {\n        if (x > 0)\n            top = Push(top, x);\n        else if (top == NULL)\n            printf(\"empty\\n\");\n        else {\n            top = Pop(top, &x);\n            printf(\"%d\\n\", x);\n        }\n    }\n    while (top != NULL)\n        top = Pop(top, &x);\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "进栈：申请结点，新结点的 next 指向原栈顶，再让 top 指向新结点（3 分）",
+            "出栈：先保存后继、取出数据，再释放原栈顶结点（3 分）",
+            "栈空（top == NULL）时不出栈，输出 empty（1 分）",
+            "Push、Pop 能真正修改 main 中的 top（返回新栈顶或传 &top）（1 分）"
+          ],
+          "explain": "参考答案让 Push、Pop 返回新的栈顶，避免了指向指针的指针；也可以写成 void Push(SNode **top, int x)。链栈不会栈满，但每次出栈都要 free，否则内存泄漏。"
+        }
+      ]
+    },
+    {
+      "id": "13004-u02-l2",
+      "title": "循环队列",
+      "questions": [
+        {
+          "id": "13004-u02-l2-q1",
+          "type": "fill",
+          "level": "应用",
+          "kp": "循环队列的长度",
+          "stem": "循环队列 MAXSIZE 为 6，front = 4，rear = 1。在 C 语言中，表达式 (rear - front) % MAXSIZE 的值是____。",
+          "answers": [
+            "-3"
+          ],
+          "explain": "C99 规定整数除法向零取整，余数的符号与被除数相同，-3 % 6 等于 -3。所以求队列长度要写成 (rear - front + MAXSIZE) % MAXSIZE，这里结果是 3。"
+        },
+        {
+          "id": "13004-u02-l2-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "循环队列的入队",
+          "stem": "下面是循环队列的入队函数（rear 指向队尾元素的下一个位置），横线处应填入的是？",
+          "code": "#define MAXSIZE 5\ntypedef struct {\n    int data[MAXSIZE];\n    int front, rear;\n} SqQueue;\n\nint EnQueue(SqQueue *Q, int x)\n{\n    if ((Q->rear + 1) % MAXSIZE == Q->front)\n        return 0;\n    Q->data[Q->rear] = x;\n    Q->rear = ______;\n    return 1;\n}",
+          "options": [
+            "Q->rear + 1",
+            "(Q->front + 1) % MAXSIZE",
+            "(Q->rear + 1) % MAXSIZE",
+            "(Q->rear + 1) % (MAXSIZE - 1)"
+          ],
+          "answer": 2,
+          "explain": "rear 走到数组最后一个单元后要绕回 0，所以加 1 后对 MAXSIZE 取余；只写 Q->rear + 1，下一次入队就会写到 data[MAXSIZE]，越界。出队时 front 也这样后移。"
+        },
+        {
+          "id": "13004-u02-l2-q3",
+          "type": "fill",
+          "level": "应用",
+          "kp": "循环队列的入队和出队",
+          "stem": "下面程序对 MAXSIZE 为 5 的循环队列先入队、再出队、再入队，运行结果是____。",
+          "code": "#include <stdio.h>\n#define MAXSIZE 5\ntypedef struct {\n    int data[MAXSIZE];\n    int front, rear;\n} SqQueue;\n\nint EnQueue(SqQueue *Q, int x)\n{\n    if ((Q->rear + 1) % MAXSIZE == Q->front)\n        return 0;\n    Q->data[Q->rear] = x;\n    Q->rear = (Q->rear + 1) % MAXSIZE;\n    return 1;\n}\n\nint DeQueue(SqQueue *Q, int *x)\n{\n    if (Q->front == Q->rear)\n        return 0;\n    *x = Q->data[Q->front];\n    Q->front = (Q->front + 1) % MAXSIZE;\n    return 1;\n}\n\nint main(void)\n{\n    SqQueue Q;\n    int i, x;\n    Q.front = Q.rear = 0;\n    for (i = 1; i <= 3; i++)\n        EnQueue(&Q, i);\n    DeQueue(&Q, &x);\n    DeQueue(&Q, &x);\n    for (i = 4; i <= 7; i++)\n        if (!EnQueue(&Q, i))\n            printf(\"full \");\n    printf(\"%d %d\\n\", Q.front, Q.rear);\n    return 0;\n}",
+          "answers": [
+            "full 2 1"
+          ],
+          "explain": "入队 1、2、3 后 rear = 3，出队两次后 front = 2。4、5、6 依次放在下标 3、4、0，rear 绕回到 1；再入队 7 时 (1+1)%5 等于 front，队满，输出 full。MAXSIZE 为 5 时最多只能存 4 个元素。"
+        },
+        {
+          "id": "13004-u02-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "循环队列的出队",
+          "stem": "出队函数为 int DeQueue(SqQueue *Q, int *x)，用 *x 带回队头元素。main 中写成 int *p; DeQueue(&Q, p);，运行时程序崩溃，原因是？",
+          "options": [
+            "DeQueue 不能有两个指针参数",
+            "队列为空时不能调用 DeQueue",
+            "&Q 应写成 Q",
+            "p 没有指向有效的存储单元，*x 写到了未知地址"
+          ],
+          "answer": 3,
+          "explain": "p 是没有初始化的指针（野指针）。应定义 int x; 并调用 DeQueue(&Q, &x);，让 x 接收队头元素。gcc 加 -Wall 编译时会提示 ‘p’ is used uninitialized，警告也要看。"
+        },
+        {
+          "id": "13004-u02-l2-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "循环队列队空和队满的判断",
+          "stem": "循环队列如果不想浪费一个存储单元，又要能区分队空和队满，常用的做法是？",
+          "options": [
+            "另设计数变量 count，入队加 1、出队减 1",
+            "把 MAXSIZE 定义得更大一些",
+            "让 rear 指向队尾元素本身",
+            "每次出队后把其余元素都前移一位"
+          ],
+          "answer": 0,
+          "explain": "设了 count，数组的每个单元都能用：count == 0 为队空，count == MAXSIZE 为队满。也可以设标志 tag 记录最近一次操作是入队还是出队，front == rear 时据此区分空和满。",
+          "verify": "核对教材除“少用一个单元”外，是否介绍了设计数器或标志位的方法。"
+        },
+        {
+          "id": "13004-u02-l2-q6",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "循环队列的应用",
+          "stem": "编写程序：用循环队列模拟报数出列。n 个人编号 1～n 围成一圈，从 1 号开始报数，报到 m 的人出列，下一个人再从 1 开始报数，直到全部出列。输入 n 和 m（1 ≤ n ≤ 50，m ≥ 1），按出列顺序输出编号（数之间用空格分隔）。\n样例输入：\n7 3\n样例输出：\n3 6 2 7 5 1 4",
+          "answer": "#include <stdio.h>\n#define MAXSIZE 51\ntypedef struct {\n    int data[MAXSIZE];\n    int front, rear;\n} SqQueue;\n\nvoid EnQueue(SqQueue *Q, int x)\n{\n    Q->data[Q->rear] = x;\n    Q->rear = (Q->rear + 1) % MAXSIZE;\n}\n\nint DeQueue(SqQueue *Q)\n{\n    int x = Q->data[Q->front];\n    Q->front = (Q->front + 1) % MAXSIZE;\n    return x;\n}\n\nint main(void)\n{\n    SqQueue Q;\n    int n, m, i, k;\n    scanf(\"%d%d\", &n, &m);\n    Q.front = Q.rear = 0;\n    for (i = 1; i <= n; i++)\n        EnQueue(&Q, i);\n    while (Q.front != Q.rear) {\n        for (k = 1; k < m; k++)\n            EnQueue(&Q, DeQueue(&Q));\n        printf(\"%d \", DeQueue(&Q));\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "入队、出队后 rear、front 加 1 再对 MAXSIZE 取余（3 分）",
+            "MAXSIZE 不小于 n+1（少用一个单元时才放得下 n 个人）（1 分）",
+            "每轮把前 m-1 个人出队后重新入队，第 m 个人出队并输出（3 分）",
+            "队空时结束，m = 1、n = 1 等情况输出正确（1 分）"
+          ],
+          "explain": "队列里始终是还没出列的人，队头就是下一个报数的人，报完没出列就排到队尾。队列中的人数只减不增，入队前不用判队满。"
+        },
+        {
+          "id": "13004-u02-l2-q7",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "循环队列的入队和出队",
+          "stem": "下面程序用 MAXSIZE 为 5 的循环队列（少用一个单元，最多存 4 个数）保留最后读入的数：先输入 n，再依次读入 n 个整数，每读入一个就入队，队满时先让队头出队。最后从队头到队尾输出队列中的数。程序中有 3 处错误，找出并改正（不得增删行）。\n样例输入：\n6\n1 2 3 4 5 6\n样例输出：\n3 4 5 6",
+          "code": "#include <stdio.h>\n#define MAXSIZE 5\ntypedef struct {\n    int data[MAXSIZE];\n    int front, rear;\n} SqQueue;\n\nint main(void)\n{\n    SqQueue Q;\n    int n, x, i;\n    Q.front = Q.rear = 0;\n    scanf(\"%d\", &n);\n    while (n-- > 0) {\n        scanf(\"%d\", &x);\n        if (Q.rear + 1 == Q.front)\n            Q.front = (Q.front + 1) % MAXSIZE;\n        Q.data[Q.rear] = x;\n        Q.rear = Q.rear + 1;\n    }\n    i = Q.front;\n    while (i != Q.rear) {\n        printf(\"%d \", Q.data[i]);\n        i = i + 1;\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "answer": "#include <stdio.h>\n#define MAXSIZE 5\ntypedef struct {\n    int data[MAXSIZE];\n    int front, rear;\n} SqQueue;\n\nint main(void)\n{\n    SqQueue Q;\n    int n, x, i;\n    Q.front = Q.rear = 0;\n    scanf(\"%d\", &n);\n    while (n-- > 0) {\n        scanf(\"%d\", &x);\n        if ((Q.rear + 1) % MAXSIZE == Q.front)\n            Q.front = (Q.front + 1) % MAXSIZE;\n        Q.data[Q.rear] = x;\n        Q.rear = (Q.rear + 1) % MAXSIZE;\n    }\n    i = Q.front;\n    while (i != Q.rear) {\n        printf(\"%d \", Q.data[i]);\n        i = (i + 1) % MAXSIZE;\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "points": [
+            "队满判断改为 (Q.rear + 1) % MAXSIZE == Q.front（3 分）",
+            "rear 后移改为 Q.rear = (Q.rear + 1) % MAXSIZE;（4 分）",
+            "输出循环中改为 i = (i + 1) % MAXSIZE;（3 分）"
+          ],
+          "explain": "三处错误都是下标加 1 后忘了对 MAXSIZE 取余：rear 一直往上加，会写到数组外面，结果不可预料；输出时 i 也绕不回 0。只读入 3 个数时队列没有绕回，原程序碰巧能输出正确结果，所以测试数据要超过 4 个。"
+        }
+      ]
+    },
+    {
+      "id": "13004-u02-l3",
+      "title": "括号匹配与表达式求值",
+      "questions": [
+        {
+          "id": "13004-u02-l3-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "字符串的输入",
+          "stem": "已定义 char s[100];，要读入一整行表达式（中间可能有空格），下列写法正确的是？",
+          "options": [
+            "scanf(\"%s\", s);",
+            "fgets(s, sizeof(s), stdin);",
+            "gets(s, 100);",
+            "getchar(s);"
+          ],
+          "answer": 1,
+          "explain": "scanf 的 %s 遇到空格就停止，只读到第一个空格前。fgets 最多读 sizeof(s)-1 个字符，行尾的换行符也会存进 s，处理时遇到 '\\n' 要跳过。gets 不检查长度，C11 已经把它删除了。"
+        },
+        {
+          "id": "13004-u02-l3-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "栈的应用：括号匹配",
+          "stem": "用栈检查括号是否配对（左括号进栈，右括号与栈顶配对后出栈），下列输入中能配对成功的是？",
+          "options": [
+            "([)]",
+            "(()",
+            "{[()()]}",
+            "())("
+          ],
+          "answer": 2,
+          "explain": "\"([)]\" 扫描到 ) 时栈顶是 [，类型不配；\"(()\" 扫描完栈里还剩一个 (；\"())(\" 扫描到第二个 ) 时栈已经空了。这三种失败情况都没出现，才算配对成功。"
+        },
+        {
+          "id": "13004-u02-l3-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "栈的应用：后缀表达式求值",
+          "stem": "后缀表达式求值时，遇到运算符 '-'，从运算数栈中先后弹出 a、b（先弹出的是 a），应把哪个结果进栈？",
+          "options": [
+            "a - b",
+            "b - a",
+            "a - b 的绝对值",
+            "a、b 中大的减小的"
+          ],
+          "answer": 1,
+          "explain": "左运算数先进栈，右运算数后进栈，所以先弹出的 a 是右运算数，结果是 b - a；除法同理是 b / a。加法、乘法写反了看不出来，测试数据里一定要有减法和除法。"
+        },
+        {
+          "id": "13004-u02-l3-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "栈的应用：后缀表达式求值",
+          "stem": "下面程序用栈求后缀表达式的值，运行结果是____。",
+          "code": "#include <stdio.h>\nint main(void)\n{\n    char e[] = \"93-42/*\";\n    int st[20], top = -1, i, a, b;\n    for (i = 0; e[i] != '\\0'; i++) {\n        if (e[i] >= '0' && e[i] <= '9') {\n            st[++top] = e[i] - '0';\n            continue;\n        }\n        a = st[top--];\n        b = st[top--];\n        switch (e[i]) {\n        case '+': st[++top] = b + a; break;\n        case '-': st[++top] = b - a; break;\n        case '*': st[++top] = b * a; break;\n        case '/': st[++top] = b / a; break;\n        }\n    }\n    printf(\"%d\\n\", st[top]);\n    return 0;\n}",
+          "answers": [
+            "12"
+          ],
+          "explain": "后缀表达式 93-42/* 对应 (9-3)*(4/2)：9 - 3 得 6 进栈，4 / 2 得 2 进栈，最后 6 * 2 = 12。数字字符减去 '0' 得到对应的整数。"
+        },
+        {
+          "id": "13004-u02-l3-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "栈的应用：中缀表达式转后缀表达式",
+          "stem": "下面是中缀表达式转后缀表达式程序的一部分：st 是运算符栈，post 存放结果，( 进栈时也存在 st 中。横线处应填入的是？",
+          "code": "int Prior(char op)\n{\n    if (op == '*' || op == '/')\n        return 2;\n    if (op == '+' || op == '-')\n        return 1;\n    return 0;\n}\n\n/* 读到运算符 c（+ - * /）时： */\nwhile (top != -1 && ______)\n    post[k++] = st[top--];\nst[++top] = c;",
+          "options": [
+            "Prior(st[top]) > Prior(c)",
+            "Prior(st[top]) >= Prior(c)",
+            "Prior(st[top]) < Prior(c)",
+            "st[top] != '('"
+          ],
+          "answer": 1,
+          "explain": "栈顶运算符的优先级不低于 c 时就先弹出，同级的也要弹出，a-b+c 才会得到 ab-c+；写成 > 时同级不弹出，得到的 abc+- 等于 a-(b+c)。( 的优先级是 0，运算符不会把它弹出，它要等读到 ) 时才出栈。"
+        },
+        {
+          "id": "13004-u02-l3-q6",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "栈的应用：后缀表达式求值",
+          "stem": "编写程序：输入一个以 # 结束的后缀表达式（运算数都是一位数字，运算符只有 + - * /，按整数运算，保证表达式合法且不会除以 0），用栈求值并输出结果。\n样例输入：\n234*+5-#\n样例输出：\n9",
+          "answer": "#include <stdio.h>\n#define MAXSIZE 100\ntypedef struct {\n    int data[MAXSIZE];\n    int top;\n} SqStack;\n\nvoid Push(SqStack *S, int x)\n{\n    S->data[++S->top] = x;\n}\n\nint Pop(SqStack *S)\n{\n    return S->data[S->top--];\n}\n\nint main(void)\n{\n    SqStack S;\n    int c, a, b;\n    S.top = -1;\n    while ((c = getchar()) != '#' && c != EOF) {\n        if (c >= '0' && c <= '9')\n            Push(&S, c - '0');\n        else if (c != ' ' && c != '\\n') {\n            a = Pop(&S);\n            b = Pop(&S);\n            if (c == '+') Push(&S, b + a);\n            else if (c == '-') Push(&S, b - a);\n            else if (c == '*') Push(&S, b * a);\n            else Push(&S, b / a);\n        }\n    }\n    printf(\"%d\\n\", Pop(&S));\n    return 0;\n}",
+          "points": [
+            "能编译运行，输出与样例一致（2 分）",
+            "用栈存放运算数，数字字符用 c - '0' 转成整数进栈（2 分）",
+            "遇到运算符时弹出两个运算数，先弹出的是右运算数（3 分）",
+            "按运算符计算后把结果进栈（2 分）",
+            "读到 # 结束，栈中剩下的就是结果（1 分）"
+          ],
+          "explain": "234*+5- 对应 2+3*4-5 = 9。参考答案用 getchar 逐个读字符，跳过空格和换行，其余字符都当作运算符；c 定义成 int，才能和 EOF 正确比较。要用含减法、除法和只有一个数的表达式测试。"
+        },
+        {
+          "id": "13004-u02-l3-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "栈的应用：括号匹配",
+          "stem": "编写程序：输入一行字符串（长度不超过 100，可能含空格），用栈检查其中的 ()、[]、{} 是否正确配对，其他字符忽略。配对输出 YES，否则输出 NO。\n样例输入：\n{a[(b+c)*d]-e}\n样例输出：\nYES",
+          "answer": "#include <stdio.h>\nint Pair(char l, char r)\n{\n    return (l == '(' && r == ')') ||\n           (l == '[' && r == ']') ||\n           (l == '{' && r == '}');\n}\n\nint main(void)\n{\n    char s[105], st[105];\n    int top = -1, i, ok = 1;\n    if (fgets(s, sizeof(s), stdin) == NULL)\n        s[0] = '\\0';\n    for (i = 0; s[i] != '\\0' && ok; i++) {\n        switch (s[i]) {\n        case '(': case '[': case '{':\n            st[++top] = s[i];\n            break;\n        case ')': case ']': case '}':\n            if (top == -1 || !Pair(st[top], s[i]))\n                ok = 0;\n            else\n                top--;\n            break;\n        }\n    }\n    puts(ok && top == -1 ? \"YES\" : \"NO\");\n    return 0;\n}",
+          "points": [
+            "能编译运行，用 fgets 读入含空格的一行（2 分）",
+            "左括号进栈（2 分）",
+            "右括号：栈空，或栈顶不是对应的左括号，判为不配对（3 分）",
+            "配对的右括号使栈顶出栈（1 分）",
+            "扫描结束后栈为空才输出 YES（2 分）"
+          ],
+          "explain": "三种失败情况都要测：右括号多了（如 \"())(\"）、类型不配（如 \"([)]\"）、左括号多了（如 \"(()\"）。输出用 YES、NO 这样的英文，可以避免控制台编码不同造成的中文乱码。"
+        }
+      ]
+    }
+  ]
+}

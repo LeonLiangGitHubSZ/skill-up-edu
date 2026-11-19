@@ -1,0 +1,53 @@
+{
+  "course": "13014",
+  "unit": 10,
+  "title": "文件读写程序",
+  "lessons": [
+    {
+      "id": "13014-u10-l1",
+      "title": "文本文件的打开、读写与关闭",
+      "questions": [
+        { "id": "13014-u10-l1-q1", "type": "single", "level": "应用", "kp": "打开文件并判断是否成功",
+          "stem": "下面的语句想在文件打开失败时给出提示，它的错误是？",
+          "code": "FILE *fp;\nif (fp = fopen(\"data.txt\", \"r\") == NULL) {\n  printf(\"cannot open\\n\");\n  return 1;\n}",
+          "options": ["打开失败时 fopen 返回 0，不能与 NULL 比较", "fp 得到的是比较的结果，要给赋值加上括号", "fopen 的两个参数顺序写反了", "打开方式 \"r\" 应写成 'r'"], "answer": 1,
+          "explain": "== 的优先级高于 =，fp 得到的是 fopen(...) == NULL 的结果 0 或 1，而不是文件指针（新版 gcc 直接报错，VC++ 6.0 等旧编译器可能只给警告）。应写成 if ((fp = fopen(\"data.txt\", \"r\")) == NULL)。" },
+        { "id": "13014-u10-l1-q2", "type": "single", "level": "领会", "kp": "文件名中的路径",
+          "stem": "要以只读方式打开 Windows 中的文件 C:\\data\\in.txt，正确的写法是？",
+          "options": ["fopen(\"C:\\data\\in.txt\", \"r\")", "fopen(C:\\\\data\\\\in.txt, \"r\")", "fopen(\"C:\\\\data\\\\in.txt\", r)", "fopen(\"C:\\\\data\\\\in.txt\", \"r\")"], "answer": 3,
+          "explain": "字符串中的 \\ 是转义符，\\d、\\i 不是合法的转义字符，路径中的每个 \\ 都要写成 \\\\（也可以写成 \"C:/data/in.txt\"）。文件名和打开方式都是字符串，要加双引号。" },
+        { "id": "13014-u10-l1-q3", "type": "fill", "level": "应用", "kp": "文件的打开方式（追加）",
+          "stem": "下面程序先用 \"w\" 方式写文件，再用 \"a\" 方式写，最后读出全部整数。运行后输出____。",
+          "code": "#include <stdio.h>\nint main(void)\n{\n  FILE *fp;\n  int x, n = 0, s = 0;\n  fp = fopen(\"t.txt\", \"w\");\n  fprintf(fp, \"%d %d \", 1, 2);\n  fclose(fp);\n  fp = fopen(\"t.txt\", \"a\");\n  fprintf(fp, \"%d \", 3);\n  fclose(fp);\n  fp = fopen(\"t.txt\", \"r\");\n  while (fscanf(fp, \"%d\", &x) == 1) {\n    n++;\n    s += x;\n  }\n  fclose(fp);\n  printf(\"%d %d\\n\", n, s);\n  return 0;\n}",
+          "answers": ["3 6"],
+          "explain": "\"a\" 方式在文件原有内容的末尾追加，所以文件中有 1 2 3 三个数，和为 6。如果第二次也用 \"w\" 方式，原有内容会被清除，结果就是 1 3。fscanf 返回成功读入的个数，读到文件尾时不再是 1，循环结束。" },
+        { "id": "13014-u10-l1-q4", "type": "single", "level": "应用", "kp": "feof 的使用",
+          "stem": "文件 in.txt 的内容是 1 2 3，末尾有一个换行符。运行下面的程序，输出是？",
+          "code": "#include <stdio.h>\nint main(void)\n{\n  FILE *fp = fopen(\"in.txt\", \"r\");\n  int x, s = 0;\n  if (fp == NULL) return 1;\n  while (!feof(fp)) {\n    fscanf(fp, \"%d\", &x);\n    s += x;\n  }\n  fclose(fp);\n  printf(\"%d\\n\", s);\n  return 0;\n}",
+          "options": ["3", "程序陷入死循环", "9", "6"], "answer": 2,
+          "explain": "读完 3 以后还没有碰到文件尾，feof 仍为假；下一次 fscanf 读不到数据，x 保持 3，又被加了一次，结果是 9。feof 只有在读操作遇到文件尾之后才为真，所以应该用读函数的返回值控制循环：while (fscanf(fp, \"%d\", &x) == 1)。" },
+        { "id": "13014-u10-l1-q5", "type": "fill", "level": "应用", "kp": "用 fgetc 逐个读取字符",
+          "stem": "文件 in.txt 有两行，内容是 ab 和 cd，每行末尾都有换行符。下面程序用 fgetc 读到文件尾，运行后输出____。",
+          "code": "#include <stdio.h>\nint main(void)\n{\n  FILE *fp;\n  int c, n = 0;\n  fp = fopen(\"in.txt\", \"r\");\n  if (fp == NULL) return 1;\n  while ((c = fgetc(fp)) != EOF)\n    n++;\n  fclose(fp);\n  printf(\"%d\\n\", n);\n  return 0;\n}",
+          "answers": ["6"],
+          "explain": "两个换行符也是字符，共 2 + 1 + 2 + 1 = 6 个。c 要定义成 int 型：fgetc 读到文件尾时返回 EOF（-1），char 型变量不一定能正确地与 EOF 比较。" },
+        { "id": "13014-u10-l1-q6", "type": "single", "level": "领会", "kp": "关闭文件",
+          "stem": "下面程序向 t.txt 写入 1 2 3 后没有关闭文件，就又打开它读数据，运行后的输出是？",
+          "code": "#include <stdio.h>\nint main(void)\n{\n  FILE *fw, *fr;\n  int x, n = 0;\n  fw = fopen(\"t.txt\", \"w\");\n  fprintf(fw, \"1 2 3\\n\");\n  fr = fopen(\"t.txt\", \"r\");\n  while (fscanf(fr, \"%d\", &x) == 1)\n    n++;\n  printf(\"%d\\n\", n);\n  fclose(fr);\n  fclose(fw);\n  return 0;\n}",
+          "options": ["0", "3", "1", "6"], "answer": 0,
+          "explain": "fprintf 写的数据先放在内存的缓冲区里，fclose（或 fflush）时才真正写入文件，所以这时文件还是空的，一个数也读不到。写完文件要先 fclose，再重新打开读。" },
+        { "id": "13014-u10-l1-q7", "type": "short", "form": "程序设计", "level": "应用", "kp": "用 fscanf、fprintf 读写文本文件",
+          "stem": "编写程序：文本文件 in.txt 中有若干个整数（用空格或换行分隔）。读出全部整数，求和与平均值，按“sum=和 avg=平均值”的格式（平均值保留 2 位小数）写入文件 out.txt。in.txt 打不开时在屏幕上输出 cannot open in.txt；文件中没有整数时，在 out.txt 中写入 no data。\nin.txt 样例：3 5 8 2\nout.txt 应为：sum=18 avg=4.50",
+          "points": ["用 fopen(\"in.txt\", \"r\") 打开，判断返回值是否为 NULL", "用 while (fscanf(in, \"%d\", &x) == 1) 读到文件尾，同时求和、计数", "用 fopen(\"out.txt\", \"w\") 打开输出文件，用 fprintf 按格式写入", "没有数据时写 no data，不做除法；两个文件都要 fclose"],
+          "answer": "#include <stdio.h>\nint main(void)\n{\n  FILE *in, *out;\n  int x, n = 0, sum = 0;\n  double avg;\n  in = fopen(\"in.txt\", \"r\");\n  if (in == NULL) {\n    printf(\"cannot open in.txt\\n\");\n    return 1;\n  }\n  while (fscanf(in, \"%d\", &x) == 1) {\n    sum += x;\n    n++;\n  }\n  fclose(in);\n  out = fopen(\"out.txt\", \"w\");\n  if (out == NULL) {\n    printf(\"cannot open out.txt\\n\");\n    return 1;\n  }\n  if (n == 0)\n    fprintf(out, \"no data\\n\");\n  else {\n    avg = (double)sum / n;\n    fprintf(out, \"sum=%d avg=%.2f\\n\", sum, avg);\n  }\n  fclose(out);\n  return 0;\n}",
+          "explain": "fopen 中只写文件名时，文件在程序运行时的“当前目录”中找，在开发环境中运行时通常是工程（项目）所在的文件夹。上机时先确认 in.txt 放对了地方，再看 out.txt 的内容是否正确。",
+          "verify": "核对考场开发环境中运行程序时的当前目录（VC++ 6.0 一般是工程所在的文件夹），以及数据文件应放的位置。" },
+        { "id": "13014-u10-l1-q8", "type": "short", "form": "程序设计", "level": "应用", "kp": "用 fgets 按行读文件",
+          "stem": "编写程序：把文本文件 in.txt 的每一行（每行不超过 80 个字符）前面加上行号、冒号和一个空格后写入 out.txt，最后在屏幕上输出总行数。in.txt 打不开时输出 cannot open。\nin.txt 样例：\nhello\nworld\nout.txt 应为：\n1: hello\n2: world\n屏幕输出：2",
+          "points": ["打开 in.txt（\"r\"）和 out.txt（\"w\"），都要判断是否为 NULL", "用 while (fgets(line, sizeof(line), in) != NULL) 逐行读到文件尾", "每读一行行号加 1，用 fprintf(out, \"%d: %s\", n, line) 写入，line 中已有换行符", "关闭两个文件，在屏幕上输出行数；测试空文件（输出 0）"],
+          "answer": "#include <stdio.h>\nint main(void)\n{\n  FILE *in, *out;\n  char line[82];\n  int n = 0;\n  in = fopen(\"in.txt\", \"r\");\n  if (in == NULL) {\n    printf(\"cannot open\\n\");\n    return 1;\n  }\n  out = fopen(\"out.txt\", \"w\");\n  if (out == NULL) {\n    fclose(in);\n    printf(\"cannot open\\n\");\n    return 1;\n  }\n  while (fgets(line, sizeof(line), in) != NULL) {\n    n++;\n    fprintf(out, \"%d: %s\", n, line);\n  }\n  fclose(in);\n  fclose(out);\n  printf(\"%d\\n\", n);\n  return 0;\n}",
+          "explain": "fgets 读到文件尾时返回 NULL，用它控制循环最可靠。读入的 line 末尾带着换行符，fprintf 的格式中就不要再加 \\n，否则每行之间会多出一个空行。" }
+      ]
+    }
+  ]
+}

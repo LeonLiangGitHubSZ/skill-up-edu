@@ -1,0 +1,95 @@
+{
+  "course": "04736",
+  "unit": 6,
+  "title": "视图与索引",
+  "lessons": [
+    {
+      "id": "04736-u06-l1",
+      "title": "视图的定义与更新、索引的创建与删除",
+      "questions": [
+        {
+          "id": "04736-u06-l1-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "视图的 WITH CHECK OPTION",
+          "stem": "student(sno, sname, ssex, sage, sdept) 中除 sno、sname 外都允许为空。执行下面的语句后，最后一条 INSERT 的结果是？",
+          "code": "CREATE VIEW v_cs AS\n  SELECT sno, sname, sdept FROM student\n  WHERE sdept = '计算机'\n  WITH CHECK OPTION;\nINSERT INTO v_cs VALUES ('S09', '孙丽', '数学');",
+          "options": ["插入成功，但通过 v_cs 查不到孙丽", "报错 1369：CHECK OPTION failed", "插入成功，sdept 被自动改为“计算机”", "报错：不能通过视图执行 INSERT"],
+          "answer": 1,
+          "explain": "WITH CHECK OPTION 要求通过视图插入或修改的行必须满足视图定义中的 WHERE 条件，数学系的学生不满足，报 1369 CHECK OPTION failed。去掉这个子句，插入会成功，只是从 v_cs 中看不到这一行。"
+        },
+        {
+          "id": "04736-u06-l1-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "可更新视图",
+          "stem": "视图 v_avg 的定义如下。执行最后的 UPDATE，结果是？",
+          "code": "CREATE VIEW v_avg(sno, avg_g) AS\n  SELECT sno, AVG(grade) FROM sc\n  GROUP BY sno;\nUPDATE v_avg SET avg_g = 90\n  WHERE sno = 'S01';",
+          "options": ["S01 的每门成绩都被改为 90", "只把 S01 的第一门成绩改为 90", "报错 1288：视图不可更新", "v_avg 中 S01 的平均成绩变为 90，sc 不变"],
+          "answer": 2,
+          "explain": "视图定义中含有聚合函数、GROUP BY、DISTINCT、UNION 等时，视图的行与基本表的行不能一一对应，这样的视图只能查询；执行 UPDATE 报 1288 The target table v_avg of the UPDATE is not updatable。"
+        },
+        {
+          "id": "04736-u06-l1-q3",
+          "type": "fill",
+          "level": "识记",
+          "kp": "查看与修改视图",
+          "stem": "查看视图 v_cs 的定义语句：SHOW CREATE ____ v_cs;",
+          "answers": ["VIEW", "TABLE"],
+          "explain": "SHOW CREATE VIEW 显示视图的定义（对视图执行 SHOW CREATE TABLE 也会显示同样的内容），DESC v_cs 查看视图有哪些列。修改视图用 ALTER VIEW 或 CREATE OR REPLACE VIEW，删除视图用 DROP VIEW。"
+        },
+        {
+          "id": "04736-u06-l1-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "视图与基本表的关系",
+          "stem": "视图 v_cs 建立在 student 表上，student 没有被其他表的外键参照。执行 DROP TABLE student; 之后，再执行 SELECT * FROM v_cs;，结果是？",
+          "options": ["仍能查到删除前的数据", "返回空集，不报错", "视图已随表一起被自动删除", "报错 1356：视图引用了无效的表"],
+          "answer": 3,
+          "explain": "视图只保存定义，不保存数据，每次查询都到基本表中取数据。基本表删除后视图不会自动删除，但查询它会报 1356 View … references invalid table(s) or column(s)。"
+        },
+        {
+          "id": "04736-u06-l1-q5",
+          "type": "single",
+          "level": "识记",
+          "kp": "创建索引",
+          "stem": "在 student 表的 sname 列上创建名为 idx_sname 的普通索引，正确的语句是？",
+          "options": ["CREATE INDEX idx_sname ON student(sname);", "CREATE INDEX idx_sname ON student;", "CREATE INDEX student(sname) AS idx_sname;", "ALTER INDEX idx_sname ON student(sname);"],
+          "answer": 0,
+          "explain": "格式为 CREATE [UNIQUE] INDEX 索引名 ON 表名(列名[(长度)], …)；也可以写 ALTER TABLE student ADD INDEX idx_sname(sname)，或在 CREATE TABLE 中用 INDEX idx_sname(sname) 定义。"
+        },
+        {
+          "id": "04736-u06-l1-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "删除索引",
+          "stem": "要删除 student 表上的索引 idx_sname，正确的语句是？",
+          "options": ["DROP INDEX idx_sname;", "DROP INDEX idx_sname ON student;", "ALTER TABLE student DROP idx_sname;", "DELETE INDEX idx_sname FROM student;"],
+          "answer": 1,
+          "explain": "MySQL 中的索引属于某张表，DROP INDEX 必须用 ON 指明表名；也可以写 ALTER TABLE student DROP INDEX idx_sname。少了 INDEX 写成 DROP idx_sname，会被当成删除名为 idx_sname 的列，报 1091。"
+        },
+        {
+          "id": "04736-u06-l1-q7",
+          "type": "fill",
+          "level": "识记",
+          "kp": "查看索引",
+          "stem": "查看 student 表上已经建立的所有索引：SHOW ____ FROM student;",
+          "answers": ["INDEX", "INDEXES", "KEYS"],
+          "explain": "SHOW INDEX FROM 表名 列出索引名（Key_name）、所在的列、是否唯一（Non_unique 为 0 表示唯一）等；主键对应的索引名为 PRIMARY，UNIQUE 约束和外键也会自动建立索引。"
+        },
+        {
+          "id": "04736-u06-l1-q8",
+          "type": "short",
+          "form": "设计",
+          "level": "应用",
+          "kp": "视图与索引的创建和使用",
+          "stem": "商品库中有 goods(gno, gname, category, price, stock) 和 orders(ono, gno, qty, odate)，数据如下。用 SQL 语句完成：\n(1) 创建视图 v_digital，包含“数码”类商品的编号、名称、类别、价格和库存，并保证通过视图修改的商品仍属于数码类；\n(2) 创建视图 v_sales(gno, gname, total)，统计每种商品的销售总数量；\n(3) 通过 v_digital 把 G01 的库存改为 30，再查询 v_sales 中销售总数量不少于 5 的商品；\n(4) 在 orders 的 odate 列上创建索引 idx_odate，在 goods 的 gname 列上创建唯一索引 uk_gname，然后查看 orders 上的索引。",
+          "code": "-- goods(gno, gname, category, price, stock)\nINSERT INTO goods VALUES\n('G01','鼠标','数码',59,20),\n('G02','键盘','数码',129,15),\n('G03','台灯','家居',89,8),\n('G04','抱枕','家居',39,30);\n-- orders(ono, gno, qty, odate)\nINSERT INTO orders VALUES\n(1,'G01',2,'2026-10-01'),\n(2,'G02',1,'2026-10-02'),\n(3,'G01',3,'2026-10-05'),\n(4,'G03',5,'2026-10-06');",
+          "points": ["(1) CREATE VIEW … WHERE category = '数码' WITH CHECK OPTION（1 分）", "(2) 视图列名 (gno, gname, total)，SUM(qty) … GROUP BY（1 分）", "(3) UPDATE v_digital …；SELECT … WHERE total >= 5（1 分）", "(4) CREATE INDEX、CREATE UNIQUE INDEX、SHOW INDEX（1 分）"],
+          "answer": "CREATE VIEW v_digital AS\n  SELECT gno, gname, category, price, stock\n  FROM goods WHERE category = '数码'\n  WITH CHECK OPTION;\nCREATE VIEW v_sales(gno, gname, total) AS\n  SELECT g.gno, g.gname, SUM(o.qty)\n  FROM goods g JOIN orders o ON g.gno = o.gno\n  GROUP BY g.gno, g.gname;\nUPDATE v_digital SET stock = 30\n  WHERE gno = 'G01';\nSELECT * FROM v_sales WHERE total >= 5;\nCREATE INDEX idx_odate ON orders(odate);\nCREATE UNIQUE INDEX uk_gname ON goods(gname);\nSHOW INDEX FROM orders;",
+          "explain": "按样例数据，(3) 返回 G01 和 G03（各 5 件）。v_digital 是单表的行列子集视图，可以更新；v_sales 含 SUM 和 GROUP BY，只能查询。SHOW INDEX FROM orders 列出主键索引 PRIMARY 和新建的 idx_odate。"
+        }
+      ]
+    }
+  ]
+}

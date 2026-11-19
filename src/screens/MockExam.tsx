@@ -28,6 +28,8 @@ export function MockExam({ paper, onExit }: { paper: Paper; onExit: () => void }
   const [done, setDone] = useState<(PaperScore & { seconds: number; xp: number }) | null>(null);
   const shorts = useMemo(() => paper.items.filter((it) => it.q.type === "short"), [paper]);
   const course = courseByCode(paper.course);
+  /** 实践课是上机考核：主观题在电脑上做，不是在纸上写 */
+  const practice = course?.group === "实践";
 
   useEffect(() => {
     if (phase !== "answer") return;
@@ -126,7 +128,7 @@ export function MockExam({ paper, onExit }: { paper: Paper; onExit: () => void }
         </div>
         <div className="foot">
           <div className="rate">
-            <div className="muted small">对照要点，你在纸上写出了多少？</div>
+            <div className="muted small">{practice ? "对照要点和参考答案，你做出了多少？" : "对照要点，你在纸上写出了多少？"}</div>
             <div className="rate-row">
               <button className="btn bad" onClick={() => rate("wrong")}>不会 · 0</button>
               <button className="btn warn" onClick={() => rate("partial")}>部分 · {it.points / 2}</button>
@@ -191,7 +193,13 @@ export function MockExam({ paper, onExit }: { paper: Paper; onExit: () => void }
             onChange={(e) => setAnswers((x) => ({ ...x, [q.id]: e.target.value }))}
           />
         )}
-        {q.type === "short" && <div className="card soft">✍️ 在纸上作答（真实考试要手写）。交卷后对照得分要点给自己打分。</div>}
+        {q.type === "short" && (
+          <div className="card soft">
+            {practice
+              ? "💻 实践考核是上机操作：在电脑上动手做出来（程序、SQL 要实际运行）。交卷后对照得分要点和参考答案给自己打分。"
+              : "✍️ 在纸上作答（真实考试要手写）。交卷后对照得分要点给自己打分。"}
+          </div>
+        )}
       </div>
       <div className="foot">
         <div className="rate-row">
@@ -218,7 +226,7 @@ export function MockExam({ paper, onExit }: { paper: Paper; onExit: () => void }
                 </button>
               ))}
             </div>
-            <div className="muted small">紫色 = 已作答，虚线 = 主观题（在纸上写）</div>
+            <div className="muted small">紫色 = 已作答，虚线 = {practice ? "上机题（在电脑上做）" : "主观题（在纸上写）"}</div>
             <button className="btn ok" onClick={() => { setCardOpen(false); submit(); }}>交 卷</button>
           </div>
         </div>

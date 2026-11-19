@@ -1,0 +1,227 @@
+{
+  "course": "13014",
+  "unit": 6,
+  "title": "字符串程序",
+  "lessons": [
+    {
+      "id": "13014-u06-l1",
+      "title": "字符串的输入与输出（用 fgets，不用 gets）",
+      "questions": [
+        {
+          "id": "13014-u06-l1-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "不用 gets 的原因",
+          "stem": "读入一行字符串时，现在一般不用 gets(s)，主要原因是？",
+          "options": [
+            "gets 不能读入空格",
+            "gets 一次只能读入一个字符",
+            "gets 读入的字符串末尾没有 '\\0'",
+            "gets 不检查数组长度，输入过长会越界，C11 已删除它"
+          ],
+          "answer": 3,
+          "explain": "gets 不知道数组有多大，输入超过数组长度就会越界改写内存；C11 标准已经删除了 gets（VC++ 6.0 等旧编译器还能用）。读一行要用 fgets(s, n, stdin)，它最多读 n − 1 个字符。"
+        },
+        {
+          "id": "13014-u06-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "fgets 会保留换行符",
+          "stem": "运行下面的程序，输入 hello 后按回车，输出是？",
+          "code": "#include <stdio.h>\n#include <string.h>\nint main(void)\n{\n  char s[20];\n  fgets(s, sizeof(s), stdin);\n  printf(\"%d\\n\", (int)strlen(s));\n  return 0;\n}",
+          "options": [
+            "7",
+            "6",
+            "5",
+            "20"
+          ],
+          "answer": 1,
+          "explain": "fgets 读到换行符为止，并且把换行符 '\\n' 也存进数组，所以 s 中是 hello 加 '\\n'，长度为 6。需要时要自己把末尾的 '\\n' 去掉。"
+        },
+        {
+          "id": "13014-u06-l1-q3",
+          "type": "fill",
+          "level": "应用",
+          "kp": "去掉 fgets 读入的换行符",
+          "stem": "下面程序用 fgets 读入一行，再去掉末尾的换行符。输入 hello 回车，要输出 [hello] 5，横线处应填____。",
+          "code": "#include <stdio.h>\n#include <string.h>\nint main(void)\n{\n  char s[80];\n  int n;\n  fgets(s, sizeof(s), stdin);\n  n = strlen(s);\n  if (n > 0 && s[n - 1] == '\\n')\n    ______;\n  printf(\"[%s] %d\\n\", s, (int)strlen(s));\n  return 0;\n}",
+          "answers": [
+            "s[n - 1] = '\\0'",
+            "s[n - 1] = 0"
+          ],
+          "explain": "把最后一个字符（换行符）改成 '\\0'，字符串就在那里结束了（写成整数 0 也对，但字符 '0' 不对）。先判断 n > 0 再访问 s[n - 1]，最后一行没有换行符时也不会误删字符。"
+        },
+        {
+          "id": "13014-u06-l1-q4",
+          "type": "single",
+          "level": "领会",
+          "kp": "读入含空格的一行",
+          "stem": "有定义 char s[20]; 要读入一行可能含有空格的文字（如 Li Ming），既能读入空格、又不会因输入过长而越界的是？",
+          "options": [
+            "scanf(\"%19s\", s);",
+            "fgets(s, sizeof(s), stdin);",
+            "scanf(\"%s\", s);",
+            "gets(s);"
+          ],
+          "answer": 1,
+          "explain": "scanf 的 %s 遇到空格就停止，只能读到 Li；%19s 虽然限制了长度，同样不能读空格。gets 能读空格，但不检查长度。fgets 两个要求都满足。"
+        },
+        {
+          "id": "13014-u06-l1-q5",
+          "type": "fill",
+          "level": "领会",
+          "kp": "字符数组的长度与 '\\0'",
+          "stem": "定义 char s[10]; 后，s 中最多能存放长度为____的字符串。",
+          "answers": [
+            "9"
+          ],
+          "explain": "字符串末尾必须有结束标志 '\\0'，它也占数组的一个元素，所以长度为 10 的字符数组最多存 9 个字符。定义数组时要多留一个位置。"
+        },
+        {
+          "id": "13014-u06-l1-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "scanf 与 fgets 混用",
+          "stem": "运行下面的程序，输入 3 回车、Tom 回车，输出是？",
+          "code": "#include <stdio.h>\n#include <string.h>\nint main(void)\n{\n  int n;\n  char name[20];\n  scanf(\"%d\", &n);\n  fgets(name, sizeof(name), stdin);\n  printf(\"%d [%d]\\n\", n, (int)strlen(name));\n  return 0;\n}",
+          "options": [
+            "3 [3]",
+            "3 [4]",
+            "3 [0]",
+            "3 [1]"
+          ],
+          "answer": 3,
+          "explain": "scanf 读走 3 以后，回车留下的 '\\n' 还在缓冲区里，fgets 一读到它就结束了，name 中只有一个换行符，Tom 根本没有读入。可以在 scanf 后面加一个 getchar() 读掉这个换行符。"
+        },
+        {
+          "id": "13014-u06-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "字符串的逐字符处理（统计单词）",
+          "stem": "编写程序：输入一行英文（可以含空格，不超过 80 个字符），统计其中单词的个数。单词由连续的非空格字符组成，单词之间可能有多个空格。\n输入样例：  I am   a student\n输出样例：4",
+          "points": [
+            "用 fgets(s, sizeof(s), stdin) 读入一行，不用 gets；数组至少 82 个元素",
+            "逐个扫描字符，遇到 '\\0' 或 '\\n' 时结束",
+            "用 inword 标记是否在单词中：从空格进入非空格字符时，单词数加 1",
+            "测试：开头和中间有多个空格、只有一个单词、空行（输出 0）"
+          ],
+          "answer": "#include <stdio.h>\nint main(void)\n{\n  char s[82];\n  int i, count = 0, inword = 0;\n  if (fgets(s, sizeof(s), stdin) == NULL)\n    s[0] = '\\0';\n  for (i = 0; s[i] != '\\0' && s[i] != '\\n'; i++) {\n    if (s[i] == ' ')\n      inword = 0;\n    else if (inword == 0) {\n      inword = 1;\n      count++;\n    }\n  }\n  printf(\"%d\\n\", count);\n  return 0;\n}",
+          "explain": "数单词就是数“单词的开头”：当前字符不是空格、而前一个状态是在单词外。80 个字符加上 fgets 存入的 '\\n' 和 '\\0'，数组要 82 个元素。"
+        }
+      ]
+    },
+    {
+      "id": "13014-u06-l2",
+      "title": "字符串处理：库函数与逐字符处理",
+      "questions": [
+        {
+          "id": "13014-u06-l2-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "字符串的复制",
+          "stem": "有定义 char s[20], t[] = \"hello\"; 下列能把 t 中的字符串复制到 s 中的是？",
+          "options": [
+            "strcpy(s, t);",
+            "s = t;",
+            "strcpy(t, s);",
+            "s[20] = t;"
+          ],
+          "answer": 0,
+          "explain": "strcpy(目的, 源) 把源字符串连同 '\\0' 一起复制到目的数组，要包含 string.h。数组名不能被赋值，s = t; 编译出错；strcpy(t, s) 方向反了。"
+        },
+        {
+          "id": "13014-u06-l2-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "字符串的比较",
+          "stem": "下面程序段用 strcmp 找出“最大”的字符串，执行后的输出是？",
+          "code": "char a[4][10] = {\"tom\", \"Alice\", \"Zoe\", \"bob\"};\nint i, k = 0;\nfor (i = 1; i < 4; i++)\n  if (strcmp(a[i], a[k]) > 0)\n    k = i;\nprintf(\"%s\\n\", a[k]);",
+          "options": [
+            "Alice",
+            "bob",
+            "tom",
+            "Zoe"
+          ],
+          "answer": 2,
+          "explain": "strcmp 按字符的 ASCII 码逐个比较，小写字母（97～122）都比大写字母（65～90）大，所以小写开头的 tom、bob 比 Zoe 大，tom 又比 bob 大。"
+        },
+        {
+          "id": "13014-u06-l2-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "字母的大小写转换",
+          "stem": "下面程序段把字符串中的小写字母转换为大写，执行后的输出是？",
+          "code": "char s[] = \"Hi, c99!\";\nint i;\nfor (i = 0; s[i] != '\\0'; i++)\n  if (s[i] >= 'a' && s[i] <= 'z')\n    s[i] = s[i] - 'a' + 'A';\nprintf(\"%s\\n\", s);",
+          "options": [
+            "Hi, C99!",
+            "hI, C99!",
+            "HI, c99!",
+            "HI, C99!"
+          ],
+          "answer": 3,
+          "explain": "只有小写字母 i 和 c 被转换，H、逗号、空格、数字和感叹号不变。s[i] - 'a' + 'A' 与 s[i] - 32 等价，也可以用 ctype.h 中的 toupper(s[i])。"
+        },
+        {
+          "id": "13014-u06-l2-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "数字字符串转换为整数",
+          "stem": "下面程序段把数字字符串转换成整数，执行后输出____。",
+          "code": "char s[] = \"2027\";\nint i, n = 0;\nfor (i = 0; s[i] != '\\0'; i++)\n  n = n * 10 + (s[i] - '0');\nprintf(\"%d\\n\", n + 1);",
+          "answers": [
+            "2028"
+          ],
+          "explain": "数字字符减去 '0' 得到它代表的数值（'7' - '0' 为 7）；每读一位，把已有的值乘 10 再加上这一位。转换后才能做加法，结果为 2028。"
+        },
+        {
+          "id": "13014-u06-l2-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "字符串连接的空间",
+          "stem": "执行 char s[6] = \"Good\"; strcat(s, \"Day\"); 后，下列说法正确的是？",
+          "options": [
+            "s 自动截断为 GoodD",
+            "s 放不下 GoodDay 和 '\\0'，会越界写内存",
+            "s 变为 GoodDay，没有问题",
+            "编译时报错"
+          ],
+          "answer": 1,
+          "explain": "GoodDay 有 7 个字符，加上 '\\0' 需要 8 个元素，而 s 只有 6 个。strcat 不检查空间，越界部分会改写别的数据。目的数组必须足够大，如 char s[20]。"
+        },
+        {
+          "id": "13014-u06-l2-q6",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "字符串处理（单词首字母大写）",
+          "stem": "编写程序：输入一行英文句子（可以含空格，不超过 80 个字符），把每个单词的第一个字母改为大写后输出，其他字符不变。单词之间用空格分隔。\n输入样例：hello world, c language\n输出样例：Hello World, C Language",
+          "points": [
+            "用 fgets 读入一行，数组至少 82 个元素",
+            "第 0 个字符，或前一个字符是空格时，当前字符是单词的首字母",
+            "首字母是小写字母时减 32（或用 toupper）改为大写",
+            "输出整行；测试开头有空格、首字母已是大写、以数字开头的单词"
+          ],
+          "answer": "#include <stdio.h>\nint main(void)\n{\n  char s[82];\n  int i;\n  if (fgets(s, sizeof(s), stdin) == NULL)\n    return 0;\n  for (i = 0; s[i] != '\\0'; i++)\n    if ((i == 0 || s[i - 1] == ' ') &&\n        s[i] >= 'a' && s[i] <= 'z')\n      s[i] = s[i] - 32;\n  printf(\"%s\", s);\n  return 0;\n}",
+          "explain": "判断首字母时，i == 0 要写在 || 的前面：i 为 0 时就不再计算 s[i - 1]，不会访问 s[-1]。fgets 读入的换行符原样输出，所以 printf 里不再加 \\n。"
+        },
+        {
+          "id": "13014-u06-l2-q7",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "字符串的逆序",
+          "stem": "下面程序的功能是：输入一个不含空格的字符串（长度不超过 80），把它逆序存入 t 后输出。程序中有 2 处错误，请找出并改正。\n输入样例：abc12\n输出样例：21cba",
+          "code": "#include <stdio.h>\n#include <string.h>\nint main(void)\n{\n  char s[81], t[81];\n  int i, n;\n  scanf(\"%s\", s);\n  n = strlen(s);\n  for (i = 0; i < n; i++)\n    t[i] = s[n - i];\n  printf(\"%s\\n\", t);\n  return 0;\n}",
+          "points": [
+            "错误 1：s[n - i] 在 i 为 0 时取到的是 '\\0'，改为 t[i] = s[n - 1 - i]",
+            "错误 2：t 的末尾没有 '\\0'，循环后加上 t[n] = '\\0';",
+            "测试：abc12 输出 21cba；一个字符 a 输出 a；ab 输出 ba"
+          ],
+          "answer": "#include <stdio.h>\n#include <string.h>\nint main(void)\n{\n  char s[81], t[81];\n  int i, n;\n  scanf(\"%s\", s);\n  n = strlen(s);\n  for (i = 0; i < n; i++)\n    t[i] = s[n - 1 - i];\n  t[n] = '\\0';\n  printf(\"%s\\n\", t);\n  return 0;\n}",
+          "explain": "长度为 n 的字符串，最后一个字符是 s[n - 1]，s[n] 是 '\\0'。逐个字符构造新字符串时，最后一定要补上 '\\0'，否则 printf 会接着输出数组里的“垃圾”字符。"
+        }
+      ]
+    }
+  ]
+}
