@@ -1,0 +1,825 @@
+{
+  "course": "04747",
+  "unit": 5,
+  "title": "进一步讨论对象和类",
+  "lessons": [
+    {
+      "id": "04747-u05-l1",
+      "title": "面向对象的基本概念、类的声明与成员",
+      "questions": [
+        {
+          "id": "04747-u05-l1-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "面向对象的基本概念",
+          "stem": "在面向对象的方法中，对象之间主要通过什么进行交互和通信？",
+          "options": [
+            "全局变量",
+            "goto 语句",
+            "消息（调用对象的方法）",
+            "共享内存地址"
+          ],
+          "answer": 2,
+          "explain": "一个对象向另一个对象发送消息，就是调用那个对象的方法，请它完成某种操作；消息一般包括接收消息的对象、要调用的方法名和参数。"
+        },
+        {
+          "id": "04747-u05-l1-q2",
+          "type": "single",
+          "level": "识记",
+          "kp": "面向对象编程的优点",
+          "stem": "下列各项中，不属于面向对象程序设计主要优点的是？",
+          "options": [
+            "程序一定比面向过程的程序运行得更快",
+            "通过继承实现代码重用",
+            "封装使程序易于维护和修改",
+            "程序更容易扩展"
+          ],
+          "answer": 0,
+          "explain": "面向对象的优点主要是可重用性、可扩展性和易维护性，并且更符合人们认识现实世界的方式；它并不保证程序运行得更快。",
+          "verify": "核对教材对“面向对象编程的优点”的具体表述。"
+        },
+        {
+          "id": "04747-u05-l1-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "类的声明",
+          "stem": "下列类头（类声明的第一行）中，语法正确的是？",
+          "options": [
+            "public class Cat extends Animal, Pet",
+            "public class Cat extends Animal implements Pet, Cute",
+            "class Cat implements Pet extends Animal",
+            "class Cat()"
+          ],
+          "answer": 1,
+          "explain": "类声明的格式为：[修饰符] class 类名 [extends 父类名] [implements 接口名列表]。extends 后只能写一个父类，implements 后可以写多个接口，并且 extends 要写在 implements 前面；类名后不加圆括号。"
+        },
+        {
+          "id": "04747-u05-l1-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "成员变量",
+          "stem": "下面程序创建了两个 Counter 对象并分别调用方法，运行结果是____。",
+          "code": "class Counter {\n  int count;\n  void add() { count++; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Counter c1 = new Counter();\n    Counter c2 = new Counter();\n    c1.add();\n    c1.add();\n    c2.add();\n    System.out.println(c1.count + \",\" + c2.count);\n  }\n}",
+          "answers": [
+            "2,1"
+          ],
+          "explain": "count 是实例变量（没有 static 修饰的成员变量），每个对象各有一份：c1 调用两次 add()，它的 count 为 2；c2 调用一次，它的 count 为 1。"
+        },
+        {
+          "id": "04747-u05-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "成员方法",
+          "stem": "关于成员方法的定义，下列说法正确的是？",
+          "options": [
+            "返回类型为 void 的方法中不能出现 return 语句",
+            "可以在一个方法中再定义另一个方法",
+            "方法的参数只能是基本数据类型",
+            "返回类型不是 void 的方法，应通过 return 语句返回与返回类型相符的值"
+          ],
+          "answer": 3,
+          "explain": "void 方法中可以用不带值的 return; 提前结束方法；Java 不允许在方法中再定义方法；参数可以是基本类型，也可以是对象、数组等引用类型。"
+        },
+        {
+          "id": "04747-u05-l1-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "成员方法",
+          "stem": "下面程序试图在方法中交换两个 int 型参数的值，运行结果是？",
+          "code": "public class Test {\n  static void swap(int a, int b) {\n    int t = a; a = b; b = t;\n  }\n  public static void main(String[] args) {\n    int x = 1, y = 2;\n    swap(x, y);\n    System.out.println(x + \" \" + y);\n  }\n}",
+          "options": [
+            "2 1",
+            "1 2",
+            "1 1",
+            "2 2"
+          ],
+          "answer": 1,
+          "explain": "基本类型的参数是值传递：调用时把 x、y 的值复制给形参 a、b，方法中交换的只是形参，实参 x、y 不受影响。"
+        },
+        {
+          "id": "04747-u05-l1-q7",
+          "type": "short",
+          "form": "简答",
+          "level": "识记",
+          "kp": "面向对象的基本概念",
+          "stem": "简述面向对象程序设计中封装、继承和多态的含义。",
+          "points": [
+            "封装：把数据和对数据的操作组合在类中，隐藏内部细节，只通过公开的方法访问（2 分）",
+            "继承：子类自动拥有父类的属性和方法，还可以增加新成员或修改父类的方法，实现代码重用（2 分）",
+            "多态：同一个方法调用作用于不同的对象时产生不同的行为（2 分）"
+          ],
+          "explain": "封装、继承、多态是面向对象的三大特征：Java 用访问控制符实现封装，用 extends 实现继承，用方法覆盖和动态绑定实现多态（方法重载也常被看作多态的一种表现）。"
+        }
+      ]
+    },
+    {
+      "id": "04747-u05-l2",
+      "title": "对象的创建与使用、构造方法与 this",
+      "questions": [
+        {
+          "id": "04747-u05-l2-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "构造方法",
+          "stem": "关于构造方法，下列说法错误的是？",
+          "options": [
+            "类中必须显式定义构造方法，否则不能创建对象",
+            "构造方法的名字必须与类名相同",
+            "构造方法没有返回类型，也不能写 void",
+            "构造方法在用 new 创建对象时自动调用"
+          ],
+          "answer": 0,
+          "explain": "如果类中没有定义任何构造方法，系统会自动提供一个无参、方法体为空的默认构造方法；但一旦定义了构造方法，系统就不再提供这个默认构造方法。"
+        },
+        {
+          "id": "04747-u05-l2-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "构造方法",
+          "stem": "下面程序中 Point 类只定义了带参数的构造方法，编译运行的结果是？",
+          "code": "class Point {\n  int x, y;\n  Point(int x, int y) {\n    this.x = x;\n    this.y = y;\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Point p = new Point();\n    System.out.println(p.x);\n  }\n}",
+          "options": [
+            "输出 0",
+            "输出 null",
+            "编译错误",
+            "运行时抛出异常"
+          ],
+          "answer": 2,
+          "explain": "Point 类定义了带两个参数的构造方法，系统不再提供默认的无参构造方法，new Point() 找不到匹配的构造方法，所以编译出错。"
+        },
+        {
+          "id": "04747-u05-l2-q3",
+          "type": "fill",
+          "level": "应用",
+          "kp": "this的使用",
+          "stem": "下面程序的构造方法中参数与成员变量同名，运行结果是____。",
+          "code": "class Student {\n  String name;\n  int age;\n  Student(String name, int age) {\n    name = name;\n    this.age = age;\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Student s = new Student(\"Tom\", 20);\n    System.out.println(s.name + \" \" + s.age);\n  }\n}",
+          "answers": [
+            "null 20"
+          ],
+          "explain": "参数 name 与成员变量同名，方法中单独写 name 指的是参数，name = name 只是把参数赋给它自己，成员变量 name 仍为默认值 null；应写成 this.name = name。"
+        },
+        {
+          "id": "04747-u05-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "this的使用",
+          "stem": "下面程序用 this(…) 在构造方法之间互相调用，运行结果是？",
+          "code": "class Box {\n  int w, h;\n  Box() {\n    this(5);\n    System.out.print(\"1\");\n  }\n  Box(int s) {\n    this(s, s);\n    System.out.print(\"2\");\n  }\n  Box(int w, int h) {\n    this.w = w;\n    this.h = h;\n    System.out.print(\"3\");\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Box b = new Box();\n    System.out.println(\" \" + b.w * b.h);\n  }\n}",
+          "options": [
+            "123 25",
+            "321 0",
+            "321 10",
+            "321 25"
+          ],
+          "answer": 3,
+          "explain": "this(参数) 调用本类的另一个构造方法，必须是构造方法中的第一条语句。调用链为 Box() → Box(5) → Box(5, 5)，最内层的先执行完，所以依次输出 3、2、1，然后输出 w × h = 25。"
+        },
+        {
+          "id": "04747-u05-l2-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "对象的使用",
+          "stem": "下面程序把对象作为参数传给两个方法，运行结果是？",
+          "code": "class Num {\n  int v;\n}\npublic class Test {\n  static void inc(Num n) { n.v++; }\n  static void reset(Num n) { n = new Num(); }\n  public static void main(String[] args) {\n    Num a = new Num();\n    a.v = 5;\n    inc(a);\n    reset(a);\n    System.out.println(a.v);\n  }\n}",
+          "options": [
+            "5",
+            "0",
+            "6",
+            "7"
+          ],
+          "answer": 2,
+          "explain": "对象作参数时传递的是引用的副本：inc 通过这个引用修改了对象的成员，a.v 变为 6；reset 只是让形参 n 指向一个新对象，实参 a 仍指向原来的对象，所以输出 6。"
+        },
+        {
+          "id": "04747-u05-l2-q6",
+          "type": "fill",
+          "level": "应用",
+          "kp": "对象的创建",
+          "stem": "执行 Student s = new Student(); 时，new 为对象分配内存并调用构造方法，然后把新对象的____赋给变量 s。",
+          "answers": [
+            "引用",
+            "地址",
+            "引用（地址）",
+            "内存地址"
+          ],
+          "explain": "s 是引用变量，存放的是对象的引用（可以理解为对象在内存中的地址），而不是对象本身；还没有指向任何对象时，引用变量的值是 null。"
+        },
+        {
+          "id": "04747-u05-l2-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "构造方法",
+          "stem": "编写矩形类 Rectangle：有 double 型成员变量 width 和 height；有带两个参数的构造方法；有求面积的方法 area() 和求周长的方法 perimeter()。在 main 方法中创建一个宽 3、高 4 的矩形，输出它的面积和周长。",
+          "points": [
+            "声明成员变量 width、height（1 分）",
+            "构造方法与类同名、没有返回类型，用 this.width = width 给成员变量赋值（3 分）",
+            "area() 返回 width * height，perimeter() 返回 2 * (width + height)（2 分）",
+            "main 中用 new Rectangle(3, 4) 创建对象并调用方法输出（2 分）"
+          ],
+          "answer": "public class Rectangle {\n  double width, height;\n  Rectangle(double width, double height) {\n    this.width = width;\n    this.height = height;\n  }\n  double area() {\n    return width * height;\n  }\n  double perimeter() {\n    return 2 * (width + height);\n  }\n  public static void main(String[] args) {\n    Rectangle r = new Rectangle(3, 4);\n    System.out.println(\"面积：\" + r.area());\n    System.out.println(\"周长：\" + r.perimeter());\n  }\n}",
+          "explain": "运行结果为“面积：12.0”和“周长：14.0”。实参 3、4 是 int 型，传给 double 型形参时自动转换。"
+        }
+      ]
+    },
+    {
+      "id": "04747-u05-l3",
+      "title": "方法的重载、构造方法的重载、static 与 main 方法",
+      "questions": [
+        {
+          "id": "04747-u05-l3-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "方法的重载",
+          "stem": "关于方法的重载，下列说法正确的是？",
+          "options": [
+            "重载的方法必须有不同的返回类型",
+            "只有返回类型不同的两个同名方法也构成重载",
+            "重载只能发生在父类和子类之间",
+            "重载的方法名字相同，参数的个数、类型或顺序不同"
+          ],
+          "answer": 3,
+          "explain": "方法重载指一个类中有多个同名的方法，它们的参数列表（个数、类型或顺序）不同；仅仅返回类型不同不能构成重载，会产生编译错误。"
+        },
+        {
+          "id": "04747-u05-l3-q2",
+          "type": "fill",
+          "level": "应用",
+          "kp": "方法的重载",
+          "stem": "下面程序中有 3 个同名方法 f，运行结果是____。",
+          "code": "public class Test {\n  static int f(int a) { return a * 2; }\n  static double f(double a) { return a / 2; }\n  static int f(int a, int b) { return a + b; }\n  public static void main(String[] args) {\n    System.out.println(f(6) + \" \" + f(6.0) + \" \" + f(6, 1));\n  }\n}",
+          "answers": [
+            "12 3.0 7"
+          ],
+          "explain": "编译器根据实参的个数和类型选择方法：f(6) 匹配 int 参数的版本，得 12；f(6.0) 匹配 double 参数的版本，得 3.0；f(6, 1) 匹配两个参数的版本，得 7。"
+        },
+        {
+          "id": "04747-u05-l3-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "构造方法的重载",
+          "stem": "下面程序中 Person 类有 3 个重载的构造方法，运行结果是？",
+          "code": "class Person {\n  String name = \"无名\";\n  int age;\n  Person() { }\n  Person(String name) { this.name = name; }\n  Person(String name, int age) {\n    this(name);\n    this.age = age;\n  }\n  String info() { return name + age; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Person p1 = new Person();\n    Person p2 = new Person(\"Li\", 18);\n    System.out.println(p1.info() + \",\" + p2.info());\n  }\n}",
+          "options": [
+            "无名0,Li18",
+            "null0,Li18",
+            "无名0,Li0",
+            "编译错误"
+          ],
+          "answer": 0,
+          "explain": "p1 调用无参构造方法，name 保持声明时的初值“无名”，age 为默认值 0；p2 调用两个参数的构造方法，先用 this(name) 调用一个参数的构造方法设置 name，再设置 age 为 18。"
+        },
+        {
+          "id": "04747-u05-l3-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "static修饰符",
+          "stem": "下面程序用静态变量统计创建的对象个数，运行结果是？",
+          "code": "class Counter {\n  static int total = 0;\n  int id;\n  Counter() {\n    total++;\n    id = total;\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Counter a = new Counter();\n    Counter b = new Counter();\n    Counter c = new Counter();\n    System.out.println(a.id + \" \" + Counter.total);\n  }\n}",
+          "options": [
+            "3 3",
+            "1 1",
+            "1 3",
+            "3 1"
+          ],
+          "answer": 2,
+          "explain": "static 变量（类变量）属于类，所有对象共用一份，每创建一个对象 total 加 1，最后为 3；id 是实例变量，a 创建时 total 为 1，所以 a.id 为 1，后面创建的对象不会改变它。"
+        },
+        {
+          "id": "04747-u05-l3-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "static修饰符",
+          "stem": "关于用 static 修饰的方法，下列说法正确的是？",
+          "options": [
+            "静态方法可以通过类名直接调用，不必先创建对象",
+            "静态方法中可以直接访问本类的实例变量",
+            "静态方法中可以使用 this 关键字",
+            "静态方法不能被其他类调用"
+          ],
+          "answer": 0,
+          "explain": "静态方法属于类，调用它时可能还没有任何对象，所以它不能直接访问实例变量和实例方法，也不能使用 this、super，只能直接访问静态成员。"
+        },
+        {
+          "id": "04747-u05-l3-q6",
+          "type": "fill",
+          "level": "应用",
+          "kp": "main方法",
+          "stem": "用命令 java Test Hello Java 2027 运行下面的程序，输出结果是____。",
+          "code": "public class Test {\n  public static void main(String[] args) {\n    System.out.println(args.length + args[1]);\n  }\n}",
+          "answers": [
+            "3Java"
+          ],
+          "explain": "命令行中类名后面的字符串依次存入 args 数组：args[0] 为 \"Hello\"，args[1] 为 \"Java\"，args[2] 为 \"2027\"，args.length 为 3。3 + \"Java\" 是字符串连接，结果为 3Java。"
+        },
+        {
+          "id": "04747-u05-l3-q7",
+          "type": "single",
+          "level": "应用",
+          "kp": "main方法",
+          "stem": "下列 main 方法的写法中，能作为 Java 应用程序入口的是？",
+          "options": [
+            "public void main(String[] args)",
+            "static public void main(String args[])",
+            "public static int main(String[] args)",
+            "public static void main(String args)"
+          ],
+          "answer": 1,
+          "explain": "main 方法必须是 public static void，参数为 String 数组；public 和 static 的先后顺序可以互换，String args[] 与 String[] args 等价。"
+        },
+        {
+          "id": "04747-u05-l3-q8",
+          "type": "short",
+          "form": "简答",
+          "level": "应用",
+          "kp": "static修饰符",
+          "stem": "简述类变量（用 static 修饰的成员变量）与实例变量的区别。",
+          "points": [
+            "类变量属于类，所有对象共用同一份；实例变量属于对象，每个对象各有一份（2 分）",
+            "类变量在类加载时分配空间，不创建对象也存在；实例变量在创建对象时才分配空间（2 分）",
+            "类变量可以用“类名.变量名”访问，实例变量要通过“对象名.变量名”访问（1 分）",
+            "静态方法中只能直接访问类变量，不能直接访问实例变量（1 分）"
+          ],
+          "explain": "例如用 static int count 统计创建的对象个数，所有对象修改的都是同一个 count；而每个学生的 name、age 应该是实例变量。"
+        }
+      ]
+    },
+    {
+      "id": "04747-u05-l4",
+      "title": "final 修饰符、访问控制符、包与标识符的作用域",
+      "questions": [
+        {
+          "id": "04747-u05-l4-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "final修饰符",
+          "stem": "关于 final 修饰符，下列说法错误的是？",
+          "options": [
+            "final 修饰的类不能被继承",
+            "final 修饰的方法不能被子类覆盖",
+            "final 修饰的变量赋值后不能再修改",
+            "final 修饰的方法不能被重载"
+          ],
+          "answer": 3,
+          "explain": "final 方法不能被子类覆盖（重写），但在类中再定义同名而参数不同的方法（重载）是允许的。String、Math 都是 final 类，不能被继承。"
+        },
+        {
+          "id": "04747-u05-l4-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "final修饰符",
+          "stem": "下面的类在方法中给 final 成员变量赋值，下列说法正确的是？",
+          "code": "public class Test {\n  final int MAX = 10;\n  void change() {\n    MAX = 20;\n  }\n}",
+          "options": [
+            "编译通过，调用 change() 后 MAX 变为 20",
+            "编译错误：不能给 final 变量 MAX 再次赋值",
+            "运行时抛出异常",
+            "编译通过，但 MAX 的值仍为 10"
+          ],
+          "answer": 1,
+          "explain": "final 修饰的成员变量是常量，只能赋值一次（在声明时或在构造方法中），之后再给它赋值就是编译错误。"
+        },
+        {
+          "id": "04747-u05-l4-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "访问控制符",
+          "stem": "用 protected 修饰的成员变量，可以被哪些类访问？",
+          "options": [
+            "只能被本类访问",
+            "只能被同一包中的类访问",
+            "本类、同一包中的类，以及其他包中的子类",
+            "任何类都可以访问"
+          ],
+          "answer": 2,
+          "explain": "访问权限从小到大依次为：private（只有本类）< 默认（同一包）< protected（同一包，以及不同包中的子类）< public（所有类）。"
+        },
+        {
+          "id": "04747-u05-l4-q4",
+          "type": "fill",
+          "level": "领会",
+          "kp": "访问控制符",
+          "stem": "成员前面不加任何访问控制符时，该成员只能被本类和____中的其他类访问。",
+          "answers": [
+            "同一个包",
+            "同一包",
+            "同包",
+            "本包",
+            "同一个包内",
+            "同一包内",
+            "同一个包中",
+            "同一包中"
+          ],
+          "explain": "不加访问控制符的是默认（包）访问权限，也叫友好访问；不同包中的类，即使是子类也不能访问。"
+        },
+        {
+          "id": "04747-u05-l4-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "包的定义",
+          "stem": "关于 package 语句，下列说法正确的是？",
+          "options": [
+            "package 语句必须是源文件中的第一条语句（注释除外）",
+            "package 语句可以放在源文件的任意位置",
+            "一个源文件中可以有多条 package 语句",
+            "没有 package 语句的类不属于任何包，不能使用"
+          ],
+          "answer": 0,
+          "explain": "package 语句必须放在源文件的最前面，每个源文件最多一条；没有 package 语句的类属于无名包（默认包），照样可以使用。包名与目录结构对应，如 package com.edu.util; 对应 com/edu/util 目录。"
+        },
+        {
+          "id": "04747-u05-l4-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "包的使用",
+          "stem": "要在程序中使用 java.util 包中的 Scanner 类，下列做法中错误的是？",
+          "options": [
+            "import java.util.Scanner;",
+            "import java.util;",
+            "import java.util.*;",
+            "在代码中直接写类的全名 java.util.Scanner"
+          ],
+          "answer": 1,
+          "explain": "import 可以导入单个类（import 包名.类名;），也可以用 * 导入包中的所有类；还可以不写 import，直接使用类的全名。import java.util; 只写了包名，是错误的。java.lang 包是自动导入的。"
+        },
+        {
+          "id": "04747-u05-l4-q7",
+          "type": "fill",
+          "level": "应用",
+          "kp": "标识符的作用域",
+          "stem": "下面程序中局部变量与静态成员变量同名，运行结果是____。",
+          "code": "public class Test {\n  static int x = 10;\n  public static void main(String[] args) {\n    int x = 20;\n    {\n      int y = 5;\n      x += y;\n    }\n    System.out.println(x + \" \" + Test.x);\n  }\n}",
+          "answers": [
+            "25 10"
+          ],
+          "explain": "方法中的局部变量 x 与成员变量 x 同名时，在方法内局部变量优先，成员变量被遮蔽，可以用“类名.x”（实例变量用 this.x）访问它。y 只在声明它的语句块内有效。"
+        },
+        {
+          "id": "04747-u05-l4-q8",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "static修饰符",
+          "stem": "程序改错：下面计数程序有 2 处错误，请指出错误所在的行号并改正。",
+          "code": "1  public class Counter {\n2    int count = 0;\n3    static void add() {\n4      this.count++;\n5    }\n6    public static void main(String[] args) {\n7      Counter c = new Counter;\n8      c.add();\n9      System.out.println(c.count);\n10   }\n11 }",
+          "points": [
+            "第 4 行错误：静态方法中不能用 this 访问实例变量，应把第 3 行改为 void add() {（3 分）",
+            "第 7 行错误：类名后缺少圆括号，应改为 Counter c = new Counter();（3 分）"
+          ],
+          "explain": "add() 要修改对象自己的 count，应该是实例方法；去掉 static 后，main 中通过对象 c 调用 c.add()，程序输出 1。"
+        }
+      ]
+    },
+    {
+      "id": "04747-u05-l5",
+      "title": "继承：子类的创建、子类对象的使用与 super",
+      "questions": [
+        {
+          "id": "04747-u05-l5-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "继承的基本概念",
+          "stem": "关于 Java 中的继承，下列说法正确的是？",
+          "options": [
+            "Java 只支持单继承，一个类只能有一个直接父类",
+            "一个类可以同时继承多个父类",
+            "子类可以直接访问父类的 private 成员",
+            "子类不能增加父类中没有的成员"
+          ],
+          "answer": 0,
+          "explain": "Java 的类之间是单继承；子类继承父类非私有的成员，还可以增加新的成员、覆盖父类的方法。父类的 private 成员子类不能直接访问。"
+        },
+        {
+          "id": "04747-u05-l5-q2",
+          "type": "fill",
+          "level": "识记",
+          "kp": "继承的基本概念",
+          "stem": "定义类时如果没有用 extends 指明父类，这个类的直接父类默认是____类。",
+          "answers": [
+            "Object",
+            "java.lang.Object"
+          ],
+          "explain": "java.lang.Object 是所有类的根。除 Object 本身以外，每个类都有且只有一个直接父类；没有写 extends 时，默认继承 Object。"
+        },
+        {
+          "id": "04747-u05-l5-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "子类的创建",
+          "stem": "下面程序创建一个三层继承关系中最下层的子类对象，运行结果是？",
+          "code": "class X {\n  X() { System.out.print(\"X\"); }\n}\nclass Y extends X {\n  Y() { System.out.print(\"Y\"); }\n}\nclass Z extends Y {\n  Z() { System.out.print(\"Z\"); }\n}\npublic class Test {\n  public static void main(String[] args) {\n    new Z();\n  }\n}",
+          "options": [
+            "Z",
+            "ZYX",
+            "XYZ",
+            "XZ"
+          ],
+          "answer": 2,
+          "explain": "创建子类对象时，子类构造方法的第一条语句隐含调用父类的无参构造方法 super()，所以按 X → Y → Z 的顺序依次执行，输出 XYZ。"
+        },
+        {
+          "id": "04747-u05-l5-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "super关键字的使用",
+          "stem": "下面代码中父类只有带参数的构造方法，下列说法正确的是？",
+          "code": "class Animal {\n  String name;\n  Animal(String name) { this.name = name; }\n}\nclass Dog extends Animal {\n  Dog() { }\n}",
+          "options": [
+            "编译通过",
+            "编译错误：子类不能定义构造方法",
+            "运行时 name 的值为 null",
+            "编译错误：Animal 没有无参构造方法，Dog 的构造方法应调用 super(参数)"
+          ],
+          "answer": 3,
+          "explain": "子类构造方法没有显式调用父类构造方法时，编译器自动加上 super()；而 Animal 只有带参数的构造方法，没有无参构造方法，所以编译出错。可改为 Dog() { super(\"dog\"); }。"
+        },
+        {
+          "id": "04747-u05-l5-q5",
+          "type": "fill",
+          "level": "应用",
+          "kp": "super关键字的使用",
+          "stem": "下面程序在子类中用 super 访问父类的方法和成员变量，运行结果是____。",
+          "code": "class Parent {\n  int x = 10;\n  void show() { System.out.print(\"P\" + x + \" \"); }\n}\nclass Child extends Parent {\n  int x = 20;\n  void show() {\n    super.show();\n    System.out.print(\"C\" + x + \" \" + super.x);\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    new Child().show();\n  }\n}",
+          "answers": [
+            "P10 C20 10"
+          ],
+          "explain": "super.show() 调用父类中被覆盖的方法，父类方法中的 x 是父类的成员变量 10；子类方法中的 x 是子类自己的 x（20），super.x 访问被隐藏的父类成员变量（10）。"
+        },
+        {
+          "id": "04747-u05-l5-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "子类对象的使用",
+          "stem": "已有语句 Shape s = new Circle(); 下列语句中会产生编译错误的是？",
+          "code": "class Shape {\n  double area() { return 0; }\n}\nclass Circle extends Shape {\n  double r = 1;\n  double area() { return 3.14 * r * r; }\n  double getR() { return r; }\n}",
+          "options": [
+            "double a = s.area();",
+            "double r = s.getR();",
+            "Circle c = (Circle) s;",
+            "Shape t = s;"
+          ],
+          "answer": 1,
+          "explain": "父类引用可以指向子类对象（向上转型），但通过父类引用只能调用父类中声明过的成员；getR() 是子类新增的方法，要先强制转换为 Circle 才能调用：((Circle) s).getR()。"
+        },
+        {
+          "id": "04747-u05-l5-q7",
+          "type": "short",
+          "form": "简答",
+          "level": "应用",
+          "kp": "super关键字的使用",
+          "stem": "简述 this 和 super 关键字的用法。",
+          "points": [
+            "this 代表当前对象，用 this.成员 访问本类的成员，常用来区分同名的成员变量和参数（2 分）",
+            "this(参数) 在构造方法中调用本类的其他构造方法，必须是第一条语句（2 分）",
+            "super.成员 访问父类中被隐藏的成员变量或被覆盖的方法（1 分）",
+            "super(参数) 在子类构造方法中调用父类的构造方法，必须是第一条语句（1 分）"
+          ],
+          "explain": "this() 和 super() 都必须写在构造方法的第一行，所以同一个构造方法中不能同时出现两者；静态方法中不能使用 this 和 super。"
+        }
+      ]
+    },
+    {
+      "id": "04747-u05-l6",
+      "title": "隐藏与覆盖",
+      "questions": [
+        {
+          "id": "04747-u05-l6-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "覆盖",
+          "stem": "子类覆盖（重写）父类的方法时，下列要求中正确的是？",
+          "options": [
+            "方法名相同即可，参数列表可以不同",
+            "子类方法的访问权限必须比父类的更严格",
+            "方法名、参数列表相同，访问权限不能比父类中的更严格",
+            "父类的 private 方法也可以被子类覆盖"
+          ],
+          "answer": 2,
+          "explain": "覆盖要求子类方法与父类方法的名字、参数列表相同，返回类型一致，访问权限不能缩小；父类的 private 方法、final 方法不能被覆盖。参数列表不同就成了重载。"
+        },
+        {
+          "id": "04747-u05-l6-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "覆盖",
+          "stem": "下面程序中父类引用先后指向子类对象和父类对象，运行结果是？",
+          "code": "class X {\n  void show() { System.out.print(\"X\"); }\n}\nclass Y extends X {\n  void show() { System.out.print(\"Y\"); }\n}\npublic class Test {\n  public static void main(String[] args) {\n    X a = new Y();\n    a.show();\n    a = new X();\n    a.show();\n  }\n}",
+          "options": [
+            "YX",
+            "XX",
+            "XY",
+            "YY"
+          ],
+          "answer": 0,
+          "explain": "被覆盖的实例方法在运行时根据对象的实际类型来调用（动态绑定）：a 先指向 Y 对象，调用 Y 的 show()；后来指向 X 对象，调用 X 的 show()。"
+        },
+        {
+          "id": "04747-u05-l6-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "隐藏",
+          "stem": "下面程序中子类定义了与父类同名的成员变量和方法，运行结果是？",
+          "code": "class Father {\n  int v = 1;\n  int getV() { return v; }\n}\nclass Son extends Father {\n  int v = 2;\n  int getV() { return v; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Father f = new Son();\n    System.out.println(f.v + \" \" + f.getV());\n  }\n}",
+          "options": [
+            "1 1",
+            "2 2",
+            "2 1",
+            "1 2"
+          ],
+          "answer": 3,
+          "explain": "成员变量没有动态绑定：子类定义了同名变量就隐藏了父类的变量，通过 Father 型引用访问的是父类的 v（1）；getV() 被覆盖，运行时调用 Son 的版本，返回子类的 v（2）。"
+        },
+        {
+          "id": "04747-u05-l6-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "隐藏",
+          "stem": "下面程序中父类和子类都定义了静态方法 who() 和实例方法 name()，运行结果是？",
+          "code": "class P {\n  static String who() { return \"P\"; }\n  String name() { return \"p\"; }\n}\nclass Q extends P {\n  static String who() { return \"Q\"; }\n  String name() { return \"q\"; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    P x = new Q();\n    System.out.println(x.who() + x.name());\n  }\n}",
+          "options": [
+            "Qq",
+            "Pq",
+            "Pp",
+            "Qp"
+          ],
+          "answer": 1,
+          "explain": "静态方法不能被覆盖，子类的同名静态方法只是隐藏了父类的方法，调用哪一个由引用变量声明的类型决定：x 声明为 P 型，x.who() 调用 P 的版本；实例方法 name() 被覆盖，按实际对象 Q 调用。"
+        },
+        {
+          "id": "04747-u05-l6-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "覆盖",
+          "stem": "下面程序用父类数组存放父类和子类对象，并调用被覆盖的方法，运行结果是？",
+          "code": "class Employee {\n  double salary() { return 3000; }\n}\nclass Manager extends Employee {\n  double salary() { return super.salary() + 2000; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Employee[] es = { new Employee(), new Manager() };\n    double sum = 0;\n    for (int i = 0; i < es.length; i++)\n      sum += es[i].salary();\n    System.out.println(sum);\n  }\n}",
+          "options": [
+            "6000.0",
+            "10000.0",
+            "8000.0",
+            "5000.0"
+          ],
+          "answer": 2,
+          "explain": "es[1] 实际是 Manager 对象，调用的是 Manager 覆盖后的 salary()，它通过 super.salary() 得到 3000 再加 2000。总和为 3000 + 5000 = 8000.0（double 型）。"
+        },
+        {
+          "id": "04747-u05-l6-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "覆盖",
+          "stem": "下面子类覆盖父类方法的代码编译时出错，原因是？",
+          "code": "class Base {\n  public void f() { }\n}\nclass Derived extends Base {\n  void f() { }\n}",
+          "options": [
+            "子类不能定义与父类同名的方法",
+            "子类必须用 super 调用 f()",
+            "父类中的 f() 方法体为空",
+            "子类中的 f() 缩小了访问权限，不能覆盖父类中 public 的 f()"
+          ],
+          "answer": 3,
+          "explain": "覆盖方法的访问权限不能低于被覆盖的方法：Base 中的 f() 是 public，Derived 中的 f() 没有访问控制符，是包访问权限，更严格，所以编译出错。改为 public void f() 即可。"
+        },
+        {
+          "id": "04747-u05-l6-q7",
+          "type": "short",
+          "form": "简答",
+          "level": "应用",
+          "kp": "覆盖",
+          "stem": "简述方法的重载与覆盖的区别。",
+          "points": [
+            "重载发生在同一个类中的同名方法之间，覆盖发生在子类与父类之间（2 分）",
+            "重载要求方法名相同、参数列表不同；覆盖要求方法名、参数列表、返回类型与父类方法一致（2 分）",
+            "覆盖时访问权限不能缩小，final、private、static 方法不能被覆盖（1 分）",
+            "重载在编译时按参数确定调用哪个方法，覆盖在运行时按对象的实际类型确定（1 分）"
+          ],
+          "explain": "重载是“同一个类中同名方法的不同版本”，覆盖是“子类对父类方法的重新实现”，两者都是多态的表现。"
+        }
+      ]
+    },
+    {
+      "id": "04747-u05-l7",
+      "title": "抽象类、接口与类之间的关系",
+      "questions": [
+        {
+          "id": "04747-u05-l7-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "抽象类",
+          "stem": "关于抽象类，下列说法正确的是？",
+          "options": [
+            "抽象类可以用 new 直接创建对象",
+            "含有抽象方法的类必须声明为抽象类",
+            "抽象类中必须至少有一个抽象方法",
+            "抽象类不能有构造方法"
+          ],
+          "answer": 1,
+          "explain": "抽象类用 abstract 修饰，不能实例化，但可以有构造方法（供子类调用）和普通方法；抽象类中可以没有抽象方法，但有抽象方法的类一定要声明为抽象类。"
+        },
+        {
+          "id": "04747-u05-l7-q2",
+          "type": "single",
+          "level": "领会",
+          "kp": "抽象方法",
+          "stem": "下列抽象方法的声明中，正确的是？",
+          "options": [
+            "abstract void draw() { }",
+            "void abstract draw();",
+            "private abstract void draw();",
+            "abstract void draw();"
+          ],
+          "answer": 3,
+          "explain": "抽象方法只有方法头、没有方法体，以分号结束，修饰符写在返回类型前面；abstract 不能与 private、static、final 同时修饰方法，因为抽象方法必须由子类覆盖实现。"
+        },
+        {
+          "id": "04747-u05-l7-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "接口的定义",
+          "stem": "在接口中声明 int MAX = 100; 这个成员变量默认具有的修饰符是？",
+          "options": [
+            "public static final",
+            "private static",
+            "protected final",
+            "public abstract"
+          ],
+          "answer": 0,
+          "explain": "接口中的成员变量默认（隐含）是 public static final 的，即常量，必须赋初值；接口中的抽象方法默认是 public abstract 的。"
+        },
+        {
+          "id": "04747-u05-l7-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "接口的实现",
+          "stem": "下面程序用接口类型的引用调用实现类的方法，运行结果是____。",
+          "code": "interface Shape {\n  double area();\n}\nclass Square implements Shape {\n  double a;\n  Square(double a) { this.a = a; }\n  public double area() { return a * a; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Shape s = new Square(1.5);\n    System.out.println(s.area());\n  }\n}",
+          "answers": [
+            "2.25"
+          ],
+          "explain": "Square 用 implements 实现接口 Shape，必须实现其中的 area() 方法，并且要声明为 public（接口中的方法默认是 public）。接口类型的引用 s 指向实现类的对象，调用时执行 Square 的 area()，1.5 × 1.5 = 2.25。"
+        },
+        {
+          "id": "04747-u05-l7-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "接口的继承",
+          "stem": "关于接口的继承与实现，下列说法正确的是？",
+          "options": [
+            "接口只能继承一个父接口",
+            "接口用 implements 继承其他接口",
+            "一个接口可以用 extends 继承多个接口",
+            "一个类只能实现一个接口"
+          ],
+          "answer": 2,
+          "explain": "接口之间用 extends 继承，并且可以有多个父接口，如 interface Z extends X, Y { }；类用 implements 实现接口，可以同时实现多个接口，接口名之间用逗号分隔。"
+        },
+        {
+          "id": "04747-u05-l7-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "常用接口",
+          "stem": "要让 Student 对象数组可以用 Arrays.sort() 按成绩排序，Student 类应实现 java.lang 包中的哪个接口？",
+          "options": [
+            "Runnable",
+            "Cloneable",
+            "ActionListener",
+            "Comparable"
+          ],
+          "answer": 3,
+          "explain": "Comparable 接口只有一个方法 int compareTo(T o)，返回负数、0、正数分别表示当前对象小于、等于、大于参数对象；Runnable 用于定义线程，ActionListener 用于处理按钮等组件的动作事件。",
+          "verify": "大纲“常用接口”具体指教材中的哪些接口（如 Comparable、Runnable、Cloneable、各种监听器接口），请对照教材核实。"
+        },
+        {
+          "id": "04747-u05-l7-q7",
+          "type": "single",
+          "level": "领会",
+          "kp": "类与类之间的关系",
+          "stem": "Car 类中有一个 Engine 类型的成员变量，表示“汽车有一个发动机”。Car 与 Engine 之间是哪种关系？",
+          "options": [
+            "包含关系（has-a）",
+            "继承关系（is-a）",
+            "接口实现关系",
+            "方法重载关系"
+          ],
+          "answer": 0,
+          "explain": "类之间常见的关系有：继承（is-a，如“狗是一种动物”）、包含/聚合（has-a，一个类的成员变量是另一个类的对象）、依赖（uses-a，一个类的方法中用到另一个类的对象）。",
+          "verify": "核对教材“类与类之间的关系”的分类和名称（如依赖、聚合、继承，或关联、组合等）。"
+        },
+        {
+          "id": "04747-u05-l7-q8",
+          "type": "short",
+          "form": "简答",
+          "level": "领会",
+          "kp": "抽象类",
+          "stem": "简述抽象类与接口的区别。",
+          "points": [
+            "定义方式：抽象类用 abstract class 定义，接口用 interface 定义（1 分）",
+            "成员：抽象类可以有普通成员变量、构造方法和非抽象方法；接口中的变量都是常量，方法默认是 public abstract（2 分）",
+            "继承：一个类只能继承一个抽象类，但可以实现多个接口；接口之间可以多重继承（2 分）",
+            "使用：子类用 extends 继承抽象类，类用 implements 实现接口，都要实现全部抽象方法，否则自身要声明为抽象类（1 分）"
+          ],
+          "explain": "两者都不能直接创建对象，但都可以声明引用变量，指向子类（实现类）的对象。从 Java 8 起接口中还可以定义 default 方法和 static 方法。",
+          "verify": "核对教材（第四版）对接口成员的说明，是否提到 Java 8 的 default 方法和 static 方法。"
+        }
+      ]
+    }
+  ]
+}

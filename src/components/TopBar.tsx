@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { getBank } from "../data/banks";
-import { courseByCode, STUDY_PLAN } from "../data/program";
+import { courseByCode } from "../data/program";
+import { bankCourses } from "../lib/plan";
 import { coursePace } from "../lib/pace";
 import { useStore } from "../store";
 
@@ -26,32 +26,40 @@ export function TopBar({ showCourse = true }: { showCourse?: boolean }) {
       {open && (
         <div className="sheet-backdrop" onClick={() => setOpen(false)}>
           <div className="sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="sheet-title">正在备考</div>
-            {STUDY_PLAN.map(({ code }) => {
-              const c = courseByCode(code)!;
-              const p = coursePace(state, code);
-              const hasBank = !!getBank(code);
-              return (
-                <button
-                  key={code}
-                  className={`sheet-row ${code === state.settings.active ? "on" : ""}`}
-                  onClick={() => {
-                    update((d) => {
-                      d.settings.active = code;
-                    });
-                    setOpen(false);
-                  }}
-                >
-                  <div>
-                    <b>{c.name}</b>
-                    <div className="muted small">
-                      {code} · {c.credits} 学分 · {p.daysLeft !== null ? `${p.daysLeft} 天后考试` : "考期待定"}
-                    </div>
-                  </div>
-                  <span className="muted small">{hasBank ? `${p.done}/${p.total} 课` : "题库准备中"}</span>
-                </button>
-              );
-            })}
+            {[
+              { title: "正在备考", list: bankCourses().filter((c) => state.courses[c]?.status === "studying") },
+              { title: "其他课程（在「路线」页标成备考后计入每天的目标）", list: bankCourses().filter((c) => state.courses[c]?.status !== "studying") },
+            ].map((group) =>
+              group.list.length === 0 ? null : (
+                <div key={group.title} className="sheet-group">
+                  <div className="sheet-title">{group.title}</div>
+                  {group.list.map((code) => {
+                    const c = courseByCode(code)!;
+                    const p = coursePace(state, code);
+                    return (
+                      <button
+                        key={code}
+                        className={`sheet-row ${code === state.settings.active ? "on" : ""}`}
+                        onClick={() => {
+                          update((d) => {
+                            d.settings.active = code;
+                          });
+                          setOpen(false);
+                        }}
+                      >
+                        <div>
+                          <b>{c.name}</b>
+                          <div className="muted small">
+                            {code} · {c.credits} 学分 · {p.daysLeft !== null ? `${p.daysLeft} 天后考试` : "考期待定"}
+                          </div>
+                        </div>
+                        <span className="muted small">{p.done}/{p.total} 课</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ),
+            )}
           </div>
         </div>
       )}

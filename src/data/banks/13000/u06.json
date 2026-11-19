@@ -1,0 +1,46 @@
+{
+  "course": "13000",
+  "unit": 6,
+  "title": "名词性从句",
+  "lessons": [
+    {
+      "id": "13000-u06-l1",
+      "title": "主语、宾语、表语和同位语从句",
+      "questions": [
+        { "id": "13000-u06-l1-q1", "type": "single", "level": "领会", "kp": "主语从句：what",
+          "stem": "____ he said at the meeting surprised everyone.",
+          "options": ["That", "What", "Which", "Whether"], "answer": 1,
+          "explain": "主语从句里 said 缺宾语，要用既引导从句又在从句中作成分的 what（= the thing that）。that 只起连接作用，不作成分。",
+          "verify": "本单元按“名词性从句”编写，教材各单元的语法项目未核实；请对照教材目录核对。" },
+        { "id": "13000-u06-l1-q2", "type": "single", "level": "领会", "kp": "whether 与 if",
+          "stem": "____ he will come or not is still unknown.",
+          "options": ["If", "That", "Whether", "What"], "answer": 2,
+          "explain": "表示“是否”引导主语从句、放在句首时只能用 whether，不能用 if；后面的 or not 也说明是“是否”。" },
+        { "id": "13000-u06-l1-q3", "type": "single", "level": "应用", "kp": "同位语从句",
+          "stem": "The news ____ our team had won the game made us very happy.",
+          "options": ["that", "which", "what", "whether"], "answer": 0,
+          "explain": "从句 our team had won the game 成分完整，说明 news 的具体内容，是同位语从句，用 that。which 引导定语从句时要在从句中作成分。" },
+        { "id": "13000-u06-l1-q4", "type": "single", "level": "领会", "kp": "表语从句：whether",
+          "stem": "The question is ____ we should start the project now or wait until next year.",
+          "options": ["that", "what", "which", "whether"], "answer": 3,
+          "explain": "表语从句里有“现在开始还是明年再说”两种选择，表示“是否”，用 whether…or…。" },
+        { "id": "13000-u06-l1-q5", "type": "single", "level": "领会", "kp": "宾语从句用陈述语序",
+          "stem": "I want to visit Mr. Wang. Can you tell me ____?",
+          "options": ["where does he live", "where he lives", "where he lives in", "where does he lives"], "answer": 1,
+          "explain": "宾语从句要用陈述语序（疑问词 + 主语 + 谓语），不能用疑问句语序；where 本身作地点状语，后面不再加 in。" },
+        { "id": "13000-u06-l1-q6", "type": "single", "level": "识记", "kp": "It is said that… 句型",
+          "stem": "It is said ____ the new bridge will be finished next year.",
+          "options": ["what", "which", "if", "that"], "answer": 3,
+          "explain": "It is said that… 意为“据说……”，it 是形式主语，真正的主语是 that 引导的从句。" },
+        { "id": "13000-u06-l1-q7", "type": "fill", "level": "领会", "kp": "同位语从句",
+          "stem": "The fact ____ he is a good teacher is known to all.",
+          "answers": ["that"],
+          "explain": "从句 he is a good teacher 成分完整，说明 fact 的内容，是同位语从句，用 that，不能省略。" },
+        { "id": "13000-u06-l1-q8", "type": "fill", "level": "应用", "kp": "介词后的宾语从句",
+          "stem": "I was surprised at ____ she did in the end.",
+          "answers": ["what"],
+          "explain": "介词 at 后接宾语从句；从句 she did 缺 did 的宾语，用 what（= the thing that）。" }
+      ]
+    }
+  ]
+}

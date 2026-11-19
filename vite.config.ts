@@ -17,6 +17,20 @@ const appVersion = [buildDate, commit, process.env.BUILD_TAG].filter(Boolean).jo
 export default defineConfig({
   base: process.env.BASE_PATH ?? "/",
   define: { __APP_VERSION__: JSON.stringify(appVersion) },
+  build: {
+    rolldownOptions: {
+      output: {
+        // 每门课的题库单独成一个文件、第三方库一个文件：只改一门课的题时，手机更新只重新下载这一门；
+        // 也避免单个文件超过离线缓存每个文件 2 MB 的上限
+        codeSplitting: {
+          groups: [
+            { name: (id: string) => { const m = /[\\/]banks[\\/](\w+)[\\/]/.exec(id); return m ? `bank-${m[1]}` : null; } },
+            { name: "vendor", test: /node_modules/ },
+          ],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({

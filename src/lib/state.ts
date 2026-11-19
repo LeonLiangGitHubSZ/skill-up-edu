@@ -74,7 +74,7 @@ export function createState(now = new Date()): AppState {
     lessons: {},
     cards: {},
     flags: {},
-    courses: Object.fromEntries(STUDY_PLAN.map((p) => [p.code, { status: "studying" as CourseStatus }])),
+    courses: Object.fromEntries(STUDY_PLAN.filter((p) => p.startStudying).map((p) => [p.code, { status: "studying" as CourseStatus }])),
     registered: {},
     mocks: [],
     settings: { active: STUDY_PLAN[0].code, sound: true, hearts: true },

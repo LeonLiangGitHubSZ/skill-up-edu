@@ -1,0 +1,262 @@
+{
+  "course": "04747",
+  "unit": 6,
+  "title": "Java 语言中的异常",
+  "lessons": [
+    {
+      "id": "04747-u06-l1",
+      "title": "常见异常与异常类的层次",
+      "questions": [
+        {
+          "id": "04747-u06-l1-q1",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常",
+          "stem": "执行下面通过 null 引用调用方法的程序段，会抛出的异常是？",
+          "code": "String s = null;\nSystem.out.println(s.length());",
+          "options": [
+            "ArithmeticException",
+            "NullPointerException",
+            "NumberFormatException",
+            "ClassCastException"
+          ],
+          "answer": 1,
+          "explain": "s 的值为 null，没有指向任何对象，通过它调用方法或访问成员时抛出 NullPointerException（空指针异常）。"
+        },
+        {
+          "id": "04747-u06-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常",
+          "stem": "执行下面把字符串转换为整数的语句，会抛出的异常是？",
+          "code": "int x = Integer.parseInt(\"12a\");",
+          "options": [
+            "ArithmeticException",
+            "IOException",
+            "NumberFormatException",
+            "ArrayIndexOutOfBoundsException"
+          ],
+          "answer": 2,
+          "explain": "Integer.parseInt() 把字符串转换为 int，字符串中含有非数字字符时抛出 NumberFormatException（数字格式异常）。"
+        },
+        {
+          "id": "04747-u06-l1-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常",
+          "stem": "执行下面进行强制类型转换的程序段，会抛出的异常是？",
+          "code": "Object o = \"hello\";\nInteger n = (Integer) o;",
+          "options": [
+            "NullPointerException",
+            "NumberFormatException",
+            "ArithmeticException",
+            "ClassCastException"
+          ],
+          "answer": 3,
+          "explain": "o 实际指向的是 String 对象，把它强制转换为 Integer 时类型不兼容，能通过编译，但运行时抛出 ClassCastException（类型转换异常）。"
+        },
+        {
+          "id": "04747-u06-l1-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "常见异常",
+          "stem": "执行下面整数除以 0 的程序段时，系统会抛出____异常。",
+          "code": "int a = 5, b = 0;\nint c = a / b;\nSystem.out.println(c);",
+          "answers": [
+            "ArithmeticException",
+            "java.lang.ArithmeticException",
+            "算术",
+            "算术异常",
+            "算术运算异常"
+          ],
+          "explain": "整数除以 0 时抛出 ArithmeticException（算术异常）；浮点数除以 0 不抛出异常，结果为 Infinity（无穷大）或 NaN。"
+        },
+        {
+          "id": "04747-u06-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常",
+          "stem": "下列异常中，编译器要求程序必须处理（捕获或声明抛出）的是？",
+          "options": [
+            "IOException",
+            "ArithmeticException",
+            "NullPointerException",
+            "ArrayIndexOutOfBoundsException"
+          ],
+          "answer": 0,
+          "explain": "RuntimeException 及其子类（算术、空指针、数组下标越界等）是运行时异常，编译器不强制处理；IOException 等其他 Exception 的子类是受检异常，必须用 try-catch 捕获或用 throws 声明抛出。"
+        },
+        {
+          "id": "04747-u06-l1-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常",
+          "stem": "在 Java 的异常类层次结构中，Error 类和 Exception 类的直接父类是？",
+          "options": [
+            "Exception",
+            "Error",
+            "Throwable",
+            "RuntimeException"
+          ],
+          "answer": 2,
+          "explain": "java.lang.Throwable 有两个直接子类：Error（严重错误，如内存耗尽，程序一般无法处理）和 Exception（程序能够处理的异常）；RuntimeException 是 Exception 的子类。"
+        },
+        {
+          "id": "04747-u06-l1-q7",
+          "type": "short",
+          "form": "简答",
+          "level": "应用",
+          "kp": "常见异常",
+          "stem": "列举 5 种 Java 程序中常见的运行时异常，并说明产生的原因。",
+          "points": [
+            "ArithmeticException：整数除以 0 等算术错误",
+            "NullPointerException：通过值为 null 的引用访问成员",
+            "ArrayIndexOutOfBoundsException：数组下标小于 0 或不小于数组长度",
+            "ClassCastException：把对象强制转换为不兼容的类型",
+            "NumberFormatException：把格式不正确的字符串转换为数值"
+          ],
+          "explain": "这些异常都是 RuntimeException 的子类，编译器不强制处理，但程序应通过检查数据（如判断除数、判断引用是否为 null）来避免。"
+        },
+        {
+          "id": "04747-u06-l1-q8",
+          "type": "short",
+          "form": "简答",
+          "level": "应用",
+          "kp": "常见异常的处理",
+          "stem": "简述 Java 中处理异常的两种方式，并说明 finally 块的作用。",
+          "points": [
+            "方式一：用 try-catch 捕获处理，把可能出现异常的语句放在 try 块中，处理代码放在 catch 块中（2 分）",
+            "有多个 catch 块时按顺序匹配，子类异常要写在父类异常之前（1 分）",
+            "方式二：在方法头用 throws 声明抛出异常，交给调用者处理（2 分）",
+            "finally 块不论是否发生异常都会执行，常用来释放资源，如关闭文件（1 分）"
+          ],
+          "explain": "受检异常必须用这两种方式之一处理，否则编译出错；运行时异常可以不处理。程序中还可以用 throw 语句主动抛出一个异常对象。"
+        }
+      ]
+    },
+    {
+      "id": "04747-u06-l2",
+      "title": "异常的处理与用户自定义异常",
+      "questions": [
+        {
+          "id": "04747-u06-l2-q1",
+          "type": "fill",
+          "level": "应用",
+          "kp": "常见异常的处理",
+          "stem": "执行下面带有 try-catch-finally 的程序，输出结果是____。",
+          "code": "public class Test {\n  public static void main(String[] args) {\n    try {\n      int[] a = new int[2];\n      a[2] = 1;\n      System.out.print(\"A\");\n    } catch (ArrayIndexOutOfBoundsException e) {\n      System.out.print(\"B\");\n    } finally {\n      System.out.print(\"C\");\n    }\n    System.out.print(\"D\");\n  }\n}",
+          "answers": [
+            "BCD"
+          ],
+          "explain": "a[2] 越界抛出异常，try 块中剩下的语句（输出 A）不再执行，转到匹配的 catch 块输出 B；finally 块无论是否发生异常都会执行，输出 C；异常已被处理，程序继续往下执行，输出 D。"
+        },
+        {
+          "id": "04747-u06-l2-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常的处理",
+          "stem": "下面程序在 try 块中执行 return 语句，运行结果是？",
+          "code": "public class Test {\n  static int f() {\n    try {\n      return 1;\n    } finally {\n      System.out.print(\"F\");\n    }\n  }\n  public static void main(String[] args) {\n    System.out.print(f());\n  }\n}",
+          "options": [
+            "1",
+            "F1",
+            "1F",
+            "F"
+          ],
+          "answer": 1,
+          "explain": "try 块中执行 return 时，要先执行 finally 块，然后才真正返回。所以 f() 先输出 F，main 再输出返回值 1。"
+        },
+        {
+          "id": "04747-u06-l2-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常的处理",
+          "stem": "关于下面两个 catch 块的排列顺序，说法正确的是？",
+          "code": "try {\n  int a = 0;\n  int x = 10 / a;\n} catch (Exception e) {\n  System.out.println(\"异常\");\n} catch (ArithmeticException e) {\n  System.out.println(\"算术异常\");\n}",
+          "options": [
+            "输出“异常”",
+            "输出“算术异常”",
+            "依次输出“异常”和“算术异常”",
+            "编译错误：ArithmeticException 已被前面的 catch 捕获，后一个 catch 永远执行不到"
+          ],
+          "answer": 3,
+          "explain": "多个 catch 块按顺序匹配，子类异常必须写在父类异常的前面。Exception 是 ArithmeticException 的父类，写在前面会使后一个 catch 块成为执行不到的代码，编译出错；把两个 catch 块交换位置即可。"
+        },
+        {
+          "id": "04747-u06-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "常见异常的处理",
+          "stem": "关于 throw 和 throws，下列说法正确的是？",
+          "options": [
+            "throw 在方法体中抛出一个异常对象，throws 在方法头中声明可能抛出的异常类型",
+            "throws 用在方法体中，用来抛出一个异常对象",
+            "throw 用在方法头中，声明方法可能抛出的异常类型",
+            "两者用法完全相同，可以互换"
+          ],
+          "answer": 0,
+          "explain": "例如 void f() throws IOException { … throw new IOException(\"出错\"); … }：throws 后面可以列出多个异常类，throw 后面跟一个异常对象。"
+        },
+        {
+          "id": "04747-u06-l2-q5",
+          "type": "fill",
+          "level": "识记",
+          "kp": "用户自定义异常",
+          "stem": "用户自定义的异常类通常要继承____类（或它的某个子类）。",
+          "answers": [
+            "Exception",
+            "java.lang.Exception"
+          ],
+          "explain": "例如 class AgeException extends Exception { … }。继承 Exception 得到的是受检异常；继承 RuntimeException 得到的是运行时异常。自定义异常用 throw 语句抛出。"
+        },
+        {
+          "id": "04747-u06-l2-q6",
+          "type": "single",
+          "level": "识记",
+          "kp": "用户自定义异常",
+          "stem": "下面程序定义并使用了自定义异常类，运行结果是？",
+          "code": "class MyException extends Exception {\n  MyException(String msg) { super(msg); }\n}\npublic class Test {\n  static void check(int age) throws MyException {\n    if (age < 0) throw new MyException(\"年龄不能为负\");\n    System.out.print(\"OK \");\n  }\n  public static void main(String[] args) {\n    try {\n      check(20);\n      check(-1);\n      check(30);\n    } catch (MyException e) {\n      System.out.print(e.getMessage());\n    }\n  }\n}",
+          "options": [
+            "OK OK",
+            "OK 年龄不能为负",
+            "年龄不能为负",
+            "OK 年龄不能为负 OK"
+          ],
+          "answer": 1,
+          "explain": "check(20) 正常输出 OK；check(-1) 用 throw 抛出自定义异常，try 块中后面的 check(30) 不再执行，转到 catch 块。getMessage() 返回构造时通过 super(msg) 传入的信息。"
+        },
+        {
+          "id": "04747-u06-l2-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "常见异常的处理",
+          "stem": "编写程序：定义自定义异常类 ScoreException；编写静态方法 setScore(int s)，当 s 不在 0～100 之间时抛出 ScoreException，否则输出成绩；在 main 中分别用 85 和 120 调用该方法，并捕获处理异常。",
+          "points": [
+            "定义 ScoreException 继承 Exception，构造方法用 super(msg) 传递异常信息（2 分）",
+            "setScore 的方法头用 throws ScoreException 声明异常（2 分）",
+            "成绩不在 0～100 之间时用 throw new ScoreException(…) 抛出异常（2 分）",
+            "main 中用 try-catch 调用方法并捕获异常，输出 getMessage() 的信息（2 分）"
+          ],
+          "answer": "class ScoreException extends Exception {\n  ScoreException(String msg) {\n    super(msg);\n  }\n}\npublic class ScoreTest {\n  static void setScore(int s) throws ScoreException {\n    if (s < 0 || s > 100)\n      throw new ScoreException(\"成绩超出范围：\" + s);\n    System.out.println(\"成绩：\" + s);\n  }\n  public static void main(String[] args) {\n    try {\n      setScore(85);\n      setScore(120);\n    } catch (ScoreException e) {\n      System.out.println(e.getMessage());\n    }\n  }\n}",
+          "explain": "运行结果：先输出“成绩：85”，再输出“成绩超出范围：120”。ScoreException 继承 Exception，是受检异常，调用 setScore 的地方必须捕获它或继续声明抛出。"
+        },
+        {
+          "id": "04747-u06-l2-q8",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "常见异常的处理",
+          "stem": "程序改错：下面使用自定义异常的程序有 3 处错误，请指出错误所在的行号并改正。",
+          "code": "1  class AgeException extends Exception {\n2    AgeException(String msg) { super(msg); }\n3  }\n4  public class Test {\n5    static void check(int age) {\n6      if (age < 0) throw AgeException(\"年龄错误\");\n7    }\n8    public static void main(String[] args) {\n9      check(-5);\n10   }\n11 }",
+          "points": [
+            "第 5 行：AgeException 是受检异常，方法头要声明，改为 static void check(int age) throws AgeException {（2 分）",
+            "第 6 行：抛出的是异常对象，缺少 new，改为 throw new AgeException(\"年龄错误\");（2 分）",
+            "第 9 行：调用会抛出受检异常的方法必须处理，用 try-catch 捕获 AgeException，或在 main 方法头加 throws AgeException（2 分）"
+          ],
+          "explain": "继承 Exception 的自定义异常属于受检异常，从抛出它的方法到调用者，每一层都必须“要么捕获、要么声明抛出”。第 9 行可改为 try { check(-5); } catch (AgeException e) { System.out.println(e.getMessage()); }，这样程序输出“年龄错误”。"
+        }
+      ]
+    }
+  ]
+}

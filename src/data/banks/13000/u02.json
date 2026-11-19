@@ -1,0 +1,46 @@
+{
+  "course": "13000",
+  "unit": 2,
+  "title": "被动语态与主谓一致",
+  "lessons": [
+    {
+      "id": "13000-u02-l1",
+      "title": "被动语态与主谓一致",
+      "questions": [
+        { "id": "13000-u02-l1-q1", "type": "single", "level": "领会", "kp": "一般过去时的被动语态",
+          "stem": "The Great Wall ____ over many centuries by millions of workers.",
+          "options": ["built", "has built", "was building", "was built"], "answer": 3,
+          "explain": "长城是“被建造”的，后面还有 by 引出动作执行者，用被动语态；讲的是历史，用一般过去时的被动 was built。",
+          "verify": "本单元按“被动语态与主谓一致”编写，教材各单元的语法项目未核实；请对照教材目录核对。" },
+        { "id": "13000-u02-l1-q2", "type": "single", "level": "领会", "kp": "现在进行时的被动语态",
+          "stem": "The road outside our office ____, so we have to go another way this week.",
+          "options": ["is being repaired", "is repairing", "has repaired", "repairs"], "answer": 0,
+          "explain": "路是“被修”的，而且修路正在进行，用现在进行时的被动语态 is being + 过去分词。" },
+        { "id": "13000-u02-l1-q3", "type": "single", "level": "领会", "kp": "被动语态中不定式的 to",
+          "stem": "The boy was made ____ the room again by his mother.",
+          "options": ["clean", "to clean", "cleaning", "cleaned"], "answer": 1,
+          "explain": "主动语态 make sb. do sth. 不带 to，改成被动语态时要把 to 还原：sb. be made to do sth.。最容易误选的是“clean”。" },
+        { "id": "13000-u02-l1-q4", "type": "single", "level": "应用", "kp": "系动词没有被动语态",
+          "stem": "This kind of cloth ____ soft and washes well.",
+          "options": ["is felt", "is feeling", "feels", "has felt"], "answer": 2,
+          "explain": "feel 在这里是系动词（摸起来），系动词没有被动语态，用主动形式 feels；后面的 washes well（好洗）也是主动形式表被动意义。" },
+        { "id": "13000-u02-l1-q5", "type": "single", "level": "领会", "kp": "主谓一致：就近原则",
+          "stem": "Neither the teacher nor the students ____ satisfied with the result.",
+          "options": ["was", "is", "were", "has been"], "answer": 2,
+          "explain": "neither…nor…、either…or…、not only…but also… 连接主语时，谓语和离它最近的主语一致；students 是复数，用 were。" },
+        { "id": "13000-u02-l1-q6", "type": "single", "level": "领会", "kp": "主谓一致：the number of",
+          "stem": "The number of cars in this city ____ increased rapidly in recent years.",
+          "options": ["has", "have", "are", "is"], "answer": 0,
+          "explain": "the number of + 复数名词表示“……的数量”，中心词是 number，谓语用单数；a number of（许多）+ 复数名词，谓语用复数。in recent years 要求用现在完成时。" },
+        { "id": "13000-u02-l1-q7", "type": "fill", "level": "识记", "kp": "一般现在时的被动语态",
+          "stem": "English ____ (speak) as a first language in many countries.",
+          "answers": ["is spoken"],
+          "explain": "English 是“被说”的，陈述的是现在的事实，用一般现在时的被动语态 is + 过去分词 spoken。" },
+        { "id": "13000-u02-l1-q8", "type": "fill", "level": "领会", "kp": "主谓一致：以 -s 结尾的学科名",
+          "stem": "Physics ____ (be) my favorite subject when I was in high school.",
+          "answers": ["was"],
+          "explain": "physics、mathematics、news 等虽以 -s 结尾，却是不可数名词，谓语用单数；when I was in high school 表示过去，用 was。" }
+      ]
+    }
+  ]
+}

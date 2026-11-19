@@ -1,9 +1,10 @@
 // 学习提醒：生成给推送用的学习摘要、订阅网页推送、把设置写到 GitHub 仓库的 Actions 变量
 import { del, get, set } from "idb-keyval";
-import { courseByCode, STUDY_PLAN } from "../data/program";
+import { courseByCode } from "../data/program";
 import { REMINDER_REPO, REMINDER_WORKFLOW, VAPID_PUBLIC_KEY } from "../data/push";
 import { dayKey } from "./date";
 import { coursePace } from "./pace";
+import { studyingCourses } from "./plan";
 import { dueQuestions, type AppState } from "./state";
 
 /** 给 Service Worker 读的学习摘要（推送到达时按它生成通知文字） */
@@ -20,7 +21,7 @@ export const SUMMARY_KEY = "skillup-reminder";
 const TOKEN_KEY = "skillup-github-token";
 
 export function reminderSummary(s: AppState, now = new Date()): ReminderSummary {
-  const paces = STUDY_PLAN.map((p) => coursePace(s, p.code, now));
+  const paces = studyingCourses(s).map((c) => coursePace(s, c, now));
   const upcoming = paces
     .filter((p) => p.daysLeft !== null && p.daysLeft >= 0)
     .sort((a, b) => (a.daysLeft ?? 0) - (b.daysLeft ?? 0))[0];

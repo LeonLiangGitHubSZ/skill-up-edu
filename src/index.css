@@ -259,3 +259,9 @@ h1, h2 { margin: 0; }
 .small-input { font-size: 16px; padding: 10px 12px; }
 .help-list { margin: 0; padding-left: 18px; line-height: 1.7; color: var(--sub); }
 .reminder .link { align-self: flex-start; }
+
+/* 阅读材料、多选提示 */
+.passage { background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 6px 0 10px; font-size: 15px; line-height: 1.65; white-space: pre-wrap; max-height: 42vh; overflow-y: auto; }
+.multi-hint { margin: -6px 0 8px; }
+.sheet-group { display: flex; flex-direction: column; gap: 8px; }
+.sheet-group + .sheet-group { margin-top: 8px; }

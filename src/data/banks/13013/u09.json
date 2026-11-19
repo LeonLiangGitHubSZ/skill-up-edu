@@ -1,0 +1,49 @@
+{
+  "course": "13013",
+  "unit": 9,
+  "title": "编译预处理",
+  "lessons": [
+    {
+      "id": "13013-u09-l1",
+      "title": "宏定义、文件包含与条件编译",
+      "questions": [
+        { "id": "13013-u09-l1-q1", "type": "single", "level": "识记", "kp": "编译预处理的概念",
+          "stem": "关于编译预处理命令，下列说法正确的是？",
+          "options": ["预处理命令以 # 开头，在编译之前进行处理", "预处理命令是C语句，末尾必须加分号", "预处理命令只能写在 main 函数中", "#define 定义的宏在程序运行时才被替换"], "answer": 0,
+          "explain": "C语言的预处理命令有宏定义、文件包含和条件编译三类，都以 # 开头，一般单独占一行、末尾不加分号，在正式编译之前由预处理程序处理。" },
+        { "id": "13013-u09-l1-q2", "type": "single", "level": "应用", "kp": "带参数的宏定义",
+          "stem": "下面程序中带参数的宏没有给参数加括号，运行后的输出结果是？",
+          "code": "#include <stdio.h>\n#define S(x) x * x\nint main(void)\n{\n  int a = 2, b = 3;\n  printf(\"%d\\n\", S(a + b));\n  return 0;\n}",
+          "options": ["25", "13", "11", "10"], "answer": 2,
+          "explain": "宏展开只做简单的文本替换，S(a + b) 被替换为 a + b * a + b，即 2 + 3×2 + 3 = 11，而不是 (2+3)×(2+3) = 25。" },
+        { "id": "13013-u09-l1-q3", "type": "fill", "level": "应用", "kp": "带参数的宏定义",
+          "stem": "下面程序的宏定义只给参数加了括号，整个表达式外面没有括号，运行后输出____。",
+          "code": "#include <stdio.h>\n#define SQ(x) (x) * (x)\nint main(void)\n{\n  printf(\"%d\\n\", 100 / SQ(5));\n  return 0;\n}",
+          "answers": ["100"],
+          "explain": "100 / SQ(5) 展开为 100 / (5) * (5)，自左向右计算：100 / 5 = 20，20 × 5 = 100。宏定义写成 ((x) * (x)) 才能得到 4。" },
+        { "id": "13013-u09-l1-q4", "type": "single", "level": "领会", "kp": "带参数的宏与函数的区别",
+          "stem": "关于带参数的宏和函数，下列说法正确的是？",
+          "options": ["宏的参数和函数的参数一样有类型要求", "函数调用在编译时直接用函数体替换", "宏名必须用小写字母", "宏展开在编译预处理时进行，不占用运行时间"], "answer": 3,
+          "explain": "宏展开在预处理阶段完成，只做文本替换，参数没有类型，也不计算实参的值；函数调用在程序运行时进行，要先求出实参的值再传给形参。宏名习惯上用大写字母。" },
+        { "id": "13013-u09-l1-q5", "type": "fill", "level": "识记", "kp": "文件包含",
+          "stem": "用 #include 命令把另一个源文件的全部内容包含到本文件中，这种预处理称为____。",
+          "answers": ["文件包含", "文件包含处理"],
+          "explain": "被包含的文件常是扩展名为 .h 的头文件，其中放宏定义、函数声明等；预处理时 #include 命令被替换为该文件的内容。" },
+        { "id": "13013-u09-l1-q6", "type": "single", "level": "领会", "kp": "文件包含",
+          "stem": "关于 #include <文件名> 和 #include \"文件名\" 两种形式，下列说法正确的是？",
+          "options": ["两种形式完全相同，没有任何区别", "用双引号时，先在源文件所在的目录中查找，找不到再到系统指定的标准目录中查找", "用尖括号时，只在源文件所在的目录中查找", "一条 #include 命令可以同时包含多个文件"], "answer": 1,
+          "explain": "尖括号直接到系统指定的标准目录（存放库头文件的目录）中查找，常用于包含 stdio.h 等标准头文件；双引号常用于包含用户自己编写的文件。一条 #include 只能包含一个文件。" },
+        { "id": "13013-u09-l1-q7", "type": "single", "level": "应用", "kp": "条件编译",
+          "stem": "下面程序中使用了条件编译命令，运行后的输出结果是？",
+          "code": "#include <stdio.h>\n#define DEBUG\nint main(void)\n{\n  int x = 5;\n#ifdef DEBUG\n  printf(\"x=%d \", x);\n#endif\n#ifndef DEBUG\n  printf(\"release \");\n#endif\n  printf(\"end\\n\");\n  return 0;\n}",
+          "options": ["x=5 end", "release end", "x=5 release end", "end"], "answer": 0,
+          "explain": "DEBUG 已用 #define 定义，#ifdef DEBUG 与 #endif 之间的语句参加编译；#ifndef DEBUG 表示“未定义 DEBUG 时才编译”，这一段被跳过。" },
+        { "id": "13013-u09-l1-q8", "type": "fill", "level": "应用", "kp": "不带参数的宏定义",
+          "stem": "下面程序的宏定义中引用了另一个已定义的宏，运行后输出____。",
+          "code": "#include <stdio.h>\n#define N 3\n#define M (N + 2)\nint main(void)\n{\n  printf(\"%d\\n\", M * N);\n  return 0;\n}",
+          "answers": ["15"],
+          "explain": "M * N 展开为 (3 + 2) * 3 = 15。若定义成 #define M N + 2（不加括号），就会展开为 3 + 2 * 3 = 9。" }
+      ]
+    }
+  ]
+}

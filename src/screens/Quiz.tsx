@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import type { Lesson, Question } from "../data/types";
 import { courseByCode } from "../data/program";
-import { checkFill, shuffledOrder } from "../lib/answer";
+import { checkFill, optionOrder } from "../lib/answer";
 import { coursePace, daysSavedByLesson } from "../lib/pace";
 import { sounds } from "../lib/sound";
 import { nextCard, type CardRec, type Result } from "../lib/srs";
@@ -20,10 +20,10 @@ interface Item {
 
 type Phase = "answer" | "feedback" | "reveal" | "noHearts" | "done";
 
-const LETTERS = "ABCD";
-const TYPE_LABEL: Record<Question["type"], string> = { single: "单项选择", judge: "判断改错", fill: "填空", short: "" };
+const LETTERS = "ABCDE";
+const TYPE_LABEL: Record<Question["type"], string> = { single: "单项选择", multi: "多项选择", judge: "判断改错", fill: "填空", short: "" };
 
-const makeItem = (q: Question, retry = false): Item => ({ q, retry, order: shuffledOrder(4) });
+const makeItem = (q: Question, retry = false): Item => ({ q, retry, order: optionOrder(q) });
 
 interface Summary {
   xp: number;
@@ -41,7 +41,7 @@ export function Quiz({ spec, onExit }: { spec: QuizSpec; onExit: (goReview?: boo
   const [queue, setQueue] = useState<Item[]>(initial);
   const [pos, setPos] = useState(0);
   const [phase, setPhase] = useState<Phase>(() => (heartsOn && state.hearts <= 0 ? "noHearts" : "answer"));
-  const [picked, setPicked] = useState<number | boolean | null>(null);
+  const [picked, setPicked] = useState<number | boolean | number[] | null>(null);
   const [text, setText] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [combo, setCombo] = useState(0);
@@ -88,7 +88,10 @@ export function Quiz({ spec, onExit }: { spec: QuizSpec; onExit: (goReview?: boo
   function check() {
     let r: Result = "wrong";
     if (q.type === "single" && typeof picked === "number") r = item.order[picked] === q.answer ? "right" : "wrong";
-    else if (q.type === "judge" && typeof picked === "boolean") r = picked === q.answer ? "right" : "wrong";
+    else if (q.type === "multi" && Array.isArray(picked)) {
+      const chosen = picked.map((i) => item.order[i]).sort((a, b) => a - b);
+      r = chosen.length === q.answer.length && chosen.every((v, k) => v === q.answer[k]) ? "right" : "wrong";
+    } else if (q.type === "judge" && typeof picked === "boolean") r = picked === q.answer ? "right" : "wrong";
     else if (q.type === "fill") r = checkFill(text, q.answers) ? "right" : "wrong";
     submit(r);
     setPhase("feedback");
@@ -203,8 +206,38 @@ export function Quiz({ spec, onExit }: { spec: QuizSpec; onExit: (goReview?: boo
           {item.retry && " · 再来一次"}
           <span className="qmeta">{spec.mode === "review" ? `${course?.short ?? ""} · ` : ""}{title}</span>
         </div>
+        {q.passage && <div className="passage">{q.passage}</div>}
         <div className="qtext">{q.stem}</div>
         {q.code && <pre className="code">{q.code}</pre>}
+        {q.type === "multi" && (
+          <div>
+            <div className="muted small multi-hint">多选：选出全部正确的选项</div>
+            {item.order.map((orig, i) => {
+              const sel = Array.isArray(picked) && picked.includes(i);
+              const correct = q.answer.includes(orig);
+              const cls = ["opt"];
+              if (phase === "answer" && sel) cls.push("sel");
+              if (phase !== "answer" && correct) cls.push("right");
+              if (phase !== "answer" && sel && !correct) cls.push("wrong");
+              return (
+                <button
+                  key={orig}
+                  className={cls.join(" ")}
+                  disabled={phase !== "answer"}
+                  onClick={() => {
+                    setPicked((p) => {
+                      const arr = Array.isArray(p) ? p : [];
+                      return arr.includes(i) ? arr.filter((x) => x !== i) : [...arr, i];
+                    });
+                    sounds.tap();
+                  }}
+                >
+                  <b>{LETTERS[i]}</b>{q.options[orig]}
+                </button>
+              );
+            })}
+          </div>
+        )}
         {q.type === "single" && (
           <div>
             {item.order.map((orig, i) => {
@@ -263,7 +296,7 @@ export function Quiz({ spec, onExit }: { spec: QuizSpec; onExit: (goReview?: boo
         {phase === "feedback" && (
           <div className="fb">
             <div className="fb-title">
-              {result === "right" ? "答对了！" : q.type === "single" ? `正确答案：${LETTERS[item.order.indexOf(q.answer)]}` : q.type === "judge" ? `这句话是${q.answer ? "对的" : "错的"}` : `参考答案：${q.type === "fill" ? q.answers.join(" / ") : ""}`}
+              {result === "right" ? "答对了！" : q.type === "single" ? `正确答案：${LETTERS[item.order.indexOf(q.answer)]}` : q.type === "multi" ? `正确答案：${q.answer.map((a) => LETTERS[item.order.indexOf(a)]).sort().join("、")}` : q.type === "judge" ? `这句话是${q.answer ? "对的" : "错的"}` : `参考答案：${q.type === "fill" ? q.answers.join(" / ") : ""}`}
             </div>
             {q.type === "judge" && !q.answer && <div className="fb-fix">改错：{q.fix}</div>}
             <div className="fb-explain">{q.explain}</div>
@@ -275,7 +308,7 @@ export function Quiz({ spec, onExit }: { spec: QuizSpec; onExit: (goReview?: boo
           </div>
         )}
         {phase === "answer" && q.type !== "short" && (
-          <button className="btn" disabled={q.type === "fill" ? !text.trim() : picked === null} onClick={check}>检 查</button>
+          <button className="btn" disabled={q.type === "fill" ? !text.trim() : q.type === "multi" ? !(Array.isArray(picked) && picked.length > 0) : picked === null} onClick={check}>检 查</button>
         )}
         {phase === "answer" && q.type === "short" && (
           <button className="btn" onClick={() => setPhase("reveal")}>想好了，看要点</button>

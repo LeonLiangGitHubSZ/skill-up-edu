@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const BANKS = join(dirname(fileURLToPath(import.meta.url)), "../src/data/banks");
 const LEVELS = ["识记", "领会", "应用"];
-const FORMS = ["简答", "论述", "设计", "综合应用"];
+const FORMS = ["简答", "论述", "设计", "综合应用", "计算", "证明", "材料分析", "程序设计", "翻译", "写作", "名词解释", "程序改错"];
 const LETTERS = "ABCD";
 
 const errors = [];
@@ -42,6 +42,7 @@ for (const course of courses) {
     if (unit.course !== course) err(where, `course 应为 "${course}"`);
     if (unit.unit !== Number(nn)) err(where, `unit 应为 ${Number(nn)}`);
     if (!nonEmpty(unit.title)) err(where, "缺少 title");
+    for (const k of ["chapter", "order"]) if (unit[k] !== undefined && !Number.isInteger(unit[k])) err(where, `${k} 应为整数`);
     if (unit.unit >= 90 && !String(unit.title).startsWith("专项：")) err(where, "专项单元（unit ≥ 90）的 title 应以「专项：」开头");
     if (!Array.isArray(unit.lessons) || unit.lessons.length === 0) { err(where, "lessons 为空"); continue; }
 
@@ -70,6 +71,8 @@ for (const course of courses) {
         if (!nonEmpty(q.explain)) err(qw, "缺少 explain");
         if (q.code !== undefined && !nonEmpty(q.code)) err(qw, "code 为空字符串");
         if (q.verify !== undefined && !nonEmpty(q.verify)) err(qw, "verify 为空字符串");
+        if (q.passage !== undefined && !nonEmpty(q.passage)) err(qw, "passage 为空字符串");
+        if (q.passage && q.passage.length > 1500) warn(qw, `阅读材料 ${q.passage.length} 字，手机上偏长`);
         const key = (q.stem ?? "").replace(/\s+/g, "");
         if (stems.has(key)) err(qw, `题干与 ${stems.get(key)} 重复`);
         stems.set(key, q.id);
@@ -77,16 +80,29 @@ for (const course of courses) {
 
         switch (q.type) {
           case "single": {
-            if (!Array.isArray(q.options) || q.options.length !== 4) { err(qw, "单选题需要 4 个选项"); break; }
+            if (!Array.isArray(q.options) || q.options.length < 3 || q.options.length > 4) { err(qw, "单选题需要 4 个选项（阅读判断可以 3 个）"); break; }
             q.options.forEach((o, oi) => {
               if (!nonEmpty(o)) err(qw, `选项 ${LETTERS[oi]} 为空`);
               else if (/^\s*[A-DＡ-Ｄ][.．、:：)）\s]/.test(o)) err(qw, `选项 ${LETTERS[oi]} 不要带字母前缀`);
               else if (o.length > 60) warn(qw, `选项 ${LETTERS[oi]} ${o.length} 字，偏长`);
             });
-            if (new Set(q.options.map((o) => String(o).trim())).size !== 4) err(qw, "选项有重复");
-            if (![0, 1, 2, 3].includes(q.answer)) err(qw, "answer 应为 0–3");
-            else answerCount[q.answer]++;
+            if (new Set(q.options.map((o) => String(o).trim())).size !== q.options.length) err(qw, "选项有重复");
+            if (!Number.isInteger(q.answer) || q.answer < 0 || q.answer >= q.options.length) err(qw, `answer 应为 0–${q.options.length - 1}`);
+            else if (q.options.length === 4 && !q.keepOrder) answerCount[q.answer]++;
             if (q.options.some((o) => /以上(都|均|全)/.test(o))) warn(qw, "尽量不用「以上都…」选项");
+            break;
+          }
+          case "multi": {
+            const n = Array.isArray(q.options) ? q.options.length : 0;
+            if (n < 4 || n > 5) { err(qw, "多选题需要 4–5 个选项"); break; }
+            q.options.forEach((o, oi) => {
+              if (!nonEmpty(o)) err(qw, `选项 ${"ABCDE"[oi]} 为空`);
+              else if (/^\s*[A-EＡ-Ｅ][.．、:：)）\s]/.test(o)) err(qw, `选项 ${"ABCDE"[oi]} 不要带字母前缀`);
+            });
+            if (new Set(q.options.map((o) => String(o).trim())).size !== n) err(qw, "选项有重复");
+            const a = q.answer;
+            if (!Array.isArray(a) || a.length < 2 || a.length > n || new Set(a).size !== a.length || !a.every((x) => Number.isInteger(x) && x >= 0 && x < n)) err(qw, "多选题 answer 应为至少 2 个不重复的选项下标");
+            else if ([...a].sort((x, y) => x - y).join() !== a.join()) err(qw, "多选题 answer 请从小到大排列");
             break;
           }
           case "judge":

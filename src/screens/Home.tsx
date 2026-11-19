@@ -5,6 +5,7 @@ import { courseByCode, sessionById, SLOT_LABEL, STUDY_PLAN } from "../data/progr
 import type { Lesson } from "../data/types";
 import { dayKey, daysBetween, shortDate } from "../lib/date";
 import { coursePace, SPRINT_DAYS, type Pace } from "../lib/pace";
+import { studyingCourses } from "../lib/plan";
 import { dueQuestions } from "../lib/state";
 import { useStore } from "../store";
 
@@ -18,7 +19,7 @@ export function Home({ onLesson, onReview }: { onLesson: (course: string, lesson
   const course = courseByCode(code);
   const bank = getBank(code);
   const pace = coursePace(state, code);
-  const all = STUDY_PLAN.map((p) => coursePace(state, p.code));
+  const all = studyingCourses(state).map((c) => coursePace(state, c));
   const goal = all.reduce((n, p) => n + p.todayTarget, 0);
   const goalDone = all.reduce((n, p) => n + Math.min(p.todayDone, p.todayTarget), 0);
   const due = dueQuestions(state).length;
@@ -65,7 +66,7 @@ export function Home({ onLesson, onReview }: { onLesson: (course: string, lesson
             return (
               <section key={u.unit}>
                 <div className="unit">
-                  <b>{u.unit >= 90 ? u.title : `第 ${u.unit} 章 · ${u.title}`}</b>
+                  <b>{u.unit === 0 || u.unit >= 90 ? u.title : `第 ${u.chapter ?? u.unit} 章 · ${u.title}`}</b>
                   <span>{doneCount}/{u.lessons.length} 课</span>
                 </div>
                 <div className="nodes">

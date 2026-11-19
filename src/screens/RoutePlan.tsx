@@ -74,7 +74,7 @@ export function RoutePlan() {
           </div>
         ))}
 
-        <h2 className="section-title">全部课程</h2>
+        <h2 className="section-title">全部课程 <span className="muted small">标成「备考」的课才计入每天的目标</span></h2>
         {GROUPS.map((g) => (
           <div key={g} className="list-group">
             <div className="list-head">{g}</div>

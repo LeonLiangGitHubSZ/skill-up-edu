@@ -1,0 +1,354 @@
+{
+  "course": "13003",
+  "unit": 2,
+  "title": "线性表",
+  "lessons": [
+    {
+      "id": "13003-u02-l1",
+      "title": "线性表的定义与顺序表",
+      "questions": [
+        {
+          "id": "13003-u02-l1-q1",
+          "type": "fill",
+          "level": "识记",
+          "kp": "线性表的逻辑特征",
+          "stem": "在非空线性表中，有且仅有一个开始结点，它没有直接前驱；有且仅有一个终端结点，它没有____。",
+          "answers": [
+            "直接后继",
+            "后继"
+          ],
+          "explain": "其余每个结点都恰好有一个直接前驱和一个直接后继，这就是线性表“一对一”的逻辑特征。"
+        },
+        {
+          "id": "13003-u02-l1-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "顺序表的地址计算",
+          "stem": "顺序表中每个元素占 4 个存储单元，第 1 个元素的存储地址是 100，则第 12 个元素的存储地址是？",
+          "options": [
+            "140",
+            "144",
+            "148",
+            "152"
+          ],
+          "answer": 1,
+          "explain": "LOC(aᵢ) = LOC(a₁) + (i-1)×L = 100 + 11×4 = 144。选 148 是把 (i-1) 错写成了 i。"
+        },
+        {
+          "id": "13003-u02-l1-q3",
+          "type": "single",
+          "level": "领会",
+          "kp": "顺序表的特点",
+          "stem": "顺序表的主要优点是？",
+          "options": [
+            "插入和删除时不需要移动元素",
+            "存储空间可以随时扩充，不会溢出",
+            "可以随机存取表中任一元素",
+            "不需要事先分配存储空间"
+          ],
+          "answer": 2,
+          "explain": "顺序表按下标直接算出地址，存取任一元素都是 O(1)，即随机存取；但插入、删除平均要移动约一半元素，而且要预先分配空间。"
+        },
+        {
+          "id": "13003-u02-l1-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "顺序表插入的平均移动次数",
+          "stem": "在长度为 n 的顺序表中插入一个新元素，若在 n+1 个可插入位置上插入的概率相等，则平均需要移动____个元素。",
+          "answers": [
+            "n/2",
+            "n÷2"
+          ],
+          "explain": "插在第 i 个位置要移动 n-i+1 个元素，平均为 (n+(n-1)+…+0)/(n+1) = n/2；删除时平均移动 (n-1)/2 个。"
+        },
+        {
+          "id": "13003-u02-l1-q5",
+          "type": "single",
+          "level": "应用",
+          "kp": "顺序表的删除",
+          "stem": "在长度为 n 的顺序表中删除第 i 个元素（1 ≤ i ≤ n），需要向前移动的元素个数是？",
+          "options": [
+            "n-i+1",
+            "n-i-1",
+            "i",
+            "n-i"
+          ],
+          "answer": 3,
+          "explain": "删除 aᵢ 后，aᵢ₊₁ 到 aₙ 共 n-i 个元素依次前移一位；在第 i 个位置插入时才是移动 n-i+1 个。"
+        },
+        {
+          "id": "13003-u02-l1-q6",
+          "type": "single",
+          "level": "领会",
+          "kp": "顺序表基本运算的时间复杂度",
+          "stem": "在长度为 n 的顺序表中，下列操作的时间复杂度为 O(1) 的是？",
+          "options": [
+            "读取第 i 个元素的值",
+            "在第 i 个位置插入一个元素",
+            "删除第 i 个元素",
+            "查找值等于 x 的元素"
+          ],
+          "answer": 0,
+          "explain": "按序号读取直接用下标访问，是 O(1)；插入、删除要移动元素，按值查找要逐个比较，都是 O(n)。"
+        },
+        {
+          "id": "13003-u02-l1-q7",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "顺序表的插入",
+          "stem": "顺序表的类型定义如下（元素从 data[0] 开始存放）。设表 L 中元素按值递增有序，编写函数 int InsertOrder(SeqList *L, int x)，将 x 插入适当位置使表仍递增有序；表满返回 0，成功返回 1。",
+          "code": "#define MAXSIZE 100\ntypedef struct {\n    int data[MAXSIZE];\n    int length;\n} SeqList;",
+          "points": [
+            "先判断表满（length >= MAXSIZE），表满返回 0（1 分）",
+            "从表尾向前比较，凡大于 x 的元素都后移一位（3 分）",
+            "循环结束后把 x 放入空出的位置 data[i+1]（2 分）",
+            "表长加 1，返回 1（2 分）"
+          ],
+          "answer": "int InsertOrder(SeqList *L, int x)\n{\n    int i;\n    if (L->length >= MAXSIZE)\n        return 0;\n    i = L->length - 1;\n    while (i >= 0 && L->data[i] > x) {\n        L->data[i + 1] = L->data[i];\n        i--;\n    }\n    L->data[i + 1] = x;\n    L->length++;\n    return 1;\n}",
+          "explain": "从后往前边比较边后移，一趟循环同时完成找位置和移动元素，时间复杂度 O(n)。注意 i >= 0 要写在前面，防止越界访问 data[-1]。"
+        },
+        {
+          "id": "13003-u02-l1-q8",
+          "type": "fill",
+          "level": "应用",
+          "kp": "顺序表的算法",
+          "stem": "顺序表 L 中依次存放 1，2，3，4，5，调用下列函数 f(&L) 后，L 中的元素依次为____。",
+          "code": "#define MAXSIZE 100\ntypedef struct {\n    int data[MAXSIZE];\n    int length;\n} SeqList;\n\nvoid f(SeqList *L)\n{\n    int i, t;\n    for (i = 0; i < L->length / 2; i++) {\n        t = L->data[i];\n        L->data[i] = L->data[L->length - 1 - i];\n        L->data[L->length - 1 - i] = t;\n    }\n}",
+          "answers": [
+            "5 4 3 2 1"
+          ],
+          "explain": "第 i 个元素与倒数第 i 个元素交换，共交换 length/2 次，实现顺序表的就地逆置，时间 O(n)、空间 O(1)。表长为奇数时，中间的元素不动。"
+        }
+      ]
+    },
+    {
+      "id": "13003-u02-l2",
+      "title": "单链表",
+      "questions": [
+        {
+          "id": "13003-u02-l2-q1",
+          "type": "single",
+          "level": "识记",
+          "kp": "头指针与头结点",
+          "stem": "在单链表中设置头结点的主要作用是？",
+          "options": [
+            "使单链表中至少有一个数据结点",
+            "指示单链表中第一个结点的位置",
+            "使首元结点的插入、删除与其他结点处理一致",
+            "使单链表可以随机存取任一结点"
+          ],
+          "answer": 2,
+          "explain": "有了头结点，无论表是否为空，头指针都指向头结点，在第一个位置插入或删除时不必单独修改头指针；指示第一个结点位置的是头指针。"
+        },
+        {
+          "id": "13003-u02-l2-q2",
+          "type": "fill",
+          "level": "领会",
+          "kp": "顺序存取与随机存取",
+          "stem": "顺序表是一种随机存取的存储结构，而单链表是一种____的存储结构。",
+          "answers": [
+            "顺序存取"
+          ],
+          "explain": "单链表要访问第 i 个结点，必须从头指针出发沿 next 链逐个往后找，时间复杂度 O(n)。"
+        },
+        {
+          "id": "13003-u02-l2-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "单链表的插入",
+          "stem": "在单链表中，要将 s 所指结点插入到 p 所指结点之后，正确的语句序列是？",
+          "options": [
+            "p->next = s; s->next = p->next;",
+            "s->next = p->next; p->next = s;",
+            "s->next = p; p->next = s;",
+            "p->next = s->next; s->next = p;"
+          ],
+          "answer": 1,
+          "explain": "必须先让 s->next 指向 p 原来的后继，再修改 p->next。顺序反了，s->next 会指向 s 自己，原来的后继结点就丢了。"
+        },
+        {
+          "id": "13003-u02-l2-q4",
+          "type": "single",
+          "level": "应用",
+          "kp": "单链表的删除",
+          "stem": "在单链表中删除 p 所指结点的后继结点（该结点存在），正确的语句序列是？",
+          "options": [
+            "q = p->next; p->next = q->next; free(q);",
+            "q = p->next; free(q); p->next = q->next;",
+            "p->next = p->next->next; free(p->next);",
+            "q = p->next; p = q->next; free(q);"
+          ],
+          "answer": 0,
+          "explain": "先用 q 记下待删结点，再让 p->next 绕过它，最后释放 q。先 free 再访问 q->next 是访问已释放的空间；第三项释放的是错误的结点。",
+          "keepOrder": true
+        },
+        {
+          "id": "13003-u02-l2-q5",
+          "type": "fill",
+          "level": "领会",
+          "kp": "带头结点单链表的判空",
+          "stem": "带头结点的单链表 head 为空表的判定条件是____。",
+          "answers": [
+            "head->next == NULL",
+            "head->next == 0",
+            "NULL == head->next"
+          ],
+          "explain": "带头结点时空表仍有头结点，只是它的 next 为空；不带头结点的单链表为空的条件是 head == NULL。"
+        },
+        {
+          "id": "13003-u02-l2-q6",
+          "type": "single",
+          "level": "应用",
+          "kp": "单链表的建立",
+          "stem": "用头插法依次读入 1、2、3、4、5 建立带头结点的单链表，从头到尾遍历得到的序列是？",
+          "options": [
+            "1 2 3 4 5",
+            "1 3 5 2 4",
+            "5 4 3 2 1",
+            "5 1 2 3 4"
+          ],
+          "answer": 2,
+          "explain": "头插法每次把新结点插在头结点之后，所以得到的次序与输入相反；尾插法得到的次序与输入相同。"
+        },
+        {
+          "id": "13003-u02-l2-q7",
+          "type": "fill",
+          "level": "应用",
+          "kp": "单链表的算法",
+          "stem": "执行下列函数前，head 所指的带头结点单链表的元素依次为 1，2，3，4，执行后依次为____。",
+          "code": "typedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;\n\nvoid f(LinkList head)\n{\n    LNode *p, *q;\n    p = head->next;\n    head->next = NULL;\n    while (p != NULL) {\n        q = p->next;\n        p->next = head->next;\n        head->next = p;\n        p = q;\n    }\n}",
+          "answers": [
+            "4,3,2,1",
+            "4 3 2 1"
+          ],
+          "explain": "函数先把头结点摘空，再把原来的结点逐个用头插法插回头结点之后，实现单链表的就地逆置。q 用来记住下一个待处理的结点。"
+        },
+        {
+          "id": "13003-u02-l2-q8",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "单链表的删除",
+          "stem": "单链表类型定义如下。编写函数 void DeleteX(LinkList head, int x)，删除带头结点的单链表 head 中所有值等于 x 的结点，并释放其空间。",
+          "code": "typedef struct LNode {\n    int data;\n    struct LNode *next;\n} LNode, *LinkList;",
+          "points": [
+            "用 pre、p 两个指针，pre 始终指向 p 的前驱，初值分别为 head 和 head->next（2 分）",
+            "p->data == x 时，令 pre->next = p->next 摘下结点并 free(p)（3 分）",
+            "删除后 p 指向 pre->next，pre 不动；否则 pre、p 同步后移（2 分）",
+            "p 为 NULL 时结束，只扫描一遍，时间复杂度 O(n)（1 分）"
+          ],
+          "answer": "void DeleteX(LinkList head, int x)\n{\n    LNode *pre = head, *p = head->next;\n    while (p != NULL) {\n        if (p->data == x) {\n            pre->next = p->next;\n            free(p);\n            p = pre->next;\n        } else {\n            pre = p;\n            p = p->next;\n        }\n    }\n}",
+          "explain": "删除单链表结点必须知道它的前驱，所以要同时保留 pre。函数中用到 free，程序开头要包含 stdlib.h。"
+        }
+      ]
+    },
+    {
+      "id": "13003-u02-l3",
+      "title": "循环链表、双向链表及存储结构的比较",
+      "questions": [
+        {
+          "id": "13003-u02-l3-q1",
+          "type": "single",
+          "level": "领会",
+          "kp": "循环链表",
+          "stem": "在带头结点的单循环链表 head 中，p 所指结点是尾结点的判定条件是？",
+          "options": [
+            "p->next == head",
+            "p->next == NULL",
+            "p == NULL",
+            "p == head"
+          ],
+          "answer": 0,
+          "explain": "循环链表尾结点的 next 指回头结点，而不是 NULL；p->next == NULL 是普通单链表尾结点的条件。"
+        },
+        {
+          "id": "13003-u02-l3-q2",
+          "type": "single",
+          "level": "应用",
+          "kp": "用尾指针表示的循环链表",
+          "stem": "用尾指针 rear 表示带头结点的单循环链表，则开始结点（首元结点）的地址是？",
+          "options": [
+            "rear",
+            "rear->next",
+            "rear->next->next->next",
+            "rear->next->next"
+          ],
+          "answer": 3,
+          "explain": "rear->next 是头结点，头结点的后继 rear->next->next 才是开始结点。用尾指针表示时，找开始结点和终端结点都只要 O(1) 时间。"
+        },
+        {
+          "id": "13003-u02-l3-q3",
+          "type": "single",
+          "level": "应用",
+          "kp": "双向链表的插入",
+          "stem": "在双向链表中，要在 p 所指结点之后插入 s 所指结点（p 有后继），正确的语句序列是？",
+          "options": [
+            "s->prior=p; s->next=p->next; p->next=s; p->next->prior=s;",
+            "s->prior=p; s->next=p->next; p->next->prior=s; p->next=s;",
+            "p->next=s; s->prior=p; s->next=p->next; p->next->prior=s;",
+            "s->next=p; s->prior=p->prior; p->prior->next=s; p->prior=s;"
+          ],
+          "answer": 1,
+          "explain": "p->next 要最后修改：先借它找到原后继，让原后继的 prior 指向 s，再令 p->next = s。第一项先改了 p->next，p->next->prior=s 就变成了让 s 的 prior 指向自己；第四项是插在 p 之前。",
+          "keepOrder": true
+        },
+        {
+          "id": "13003-u02-l3-q4",
+          "type": "fill",
+          "level": "应用",
+          "kp": "双向链表的删除",
+          "stem": "在双向链表中删除 p 所指结点（前驱、后继都存在）：执行 p->prior->next = p->next; 之后，还要执行____，再 free(p)。",
+          "answers": [
+            "p->next->prior = p->prior;",
+            "p->next->prior = p->prior"
+          ],
+          "explain": "删除结点要修改两个方向的指针：前驱的 next 指向 p 的后继，后继的 prior 指向 p 的前驱。"
+        },
+        {
+          "id": "13003-u02-l3-q5",
+          "type": "single",
+          "level": "领会",
+          "kp": "顺序表和链表的比较",
+          "stem": "若线性表最常用的操作是存取第 i 个元素及其前驱的值，则最节省时间的存储方式是？",
+          "options": [
+            "单链表",
+            "双向链表",
+            "单循环链表",
+            "顺序表"
+          ],
+          "answer": 3,
+          "explain": "顺序表可按下标直接存取第 i 个和第 i-1 个元素，都是 O(1)；各种链表都要从头沿链查找第 i 个结点。"
+        },
+        {
+          "id": "13003-u02-l3-q6",
+          "type": "fill",
+          "level": "领会",
+          "kp": "顺序表和链表的比较",
+          "stem": "线性表的长度变化较大、难以预先估计存储规模，且经常要插入和删除元素时，宜采用____存储结构。",
+          "answers": [
+            "链式",
+            "链表",
+            "链式存储"
+          ],
+          "explain": "链式存储按需申请结点，插入删除只改指针；顺序存储要预先分配空间，插入删除要移动大量元素。"
+        },
+        {
+          "id": "13003-u02-l3-q7",
+          "type": "short",
+          "form": "简答",
+          "level": "领会",
+          "kp": "顺序表和链表的比较",
+          "stem": "从存储空间和时间效率两个方面，比较顺序表和链表的优缺点。",
+          "points": [
+            "空间：顺序表要预先分配，估计大了浪费、小了溢出；链表按需动态申请结点（2 分）",
+            "空间：顺序表只存数据元素，存储密度为 1；链表每个结点还要存指针，存储密度小于 1（1 分）",
+            "时间：顺序表随机存取，按序号访问为 O(1)；链表只能顺序存取，为 O(n)（1 分）",
+            "时间：顺序表插入删除平均移动约一半元素；链表只需修改指针（1 分）"
+          ],
+          "explain": "结论：表长稳定、以按序号查询为主时用顺序表；表长变化大、插入删除频繁时用链表。"
+        }
+      ]
+    }
+  ]
+}

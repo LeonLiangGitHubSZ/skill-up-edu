@@ -6,7 +6,7 @@ import type { Result } from "../lib/srs";
 import { finishMock } from "../lib/state";
 import { useStore } from "../store";
 
-const LETTERS = "ABCD";
+const LETTERS = "ABCDE";
 
 const clock = (sec: number) => {
   const s = Math.max(0, Math.floor(sec));
@@ -38,7 +38,10 @@ export function MockExam({ paper, onExit }: { paper: Paper; onExit: () => void }
   const elapsed = (now - startedAt) / 1000;
   const remaining = paper.minutes * 60 - elapsed;
   const item = paper.items[pos];
-  const answered = (id: string) => answers[id] !== undefined && answers[id] !== "";
+  const answered = (id: string) => {
+    const a = answers[id];
+    return a !== undefined && a !== "" && !(Array.isArray(a) && a.length === 0);
+  };
   const objectiveLeft = paper.items.filter((it) => it.q.type !== "short" && !answered(it.q.id)).length;
 
   const setAnswer = (v: Answer) => {
@@ -109,6 +112,7 @@ export function MockExam({ paper, onExit }: { paper: Paper; onExit: () => void }
         </div>
         <div className="qwrap">
           <div className="qtype">{it.section}<span className="qmeta">本题 {it.points} 分</span></div>
+          {q.passage && <div className="passage">{q.passage}</div>}
           <div className="qtext">{q.stem}</div>
           {q.code && <pre className="code">{q.code}</pre>}
           {q.type === "short" && (
@@ -150,8 +154,18 @@ export function MockExam({ paper, onExit }: { paper: Paper; onExit: () => void }
           {item.section}
           <span className="qmeta">{firstOfSection ? `每题 ${item.points} 分` : `${item.points} 分`}</span>
         </div>
+        {q.passage && <div className="passage">{q.passage}</div>}
         <div className="qtext">{q.stem}</div>
         {q.code && <pre className="code">{q.code}</pre>}
+        {q.type === "multi" &&
+          item.order.map((orig, i) => {
+            const arr = Array.isArray(a) ? a : [];
+            return (
+              <button key={orig} className={`opt ${arr.includes(i) ? "sel" : ""}`} onClick={() => setAnswer(arr.includes(i) ? arr.filter((x) => x !== i) : [...arr, i])}>
+                <b>{LETTERS[i]}</b>{q.options[orig]}
+              </button>
+            );
+          })}
         {q.type === "single" &&
           item.order.map((orig, i) => (
             <button key={orig} className={`opt ${a === i ? "sel" : ""}`} onClick={() => setAnswer(i)}>

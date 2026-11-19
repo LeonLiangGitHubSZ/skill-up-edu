@@ -1,0 +1,46 @@
+{
+  "course": "13000",
+  "unit": 8,
+  "title": "虚拟语气与情态动词",
+  "lessons": [
+    {
+      "id": "13000-u08-l1",
+      "title": "虚拟语气与情态动词",
+      "questions": [
+        { "id": "13000-u08-l1-q1", "type": "single", "level": "领会", "kp": "与现在事实相反的虚拟",
+          "stem": "If I ____ you, I would accept the offer.",
+          "options": ["am", "was being", "had been", "were"], "answer": 3,
+          "explain": "与现在事实相反的虚拟条件句：从句用过去式（be 一般用 were），主句用 would / could + 动词原形。我不可能是你，所以用虚拟。",
+          "verify": "本单元按“虚拟语气与情态动词”编写，教材各单元的语法项目未核实；请对照教材目录核对。" },
+        { "id": "13000-u08-l1-q2", "type": "single", "level": "领会", "kp": "与过去事实相反的虚拟",
+          "stem": "If he had taken my advice, he ____ the mistake.",
+          "options": ["would not have made", "would not make", "will not make", "had not made"], "answer": 0,
+          "explain": "从句 had taken 表示与过去事实相反，主句用 would / could + have + 过去分词：当时要是听了我的话，就不会犯错了。" },
+        { "id": "13000-u08-l1-q3", "type": "single", "level": "领会", "kp": "wish 后的虚拟语气",
+          "stem": "I wish I ____ more time to travel, but I'm too busy now.",
+          "options": ["have", "will have", "had", "had had"], "answer": 2,
+          "explain": "wish 后的宾语从句用虚拟语气：对现在的愿望用过去式（had），对过去的遗憾用过去完成式（had had）。这里说的是现在（now）。" },
+        { "id": "13000-u08-l1-q4", "type": "single", "level": "应用", "kp": "suggest 后宾语从句的虚拟",
+          "stem": "The doctor suggested that he ____ smoking at once.",
+          "options": ["stops", "stop", "had stopped", "would stop"], "answer": 1,
+          "explain": "suggest、insist、order、demand 等表示“建议、要求、命令”时，that 从句用 (should) + 动词原形，should 可以省略，所以是 stop。" },
+        { "id": "13000-u08-l1-q5", "type": "single", "level": "领会", "kp": "must 表示肯定推测",
+          "stem": "You ____ be tired after such a long journey. Sit down and have a rest.",
+          "options": ["can't", "needn't", "must", "mustn't"], "answer": 2,
+          "explain": "must 用于肯定句表示很有把握的推测（一定）：走了这么远，你一定累了。否定推测用 can't。" },
+        { "id": "13000-u08-l1-q6", "type": "single", "level": "应用", "kp": "should have done",
+          "stem": "You ____ have told me earlier. Now it's too late to do anything.",
+          "options": ["should", "must", "can", "need"], "answer": 0,
+          "explain": "should have done 表示“本应该做而实际没做”，带有责备的语气。must have done 是对过去的肯定推测（一定做过），与“现在太晚了”矛盾。" },
+        { "id": "13000-u08-l1-q7", "type": "single", "level": "领会", "kp": "It's high time… 句型的虚拟",
+          "stem": "It's high time we ____ home; it's getting dark.",
+          "options": ["go", "will go", "have gone", "went"], "answer": 3,
+          "explain": "It is (high) time (that)… 句型中，从句用过去式表示“早该……了”（也可以用 should + 动词原形）。" },
+        { "id": "13000-u08-l1-q8", "type": "fill", "level": "应用", "kp": "与过去事实相反的虚拟",
+          "stem": "If I ____ (know) her address yesterday, I would have written to her.",
+          "answers": ["had known"],
+          "explain": "yesterday 和主句的 would have written 都说明是与过去事实相反的假设，从句用过去完成时 had known。" }
+      ]
+    }
+  ]
+}

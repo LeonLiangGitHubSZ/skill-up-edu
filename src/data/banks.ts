@@ -22,7 +22,7 @@ for (const unit of Object.values(modules)) {
   bank.units.push(unit);
 }
 for (const bank of banks.values()) {
-  bank.units.sort((a, b) => a.unit - b.unit);
+  bank.units.sort((a, b) => (a.order ?? a.unit) - (b.order ?? b.unit));
   for (const unit of bank.units) {
     for (const lesson of unit.lessons) {
       bank.lessons.push(lesson);

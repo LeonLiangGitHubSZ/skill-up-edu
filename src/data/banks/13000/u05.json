@@ -1,0 +1,46 @@
+{
+  "course": "13000",
+  "unit": 5,
+  "title": "定语从句",
+  "lessons": [
+    {
+      "id": "13000-u05-l1",
+      "title": "关系代词与关系副词",
+      "questions": [
+        { "id": "13000-u05-l1-q1", "type": "single", "level": "识记", "kp": "关系代词 who",
+          "stem": "The man ____ lives next door is a doctor.",
+          "options": ["which", "who", "whom", "whose"], "answer": 1,
+          "explain": "先行词 the man 指人，在从句中作主语（lives 的主语），用 who（也可用 that）；whom 只能作宾语。",
+          "verify": "本单元按“定语从句”编写，教材各单元的语法项目未核实；请对照教材目录核对。" },
+        { "id": "13000-u05-l1-q2", "type": "single", "level": "识记", "kp": "关系代词 whose",
+          "stem": "This is the house ____ windows face the sea.",
+          "options": ["which", "that", "where", "whose"], "answer": 3,
+          "explain": "whose 在从句中作定语，表示“……的”：whose windows = the windows of the house。" },
+        { "id": "13000-u05-l1-q3", "type": "single", "level": "领会", "kp": "非限制性定语从句：which 指代整句",
+          "stem": "He failed the exam, ____ made his parents very disappointed.",
+          "options": ["that", "what", "it", "which"], "answer": 3,
+          "explain": "which 引导非限制性定语从句，可以指代前面整个句子（他考试不及格这件事）。that 不能引导非限制性定语从句；“it”会造成两个句子只用逗号连接。" },
+        { "id": "13000-u05-l1-q4", "type": "single", "level": "应用", "kp": "关系代词与关系副词的选择",
+          "stem": "Is this the factory ____ you visited last year?",
+          "options": ["which", "where", "in which", "what"], "answer": 0,
+          "explain": "先看先行词在从句中作什么成分：visit 是及物动词，缺宾语，所以用关系代词 which（或 that），不能用作状语的 where。" },
+        { "id": "13000-u05-l1-q5", "type": "single", "level": "应用", "kp": "关系副词 where",
+          "stem": "I'll never forget the village ____ I spent my childhood.",
+          "options": ["which", "where", "when", "that"], "answer": 1,
+          "explain": "从句 I spent my childhood 成分完整，先行词 the village 在从句中作地点状语，用 where（= in which）。" },
+        { "id": "13000-u05-l1-q6", "type": "single", "level": "应用", "kp": "介词 + 关系代词",
+          "stem": "The pen ____ he wrote the letter was a gift from his father.",
+          "options": ["which", "in which", "with which", "by that"], "answer": 2,
+          "explain": "还原到从句：he wrote the letter with the pen（用钢笔写），所以用 with which。介词后面不能用 that。" },
+        { "id": "13000-u05-l1-q7", "type": "single", "level": "应用", "kp": "代词 / 数词 + of + whom",
+          "stem": "There are 40 students in our class, most of ____ come from the countryside.",
+          "options": ["them", "whom", "who", "which"], "answer": 1,
+          "explain": "most of whom 引导非限制性定语从句，指代 students（人），介词 of 后用 whom。“them”会让两个句子只用逗号连接。" },
+        { "id": "13000-u05-l1-q8", "type": "fill", "level": "应用", "kp": "先行词 reason 后的关系词",
+          "stem": "The reason ____ he gave for being late was not true.",
+          "answers": ["that", "which"],
+          "explain": "先行词是 reason 不一定用 why：这里 reason 在从句中作 gave 的宾语，要用关系代词 that 或 which。比较：the reason why he was late（作原因状语）。" }
+      ]
+    }
+  ]
+}

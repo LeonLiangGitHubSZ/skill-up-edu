@@ -1,0 +1,46 @@
+{
+  "course": "13000",
+  "unit": 4,
+  "title": "分词与独立主格",
+  "lessons": [
+    {
+      "id": "13000-u04-l1",
+      "title": "现在分词、过去分词与独立主格",
+      "questions": [
+        { "id": "13000-u04-l1-q1", "type": "single", "level": "领会", "kp": "-ing 形容词与 -ed 形容词",
+          "stem": "The film was so ____ that we all wanted to see it again.",
+          "options": ["excited", "exciting", "excite", "excitement"], "answer": 1,
+          "explain": "-ing 形容词说明事物“令人……的”，-ed 形容词说明人“感到……的”。说电影“令人激动”，用 exciting。",
+          "verify": "本单元按“分词与独立主格”编写，教材各单元的语法项目未核实；请对照教材目录核对。" },
+        { "id": "13000-u04-l1-q2", "type": "single", "level": "领会", "kp": "-ing 形容词与 -ed 形容词",
+          "stem": "We were ____ to hear that our team had won the match.",
+          "options": ["delighting", "delight", "delighted", "delightful"], "answer": 2,
+          "explain": "人“感到高兴”用 delighted，be delighted to do sth.；delightful 意为“令人愉快的”，用来形容事物。" },
+        { "id": "13000-u04-l1-q3", "type": "single", "level": "领会", "kp": "现在分词作定语",
+          "stem": "The boy ____ under the tree is my cousin.",
+          "options": ["stood", "standing", "stands", "to stand"], "answer": 1,
+          "explain": "句子已有谓语 is，空格处只能用非谓语；男孩“正站着”，是主动、进行的意思，用现在分词 standing 作后置定语（= who is standing）。" },
+        { "id": "13000-u04-l1-q4", "type": "single", "level": "领会", "kp": "过去分词作定语",
+          "stem": "This is the best novel ____ by that writer.",
+          "options": ["writing", "wrote", "written", "to write"], "answer": 2,
+          "explain": "小说是“被写”的，用过去分词 written 作后置定语，表示被动、完成（= which was written）。" },
+        { "id": "13000-u04-l1-q5", "type": "single", "level": "应用", "kp": "过去分词作状语",
+          "stem": "____ from the top of the hill, the town looks like a big garden.",
+          "options": ["Seeing", "To see", "Seen", "Having seen"], "answer": 2,
+          "explain": "分词作状语时，它的逻辑主语就是句子的主语 the town；城镇是“被看”的，用过去分词 Seen。" },
+        { "id": "13000-u04-l1-q6", "type": "single", "level": "应用", "kp": "独立主格结构",
+          "stem": "The work ____, we went home happily.",
+          "options": ["done", "doing", "to do", "did"], "answer": 0,
+          "explain": "The work done 是独立主格结构（名词 + 分词），work 和 do 是被动关系，用过去分词 done，相当于 After the work was done。" },
+        { "id": "13000-u04-l1-q7", "type": "single", "level": "应用", "kp": "独立主格结构：there being",
+          "stem": "____ no bus, we had to walk home.",
+          "options": ["There was", "Being", "It being", "There being"], "answer": 3,
+          "explain": "There being no bus 是独立主格结构，表示原因（= As there was no bus）。“There was”会让两个句子之间只有逗号，缺少连词。" },
+        { "id": "13000-u04-l1-q8", "type": "fill", "level": "领会", "kp": "过去分词作宾语补足语",
+          "stem": "When I got there, I found the door ____ (lock).",
+          "answers": ["locked"],
+          "explain": "find + 宾语 + 宾语补足语；门是“被锁上”的，用过去分词 locked。" }
+      ]
+    }
+  ]
+}

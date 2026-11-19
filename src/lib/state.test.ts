@@ -100,4 +100,22 @@ describe("填空判分", () => {
     expect(checkFill("外码", ["主码", "主键"])).toBe(false);
     expect(checkFill("   ", ["主码"])).toBe(false);
   });
+
+  it("保留括号和小数点，公式不会误判", () => {
+    expect(checkFill("n+1/2", ["(n+1)/2"])).toBe(false);
+    expect(checkFill("(n+1)/2", ["(n+1)/2"])).toBe(true);
+    expect(checkFill("15", ["1.5"])).toBe(false);
+    expect(checkFill("1.5", ["1.5"])).toBe(true);
+    expect(checkFill("mysqluser", ["mysql.user"])).toBe(false);
+  });
+
+  it("分隔符和中文括号里的另一种叫法都宽容", () => {
+    expect(checkFill("原子性，一致性", ["原子性、一致性"])).toBe(true);
+    expect(checkFill("15 31", ["15,31"])).toBe(true);
+    expect(checkFill("第一范式", ["第一范式（1NF）"])).toBe(true);
+    expect(checkFill("1NF", ["第一范式（1NF）"])).toBe(true);
+    expect(checkFill("第二范式", ["第一范式（1NF）"])).toBe(false);
+    expect(checkFill("主键。", ["主键"])).toBe(true);
+    expect(checkFill("-1/2", ["−1/2"])).toBe(true);
+  });
 });

@@ -1,0 +1,273 @@
+{
+  "course": "04747",
+  "unit": 90,
+  "title": "专项：程序设计与综合应用",
+  "lessons": [
+    {
+      "id": "04747-u90-l1",
+      "title": "程序设计：类与对象、继承、接口",
+      "questions": [
+        {
+          "id": "04747-u90-l1-q1",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "类的声明",
+          "stem": "编写图书类 Book：有私有成员变量书名 title、作者 author 和价格 price；有带三个参数的构造方法；有读取和设置价格的方法 getPrice()、setPrice()（价格为负数时不修改）；有方法 info() 返回“书名，作者，价格”形式的字符串。",
+          "points": [
+            "用 private 声明三个成员变量，实现封装（2 分）",
+            "构造方法用“this.成员变量 = 参数”赋初值（2 分）",
+            "getPrice() 返回价格，setPrice() 先判断再赋值（2 分）",
+            "info() 用字符串连接返回图书信息（2 分）"
+          ],
+          "answer": "public class Book {\n  private String title, author;\n  private double price;\n  public Book(String title, String author, double price) {\n    this.title = title;\n    this.author = author;\n    this.price = price;\n  }\n  public double getPrice() {\n    return price;\n  }\n  public void setPrice(double price) {\n    if (price >= 0)\n      this.price = price;\n  }\n  public String info() {\n    return title + \"，\" + author + \"，\" + price;\n  }\n}",
+          "explain": "成员变量私有、通过公有方法访问，是封装的典型写法；setPrice() 中先检查参数，可以防止对象处于不合理的状态。"
+        },
+        {
+          "id": "04747-u90-l1-q2",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "抽象类",
+          "stem": "定义抽象类 Shape，其中有抽象方法 double area()；定义它的子类 Circle（圆，成员变量半径 r）和 Rect（矩形，成员变量宽 w、高 h），分别实现 area()。在 main 中用 Shape 型数组存放一个半径为 1 的圆和一个 2×3 的矩形，求出并输出它们的面积之和。",
+          "points": [
+            "定义抽象类 Shape，声明抽象方法 area()（2 分）",
+            "Circle、Rect 继承 Shape，用构造方法保存尺寸（2 分）",
+            "两个子类分别覆盖 area()，按公式计算面积（2 分）",
+            "main 中用 Shape 数组存放子类对象，循环调用 area() 求和并输出（2 分）"
+          ],
+          "answer": "abstract class Shape {\n  abstract double area();\n}\nclass Circle extends Shape {\n  double r;\n  Circle(double r) { this.r = r; }\n  double area() { return Math.PI * r * r; }\n}\nclass Rect extends Shape {\n  double w, h;\n  Rect(double w, double h) { this.w = w; this.h = h; }\n  double area() { return w * h; }\n}\npublic class ShapeTest {\n  public static void main(String[] args) {\n    Shape[] s = { new Circle(1), new Rect(2, 3) };\n    double total = 0;\n    for (int i = 0; i < s.length; i++)\n      total += s[i].area();\n    System.out.println(\"总面积：\" + total);\n  }\n}",
+          "explain": "s[i].area() 在运行时根据对象的实际类型调用 Circle 或 Rect 的 area()，这就是多态。运行结果为 π + 6，约等于 9.14。"
+        },
+        {
+          "id": "04747-u90-l1-q3",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "接口的实现",
+          "stem": "定义接口 Animal，其中有方法 String cry()；定义类 Dog 和 Cat 实现该接口，cry() 分别返回“汪汪”和“喵喵”。编写测试类，用一个以 Animal 为参数类型的静态方法 show() 输出不同动物的叫声。",
+          "points": [
+            "用 interface 定义接口 Animal，声明方法 cry()（2 分）",
+            "Dog、Cat 用 implements 实现接口（2 分）",
+            "实现的 cry() 方法必须声明为 public（2 分）",
+            "show(Animal a) 通过接口引用调用 cry()，main 中传入不同的对象（2 分）"
+          ],
+          "answer": "interface Animal {\n  String cry();\n}\nclass Dog implements Animal {\n  public String cry() { return \"汪汪\"; }\n}\nclass Cat implements Animal {\n  public String cry() { return \"喵喵\"; }\n}\npublic class AnimalTest {\n  static void show(Animal a) {\n    System.out.println(a.cry());\n  }\n  public static void main(String[] args) {\n    show(new Dog());\n    show(new Cat());\n  }\n}",
+          "explain": "接口中的方法默认是 public abstract，实现类中的方法如果不写 public，就缩小了访问权限，编译出错。运行结果为两行：汪汪、喵喵。"
+        },
+        {
+          "id": "04747-u90-l1-q4",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "super关键字的使用",
+          "stem": "定义类 Person：有成员变量 name 和 age，有带两个参数的构造方法和输出姓名、年龄的方法 show()。定义 Person 的子类 Student：增加成员变量 school，构造方法用 super 调用父类的构造方法；覆盖 show()，先调用父类的 show()，再输出学校。在 main 中创建一个 Student 对象并调用 show()。",
+          "points": [
+            "Person 类的成员变量、构造方法和 show() 方法（2 分）",
+            "Student 用 extends 继承 Person，增加成员变量 school（1 分）",
+            "子类构造方法的第一条语句用 super(name, age) 调用父类构造方法（2 分）",
+            "覆盖 show()，用 super.show() 调用父类方法后再输出学校（2 分）",
+            "main 中创建 Student 对象并调用 show()（1 分）"
+          ],
+          "answer": "class Person {\n  String name;\n  int age;\n  Person(String name, int age) {\n    this.name = name;\n    this.age = age;\n  }\n  void show() {\n    System.out.println(\"姓名：\" + name + \"，年龄：\" + age);\n  }\n}\npublic class Student extends Person {\n  String school;\n  Student(String name, int age, String school) {\n    super(name, age);\n    this.school = school;\n  }\n  void show() {\n    super.show();\n    System.out.println(\"学校：\" + school);\n  }\n  public static void main(String[] args) {\n    new Student(\"张三\", 20, \"南航\").show();\n  }\n}",
+          "explain": "Person 没有无参构造方法，所以 Student 的构造方法必须显式调用 super(name, age)，否则编译出错。运行结果为“姓名：张三，年龄：20”和“学校：南航”两行。"
+        },
+        {
+          "id": "04747-u90-l1-q5",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "static修饰符",
+          "stem": "编写银行账户类 Account：私有成员变量余额 balance；静态变量 count 统计已创建的账户个数；构造方法设置初始余额并使 count 加 1；方法 deposit(double m) 存款；方法 withdraw(double m) 取款，余额不足时输出“余额不足”且不扣款；方法 getBalance() 返回余额。",
+          "points": [
+            "balance 用 private 修饰，count 用 static 修饰（2 分）",
+            "构造方法给余额赋初值，并使 count 加 1（2 分）",
+            "deposit() 增加余额（1 分）",
+            "withdraw() 判断余额是否足够，不足时输出提示（2 分）",
+            "getBalance() 返回余额（1 分）"
+          ],
+          "answer": "public class Account {\n  private double balance;\n  static int count = 0;\n  public Account(double balance) {\n    this.balance = balance;\n    count++;\n  }\n  public void deposit(double m) {\n    balance += m;\n  }\n  public void withdraw(double m) {\n    if (m > balance)\n      System.out.println(\"余额不足\");\n    else\n      balance -= m;\n  }\n  public double getBalance() {\n    return balance;\n  }\n}",
+          "explain": "count 是类变量，所有 Account 对象共用一份，可以用 Account.count 访问；balance 是实例变量，每个账户各有一份。"
+        }
+      ]
+    },
+    {
+      "id": "04747-u90-l2",
+      "title": "程序设计：循环、数组、字符串与异常",
+      "questions": [
+        {
+          "id": "04747-u90-l2-q1",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "循环的嵌套",
+          "stem": "编写程序，输出 100～200 之间的所有素数，并统计素数的个数。",
+          "points": [
+            "外层循环遍历 100～200 之间的数（偶数不是素数，可以只看奇数）（2 分）",
+            "内层循环用 2～√n 之间的数去除 n（2 分）",
+            "能整除时标记为非素数，并用 break 结束内层循环（2 分）",
+            "输出素数并计数，最后输出个数（2 分）"
+          ],
+          "answer": "public class Prime {\n  public static void main(String[] args) {\n    int count = 0;\n    for (int n = 101; n < 200; n += 2) {\n      boolean isPrime = true;\n      for (int i = 2; i * i <= n; i++) {\n        if (n % i == 0) {\n          isPrime = false;\n          break;\n        }\n      }\n      if (isPrime) {\n        System.out.print(n + \" \");\n        count++;\n      }\n    }\n    System.out.println();\n    System.out.println(\"共 \" + count + \" 个\");\n  }\n}",
+          "explain": "判断 n 是否为素数，只需检查 2 到 √n 之间有没有它的因数，循环条件写成 i * i <= n 可以不调用 Math.sqrt()。100～200 之间共有 21 个素数。"
+        },
+        {
+          "id": "04747-u90-l2-q2",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "多维数组的使用",
+          "stem": "编写程序：用初值表定义一个 3 行 4 列的 int 型二维数组，求出并输出每一行元素之和，以及全部元素中的最大值。",
+          "points": [
+            "用初值表定义 3 行 4 列的二维数组（1 分）",
+            "外层循环遍历各行，每行开始时把 sum 清 0（2 分）",
+            "内层循环用 a[i].length 遍历该行，累加元素（2 分）",
+            "在遍历过程中比较并更新最大值（2 分）",
+            "输出每行之和与最大值（1 分）"
+          ],
+          "answer": "public class Matrix {\n  public static void main(String[] args) {\n    int[][] a = {{3, 8, 1, 6}, {7, 2, 9, 4}, {5, 10, 0, 11}};\n    int max = a[0][0];\n    for (int i = 0; i < a.length; i++) {\n      int sum = 0;\n      for (int j = 0; j < a[i].length; j++) {\n        sum += a[i][j];\n        if (a[i][j] > max)\n          max = a[i][j];\n      }\n      System.out.println(\"第 \" + (i + 1) + \" 行之和：\" + sum);\n    }\n    System.out.println(\"最大值：\" + max);\n  }\n}",
+          "explain": "a.length 是行数，a[i].length 是第 i 行的元素个数。本例中各行之和依次为 18、22、26，最大值为 11。输出行号时 (i + 1) 要加括号，否则会变成字符串连接。"
+        },
+        {
+          "id": "04747-u90-l2-q3",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "String类",
+          "stem": "编写方法 static boolean isPalindrome(String s)，判断字符串 s 是否为回文（正读和反读都一样，如 \"level\"），并在 main 中分别用 \"level\" 和 \"java\" 测试。",
+          "points": [
+            "用 new StringBuffer(s) 创建可变字符串（2 分）",
+            "调用 reverse() 反转，再用 toString() 转换为 String（2 分）",
+            "用 equals() 比较原字符串与反转后的字符串，返回比较结果（3 分）",
+            "main 中调用方法并输出结果（1 分）"
+          ],
+          "answer": "public class Palindrome {\n  static boolean isPalindrome(String s) {\n    String r = new StringBuffer(s).reverse().toString();\n    return s.equals(r);\n  }\n  public static void main(String[] args) {\n    System.out.println(isPalindrome(\"level\"));\n    System.out.println(isPalindrome(\"java\"));\n  }\n}",
+          "explain": "也可以不用 StringBuffer，而用循环比较 s.charAt(i) 与 s.charAt(s.length() - 1 - i)。比较字符串内容要用 equals()，不能用 ==。运行结果为 true 和 false。"
+        },
+        {
+          "id": "04747-u90-l2-q4",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "常见异常的处理",
+          "stem": "编写程序：求命令行参数中各个整数的平均值并输出；如果某个参数不是整数，就捕获 NumberFormatException，输出“参数格式错误”；没有任何参数时输出“请输入参数”。",
+          "points": [
+            "用 args.length 判断有没有参数（1 分）",
+            "循环用 Integer.parseInt() 把每个参数转换为整数并累加（3 分）",
+            "求平均值时先转换为 double，避免整数除法（1 分）",
+            "用 try-catch 捕获 NumberFormatException 并输出提示（3 分）"
+          ],
+          "answer": "public class Average {\n  public static void main(String[] args) {\n    if (args.length == 0) {\n      System.out.println(\"请输入参数\");\n      return;\n    }\n    try {\n      int sum = 0;\n      for (int i = 0; i < args.length; i++)\n        sum += Integer.parseInt(args[i]);\n      System.out.println(\"平均值：\" + (double) sum / args.length);\n    } catch (NumberFormatException e) {\n      System.out.println(\"参数格式错误\");\n    }\n  }\n}",
+          "explain": "命令行参数都是字符串，要用 Integer.parseInt() 转换为整数；(double) sum / args.length 中强制转换只作用于 sum，与 int 型的长度相除时，长度自动提升为 double。"
+        },
+        {
+          "id": "04747-u90-l2-q5",
+          "type": "short",
+          "form": "程序设计",
+          "level": "应用",
+          "kp": "一维数组的使用",
+          "stem": "编写程序，用数组求出斐波那契数列（1, 1, 2, 3, 5, 8, …）的前 20 项，按每行 5 个数输出。",
+          "points": [
+            "创建长度为 20 的 int 型数组，前两项赋值为 1（2 分）",
+            "从第 3 项起用 f[i] = f[i - 1] + f[i - 2] 递推（3 分）",
+            "循环输出各项，用 (i + 1) % 5 == 0 控制每 5 个数换行（3 分）"
+          ],
+          "answer": "public class Fibonacci {\n  public static void main(String[] args) {\n    int[] f = new int[20];\n    f[0] = 1;\n    f[1] = 1;\n    for (int i = 2; i < f.length; i++)\n      f[i] = f[i - 1] + f[i - 2];\n    for (int i = 0; i < f.length; i++) {\n      System.out.print(f[i] + \"\\t\");\n      if ((i + 1) % 5 == 0)\n        System.out.println();\n    }\n  }\n}",
+          "explain": "第 20 项是 6765，用 int 型足够存放。每输出一个数后判断已经输出的个数是不是 5 的倍数，是就换行。"
+        }
+      ]
+    },
+    {
+      "id": "04747-u90-l3",
+      "title": "程序改错专项",
+      "questions": [
+        {
+          "id": "04747-u90-l3-q1",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "一维数组的使用",
+          "stem": "程序改错：下面给数组赋值并求和的程序有 3 处错误，请指出错误所在的行号并改正。",
+          "code": "1  public class Sum {\n2    public static void main(String[] args) {\n3      int a[] = new int(5);\n4      int sum;\n5      for (int i = 0; i <= a.length; i++)\n6        a[i] = i * 2;\n7      for (int i = 0; i < a.length; i++)\n8        sum += a[i];\n9      System.out.println(sum);\n10   }\n11 }",
+          "points": [
+            "第 3 行：创建数组要用方括号，改为 int a[] = new int[5];（2 分）",
+            "第 4 行：局部变量使用前必须赋初值，改为 int sum = 0;（2 分）",
+            "第 5 行：下标最大为 a.length - 1，改为 i < a.length（2 分）"
+          ],
+          "explain": "第 3、4 行是编译错误；第 5 行能通过编译，但运行到 a[5] 时会抛出 ArrayIndexOutOfBoundsException。改正后数组元素为 0、2、4、6、8，输出 20。"
+        },
+        {
+          "id": "04747-u90-l3-q2",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "构造方法",
+          "stem": "程序改错：下面使用 Circle 类的程序有 2 处错误，请指出错误所在的行号并改正。",
+          "code": "1  class Circle {\n2    private double r;\n3    public void Circle(double r) {\n4      this.r = r;\n5    }\n6    double getR() { return r; }\n7    double area() { return 3.14 * r * r; }\n8  }\n9  public class Test {\n10   public static void main(String[] args) {\n11     Circle c = new Circle(2);\n12     System.out.println(c.r + \" \" + c.area());\n13   }\n14 }",
+          "points": [
+            "第 3 行：构造方法不能有返回类型，去掉 void，改为 public Circle(double r) {（3 分）",
+            "第 12 行：r 是 Circle 的私有成员，其他类不能直接访问，把 c.r 改为 c.getR()（3 分）"
+          ],
+          "explain": "写了 void 后，Circle(double r) 就成了一个普通方法，类中只有默认的无参构造方法，所以编译器在第 11 行 new Circle(2) 处报错，根源在第 3 行。改正后输出 2.0 12.56。"
+        },
+        {
+          "id": "04747-u90-l3-q3",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "接口的实现",
+          "stem": "程序改错：下面使用接口和抽象类的程序有 2 处错误，请指出错误所在的行号并改正。",
+          "code": "1  interface Flyable {\n2    void fly();\n3  }\n4  abstract class Bird implements Flyable {\n5    abstract void eat();\n6  }\n7  class Sparrow extends Bird {\n8    void fly() { System.out.println(\"飞\"); }\n9    void eat() { System.out.println(\"吃\"); }\n10 }\n11 public class Test {\n12   public static void main(String[] args) {\n13     Bird b = new Bird();\n14     b.fly();\n15   }\n16 }",
+          "points": [
+            "第 8 行：实现接口的方法必须是 public，改为 public void fly() { … }（3 分）",
+            "第 13 行：抽象类不能创建对象，改为 Bird b = new Sparrow();（3 分）"
+          ],
+          "explain": "接口中的方法默认是 public abstract，实现时不能缩小访问权限；抽象类可以声明引用变量，但只能让它指向非抽象子类的对象。改正后输出“飞”。"
+        },
+        {
+          "id": "04747-u90-l3-q4",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "String类",
+          "stem": "程序改错：下面处理字符串的程序有 3 处错误，请指出错误所在的行号并改正。",
+          "code": "1  public class StrTest {\n2    public static void main(String[] args) {\n3      String s = \"Hello\";\n4      char c = \"H\";\n5      if (s.charAt(0) == c)\n6        System.out.println(\"首字母是 H\");\n7      String t = s.toUpperCase;\n8      System.out.println(t + s.length);\n9    }\n10 }",
+          "points": [
+            "第 4 行：字符常量要用单引号，改为 char c = 'H';（2 分）",
+            "第 7 行：调用方法要加圆括号，改为 String t = s.toUpperCase();（2 分）",
+            "第 8 行：字符串的长度用 length() 方法，改为 s.length()（2 分）"
+          ],
+          "explain": "注意区分：数组的长度是属性 a.length，字符串的长度是方法 s.length()。改正后输出“首字母是 H”和“HELLO5”两行。"
+        },
+        {
+          "id": "04747-u90-l3-q5",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "子类的创建",
+          "stem": "程序改错：下面定义父类和子类的程序有 2 处错误，请指出错误所在的行号并改正。",
+          "code": "1  final class Base {\n2    int x;\n3    Base(int x) { this.x = x; }\n4  }\n5  class Sub extends Base {\n6    int y;\n7    Sub(int x, int y) {\n8      this.y = y;\n9      super(x);\n10   }\n11 }",
+          "points": [
+            "第 1 行：final 类不能被继承，去掉 final，改为 class Base {（3 分）",
+            "第 9 行：super(x) 必须是构造方法的第一条语句，应移到 this.y = y; 之前（3 分）"
+          ],
+          "explain": "调用父类构造方法的 super(…) 只能写在子类构造方法的第一行；如果不写，编译器会自动加上 super()，而 Base 没有无参构造方法，同样会出错。"
+        },
+        {
+          "id": "04747-u90-l3-q6",
+          "type": "short",
+          "form": "程序改错",
+          "level": "应用",
+          "kp": "事件处理",
+          "stem": "程序改错：下面单击按钮改变按钮文字的程序有 2 处错误，请指出错误的位置并改正。",
+          "code": "1  import java.awt.*;\n2  import javax.swing.*;\n3  public class BtnTest extends JFrame implements ActionListener {\n4    JButton b = new JButton(\"确定\");\n5    BtnTest() {\n6      add(b);\n7      b.addActionListener(this);\n8      setSize(200, 100);\n9      setVisible(true);\n10   }\n11   public void actionPerform(ActionEvent e) {\n12     b.setText(\"已单击\");\n13   }\n14   public static void main(String[] args) {\n15     new BtnTest();\n16   }\n17 }",
+          "points": [
+            "缺少导入语句：ActionListener、ActionEvent 在 java.awt.event 包中，import java.awt.*; 不会导入子包，应在第 2 行后加 import java.awt.event.*;（3 分）",
+            "第 11 行：方法名写错，应改为 public void actionPerformed(ActionEvent e) {（3 分）"
+          ],
+          "explain": "实现接口必须实现其中的全部方法，方法名写错就等于没有实现 actionPerformed，而类又没有声明为 abstract，所以编译出错。改正后单击按钮，按钮上的文字变为“已单击”。"
+        }
+      ]
+    }
+  ]
+}

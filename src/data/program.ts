@@ -109,8 +109,16 @@ export const SESSIONS: ExamSession[] = [
     id: "2027-04",
     label: "2027 年 4 月",
     status: "projected",
+    // 日期按往年（4 月第二个周末）推算，官方公布后更新
+    days: ["2027-04-10", "2027-04-11"],
+    registration: {
+      start: "2027-03-01",
+      end: "2027-03-05",
+      estimated: true,
+      note: "按往年推算，官方报名通告一般在 2 月下旬发布。",
+    },
     slots: { ...NATIONAL_SLOTS, "04747": "sun-am", "02333": "sun-pm" },
-    note: "按 2025、2026 年 4 月日程推测（两年完全相同），日程预计 11 月下旬公布，报名往年在 3 月初。",
+    note: "按 2025、2026 年 4 月日程推测（两年完全相同），考试日期也是按往年推算的，日程预计 11 月下旬公布。",
   },
   {
     id: "2027-07",
@@ -131,11 +139,26 @@ export const SESSIONS: ExamSession[] = [
 /** 周六下午的 4 门必考课只在 4 月、10 月开考，一个考期只能考一门：决定最早毕业时间 */
 export const CRITICAL_SLOT_COURSES = ["00023", "13003", "13013", "15040"];
 
-/** 本版有题库、正在备考的课程，以及对应考期 */
-export const STUDY_PLAN: { code: string; session: string }[] = [
-  { code: "04751", session: "2027-01" },
-  { code: "04735", session: "2027-01" },
-  { code: "00898", session: "2027-01" },
+/**
+ * 有题库（或正在写题库）的课程，以及最早能考的考期。
+ * startStudying = 新用户默认标成“备考”；其余课程要在路线页手动标成“备考”才计入每天的目标。
+ */
+export const STUDY_PLAN: { code: string; session: string; startStudying?: boolean }[] = [
+  { code: "04751", session: "2027-01", startStudying: true },
+  { code: "04735", session: "2027-01", startStudying: true },
+  { code: "00898", session: "2027-01", startStudying: true },
+  { code: "13013", session: "2027-04" },
+  { code: "15040", session: "2027-04" },
+  { code: "15044", session: "2027-04" },
+  { code: "15043", session: "2027-04" },
+  { code: "13015", session: "2027-04" },
+  { code: "13180", session: "2027-04" },
+  { code: "02324", session: "2027-04" },
+  { code: "13003", session: "2027-04" },
+  { code: "13000", session: "2027-04" },
+  { code: "00023", session: "2027-04" },
+  { code: "04747", session: "2027-04" },
+  { code: "02333", session: "2027-04" },
 ];
 
 export const sessionById = (id: string) => SESSIONS.find((s) => s.id === id);

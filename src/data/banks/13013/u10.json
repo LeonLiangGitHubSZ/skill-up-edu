@@ -1,0 +1,50 @@
+{
+  "course": "13013",
+  "unit": 10,
+  "title": "文件",
+  "lessons": [
+    {
+      "id": "13013-u10-l1",
+      "title": "文件的打开与关闭、读写与定位",
+      "questions": [
+        { "id": "13013-u10-l1-q1", "type": "single", "level": "识记", "kp": "文件的分类",
+          "stem": "按数据的存储（编码）形式，C语言把文件分为？",
+          "options": ["程序文件和数据文件", "文本文件（ASCII 文件）和二进制文件", "输入文件和输出文件", "顺序文件和随机文件"], "answer": 1,
+          "explain": "文本文件中每个字节存放一个字符的 ASCII 码，便于阅读；二进制文件按数据在内存中的存储形式原样存放，节省空间、读写快。例如整数 10000 在文本文件中占 5 个字节，在二进制文件中按 int 型占 4 个字节。" },
+        { "id": "13013-u10-l1-q2", "type": "fill", "level": "识记", "kp": "文件类型指针",
+          "stem": "对文件进行操作前，要先定义一个文件类型指针，例如 ____ *fp;（填类型名）。",
+          "answers": ["FILE"],
+          "explain": "FILE 是在 stdio.h 中定义的结构体类型名（必须大写），fp 指向存放文件有关信息的结构体变量，以后对文件的操作都通过 fp 进行。" },
+        { "id": "13013-u10-l1-q3", "type": "single", "level": "领会", "kp": "文件的打开方式",
+          "stem": "用 fopen 以 \"w\" 方式打开一个已经存在的文件，结果是？",
+          "options": ["在原有内容的末尾追加数据", "打开失败，返回 NULL", "原有内容被清除，从头开始写入", "只能读出原有的内容"], "answer": 2,
+          "explain": "\"w\" 方式：文件不存在就新建，已存在则先清空原有内容；\"a\" 方式在文件末尾追加数据；\"r\" 方式只读，要求文件必须已经存在。" },
+        { "id": "13013-u10-l1-q4", "type": "single", "level": "领会", "kp": "文件的打开方式",
+          "stem": "要打开一个已经存在的文本文件，既能读出原有数据，又能修改它（不清除原内容），fopen 的打开方式应为？",
+          "options": ["\"w+\"", "\"a\"", "\"r\"", "\"r+\""], "answer": 3,
+          "explain": "\"r+\" 以读写方式打开已存在的文件；\"w+\" 也可读写，但会先清空原有内容；\"a\" 只能在末尾追加；\"r\" 只能读。二进制文件对应的方式加 b，如 \"rb+\"。" },
+        { "id": "13013-u10-l1-q5", "type": "fill", "level": "领会", "kp": "文件的打开与关闭",
+          "stem": "fopen 函数打开文件失败（如以 \"r\" 方式打开不存在的文件）时，返回值是____。",
+          "answers": ["NULL", "空指针"],
+          "explain": "因此常写成 if ((fp = fopen(\"a.txt\", \"r\")) == NULL) { printf(\"cannot open file\\n\"); exit(0); }。文件用完要用 fclose(fp) 关闭，把缓冲区中的数据写入文件。" },
+        { "id": "13013-u10-l1-q6", "type": "single", "level": "领会", "kp": "文件的读写",
+          "stem": "函数调用 fgets(str, n, fp) 的作用是？",
+          "options": ["从 fp 所指文件中最多读入 n-1 个字符存入 str，并在末尾加 '\\0'", "从 fp 所指文件中读入 n 个字符串", "把字符串 str 写入 fp 所指的文件", "从键盘读入 n 个字符后写入文件"], "answer": 0,
+          "explain": "fgets 读到换行符、文件结束或已读满 n-1 个字符时停止，并自动加 '\\0'；fputs(str, fp) 把字符串写入文件。逐个字符读写用 fgetc / fputc，格式化读写用 fscanf / fprintf，按数据块读写用 fread / fwrite。" },
+        { "id": "13013-u10-l1-q7", "type": "single", "level": "识记", "kp": "文件的定位",
+          "stem": "使文件的位置指针重新回到文件开头的函数是？",
+          "options": ["ftell", "rewind", "fseek(fp, 0L, SEEK_END)", "feof"], "answer": 1,
+          "explain": "rewind(fp) 使位置指针回到文件开头，相当于 fseek(fp, 0L, SEEK_SET)；ftell 返回位置指针的当前位置；feof 判断是否到了文件末尾；fseek(fp, 0L, SEEK_END) 把位置指针移到文件末尾。" },
+        { "id": "13013-u10-l1-q8", "type": "fill", "level": "识记", "kp": "文件的定位",
+          "stem": "fseek 函数的第三个参数（起始点）可取 SEEK_SET、SEEK_CUR、SEEK_END，其中代表文件末尾的是____。",
+          "answers": ["SEEK_END", "2"],
+          "explain": "SEEK_SET（0）表示文件开头，SEEK_CUR（1）表示当前位置，SEEK_END（2）表示文件末尾；第二个参数是位移量（long 型，正数向后、负数向前），如 fseek(fp, -10L, SEEK_END)。" },
+        { "id": "13013-u10-l1-q9", "type": "single", "level": "应用", "kp": "文件的读写",
+          "stem": "下面程序先把 5 个平方数写入文件 data.txt，再读出来求和，横线处应填入的打开方式是？",
+          "code": "#include <stdio.h>\nint main(void)\n{\n  FILE *fp;\n  int i, x, s = 0;\n  fp = fopen(\"data.txt\", \"w\");\n  for (i = 1; i <= 5; i++)\n    fprintf(fp, \"%d \", i * i);\n  fclose(fp);\n  fp = fopen(\"data.txt\", ______);\n  while (fscanf(fp, \"%d\", &x) == 1)\n    s += x;\n  fclose(fp);\n  printf(\"%d\\n\", s);\n  return 0;\n}",
+          "options": ["\"w\"", "\"a\"", "\"r\"", "\"wb\""], "answer": 2,
+          "explain": "第二次打开是为了读出数据，应使用 \"r\" 方式，读出 1、4、9、16、25，和为 55；若用 \"w\" 或 \"wb\"，文件会被清空；\"a\" 方式只能写，不能读。" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "course": "13000",
+  "unit": 9,
+  "title": "比较结构、倒装与强调",
+  "lessons": [
+    {
+      "id": "13000-u09-l1",
+      "title": "比较结构、倒装句与强调句",
+      "questions": [
+        { "id": "13000-u09-l1-q1", "type": "single", "level": "识记", "kp": "修饰比较级的副词",
+          "stem": "This room is ____ larger than that one.",
+          "options": ["very", "more", "most", "much"], "answer": 3,
+          "explain": "修饰比较级可以用 much、far、a little、even 等；very 只能修饰原级，不能修饰比较级。",
+          "verify": "本单元按“比较结构、倒装与强调”编写，教材各单元的语法项目未核实；请对照教材目录核对。" },
+        { "id": "13000-u09-l1-q2", "type": "single", "level": "领会", "kp": "the + 比较级，the + 比较级",
+          "stem": "The more you practice, ____ you will become.",
+          "options": ["more fluent", "the most fluent", "the more fluent", "the fluent"], "answer": 2,
+          "explain": "“the + 比较级…，the + 比较级…”表示“越……就越……”，两部分都要有 the 和比较级。" },
+        { "id": "13000-u09-l1-q3", "type": "single", "level": "应用", "kp": "比较的对象一致：that of",
+          "stem": "The population of Shanghai is larger than ____ of Nanjing.",
+          "options": ["it", "that", "one", "those"], "answer": 1,
+          "explain": "比较的是两地的人口，不是人口和南京；用 that 代替前面提到的不可数名词 population，复数名词才用 those。" },
+        { "id": "13000-u09-l1-q4", "type": "single", "level": "领会", "kp": "否定词置于句首的倒装",
+          "stem": "Never ____ such a beautiful sunrise before.",
+          "options": ["have I seen", "I have seen", "I saw", "did I saw"], "answer": 0,
+          "explain": "never、seldom、hardly 等否定词放在句首时，句子要部分倒装（助动词提到主语前）；before 说明用现在完成时。" },
+        { "id": "13000-u09-l1-q5", "type": "single", "level": "应用", "kp": "强调句 It is / was…that…",
+          "stem": "It was in 2010 ____ he moved to Beijing.",
+          "options": ["when", "which", "that", "where"], "answer": 2,
+          "explain": "这是强调句，强调时间状语 in 2010，用 It was…that…。检验方法：去掉 It was 和 that，剩下的 He moved to Beijing in 2010 仍是完整的句子。" },
+        { "id": "13000-u09-l1-q6", "type": "single", "level": "领会", "kp": "So + 助动词 + 主语",
+          "stem": "— I like playing basketball.\n— ____. Let's play together this afternoon.",
+          "options": ["So I do", "So do I", "Neither do I", "So am I"], "answer": 1,
+          "explain": "So + 助动词 + 主语表示“……也是这样”，助动词与前句一致（like → do）。So I do 是“我确实如此”，用来肯定自己说过的话。" },
+        { "id": "13000-u09-l1-q7", "type": "fill", "level": "识记", "kp": "形容词最高级",
+          "stem": "This is the ____ (good) film I have ever seen.",
+          "answers": ["best"],
+          "explain": "the + 最高级 + 名词 + I have ever seen 是常见的最高级句型；good 的比较级、最高级不规则：better、best。" },
+        { "id": "13000-u09-l1-q8", "type": "fill", "level": "应用", "kp": "so + 副词置于句首的倒装",
+          "stem": "So hard ____ he work that he passed the exam easily.",
+          "answers": ["did"],
+          "explain": "so + 形容词 / 副词放在句首时要部分倒装：原句 He worked so hard that…，倒装后加助动词 did，worked 还原为 work。" }
+      ]
+    }
+  ]
+}

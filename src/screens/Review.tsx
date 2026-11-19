@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { TopBar } from "../components/TopBar";
 import { findQuestion, getBank } from "../data/banks";
-import { courseByCode, STUDY_PLAN } from "../data/program";
+import { courseByCode } from "../data/program";
 import type { Question } from "../data/types";
 import { PAPERS, paperAvailability } from "../lib/mock";
+import { bankCourses, studyingCourses } from "../lib/plan";
 import { dueQuestions, HEART_MAX, nextHeartAt, wrongQuestions } from "../lib/state";
 import { useStore } from "../store";
 
 const SESSION_SIZE = 15;
-const LETTERS = "ABCD";
+const LETTERS = "ABCDE";
 
 const toQuestions = (ids: string[]) => ids.map(findQuestion).filter((q): q is Question => !!q);
 
@@ -20,6 +21,9 @@ export function Review({ onStart, onMock }: { onStart: (title: string, questions
   const wrong = wrongQuestions(state);
   const flagged = Object.keys(state.flags);
   const heartAt = nextHeartAt(state);
+  const studying = studyingCourses(state);
+  const courses = bankCourses();
+  const pillCourses = courses.filter((c) => studying.includes(c) || due.some((id) => id.startsWith(c + "-")));
 
   const copyFlags = async () => {
     const text = flagged
@@ -54,7 +58,7 @@ export function Review({ onStart, onMock }: { onStart: (title: string, questions
             </button>
           </div>
           <div className="by-course">
-            {STUDY_PLAN.map(({ code }) => {
+            {pillCourses.map((code) => {
               const n = due.filter((id) => id.startsWith(code + "-")).length;
               return (
                 <button
@@ -79,7 +83,7 @@ export function Review({ onStart, onMock }: { onStart: (title: string, questions
         )}
 
         <h2 className="section-title">模拟考试 <span className="muted small">按真实题型组卷，整套做完再看答案</span></h2>
-        {STUDY_PLAN.map(({ code }) => {
+        {studying.map((code) => {
           const spec = PAPERS[code];
           if (!spec || !getBank(code)) return null;
           const last = state.mocks.filter((m) => m.course === code).at(-1);
@@ -109,7 +113,7 @@ export function Review({ onStart, onMock }: { onStart: (title: string, questions
           )}
         </h2>
         {wrong.length === 0 && <div className="muted small">还没有错题。</div>}
-        {STUDY_PLAN.map(({ code }) => {
+        {courses.map((code) => {
           const ids = wrong.filter((id) => id.startsWith(code + "-"));
           if (!ids.length) return null;
           const bank = getBank(code);
@@ -122,7 +126,7 @@ export function Review({ onStart, onMock }: { onStart: (title: string, questions
                 return (
                   <button key={id} className="list-item" onClick={() => setDetail(q)}>
                     <span className="ellipsis">{q.stem}</span>
-                    <span className="muted small nowrap">第{bank?.unitOf.get(id)?.unit}章 · 错 {state.cards[id].wrongCount} 次</span>
+                    <span className="muted small nowrap">{((u) => (u ? (u.unit === 0 || u.unit >= 90 ? u.title : `第${u.chapter ?? u.unit}章`) : ""))(bank?.unitOf.get(id))} · 错 {state.cards[id].wrongCount} 次</span>
                   </button>
                 );
               })}
@@ -164,12 +168,20 @@ export function Review({ onStart, onMock }: { onStart: (title: string, questions
 function QuestionDetail({ q }: { q: Question }) {
   return (
     <div className="detail">
+      {q.passage && <div className="passage">{q.passage}</div>}
       <div className="qtext small-q">{q.stem}</div>
       {q.code && <pre className="code">{q.code}</pre>}
       {q.type === "single" && (
         <ol className="opts-list">
           {q.options.map((o, i) => (
             <li key={i} className={i === q.answer ? "right-text" : ""}>{LETTERS[i]}. {o}</li>
+          ))}
+        </ol>
+      )}
+      {q.type === "multi" && (
+        <ol className="opts-list">
+          {q.options.map((o, i) => (
+            <li key={i} className={q.answer.includes(i) ? "right-text" : ""}>{LETTERS[i]}. {o}</li>
           ))}
         </ol>
       )}
